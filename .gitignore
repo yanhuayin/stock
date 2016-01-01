@@ -1,0 +1,11 @@
+*.sdf
+*.vcxproj.user
+
+
+[Dd]ebug/
+[Bb]in/
+ipch/
+.vs/
+
+
+code/BCGCBPro

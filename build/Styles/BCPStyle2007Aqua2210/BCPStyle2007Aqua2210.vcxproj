@@ -1,0 +1,307 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E10D8ADD-93E1-4362-AC0E-18334FAA43DF}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>BCPStyle2007Aqua2210</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>BCGPStyle2007Aqua2210</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)\..\bin\</OutDir>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)\..\bin\</OutDir>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;BCPSTYLE2007AQUA2210_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+    </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;_BCGP_STYLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;BCPSTYLE2007AQUA2210_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;BCPSTYLE2007AQUA2210_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>No</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+    </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;_BCGP_STYLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;BCPSTYLE2007AQUA2210_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\code\BCGCBPro\Styles\BCGPStyle2007Aqua.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\code\BCGCBPro\Styles\BCGPStyle2007Aqua.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\AppCaption\SysBtn_Back.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\AppCaption\SysBtn_Close.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\AppCaption\SysBtn_Close_S.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\AppCaption\SysBtn_Help.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\AppCaption\SysBtn_Help_S.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\AppCaption\SysBtn_Maximize.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\AppCaption\SysBtn_Maximize_S.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\AppCaption\SysBtn_Minimize.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\AppCaption\SysBtn_Minimize_S.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\AppCaption\SysBtn_Restore.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\AppCaption\SysBtn_Restore_S.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Calculator\Btn.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\MainWnd\Border.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\MainWnd\BorderCaption.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\MainWnd\BorderMDIChild.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\MenuBar\Btn.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\Border.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\Gripper.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\Item_Back.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\Item_Marker_C.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\Item_Marker_R.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\Item_Pin.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\MenuHighlight.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\MenuHighlightDisabled.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\MenuScrollBtn.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\ResizeBar.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\ResizeBar_HV.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\ResizeBar_HVT.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\ResizeBar_V.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\PopupBar\Tear.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Border_Floaty.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Check.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Default.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Default_Image.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Default_QAT.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Default_QAT_Icon.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Group.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\GroupMenu_F_C.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\GroupMenu_F_M.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\GroupMenu_L_C.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\GroupMenu_L_M.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\GroupMenu_M_C.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\GroupMenu_M_M.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Group_F.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Group_L.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Group_M.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Group_S.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Launch_Icon.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Main.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Main_Panel.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Menu_H_C.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Menu_H_M.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Menu_V_C.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Menu_V_M.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Normal_B.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Normal_S.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Page_L.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Page_R.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Palette_B.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Palette_M.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Palette_T.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Push.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\Radio.PNG" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Buttons\StatusPane.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Caption_QA.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Caption_QA_Glass.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Back.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Blue\Back.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Blue\Caption.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Blue\Default.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Blue\Tab.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Green\Back.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Green\Caption.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Green\Default.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Green\Tab.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Indigo\Back.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Indigo\Caption.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Indigo\Default.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Indigo\Tab.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Orange\Back.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Orange\Caption.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Orange\Default.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Orange\Tab.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Panel_Back_B.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Panel_Back_T.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Red\Back.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Red\Caption.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Red\Default.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Red\Tab.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Separator.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Violet\Back.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Violet\Caption.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Violet\Default.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Violet\Tab.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Yellow\Back.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Yellow\Caption.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Yellow\Default.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Context\Yellow\Tab.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Category_Tab.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\KeyTip.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Panel_Back_B.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Panel_Back_T.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Ribbon\Separator.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Scroll\Horz\Back_1.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Scroll\Horz\Back_2.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Scroll\Horz\Item_1.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Scroll\Horz\Item_2.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Scroll\Horz\Thumb.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Scroll\Horz\ThumbIcon.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Scroll\Vert\Back_1.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Scroll\Vert\Back_2.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Scroll\Vert\Item_1.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Scroll\Vert\Item_2.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Scroll\Vert\Thumb.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Scroll\Vert\ThumbIcon.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Slider\Thumb_B.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Slider\Thumb_H.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Slider\Thumb_L.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Slider\Thumb_R.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Slider\Thumb_T.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Slider\Thumb_V.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\StatusBar\Back.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\StatusBar\Back_Ext.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\StatusBar\PaneBorder.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\StatusBar\SizeGrip.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Tab\3D.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Tab\Flat.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\TaskPane\ScrollBtn.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\ToolBar\Border.png" />
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\ToolBar\Btn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\..\..\code\BCGCBPro\Styles\Office 2007 (aqua)\Style.xml" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,310 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Resource Files\ComboBox">
+      <UniqueIdentifier>{9c00aef8-409c-4d2d-b34a-ba7065dda123}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\PopupBar">
+      <UniqueIdentifier>{06480984-0a33-4fcc-8d81-58346ced2b60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Ribbon">
+      <UniqueIdentifier>{2e9bc160-53f9-4cae-9eec-adbb30604ba9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Ribbon\Buttons">
+      <UniqueIdentifier>{c755ac90-cb8f-4f4c-8882-00dd4f54e496}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Ribbon\Category_Context">
+      <UniqueIdentifier>{fb269894-0936-496c-861a-2ee23011f7b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Ribbon\Slider">
+      <UniqueIdentifier>{bde5555d-bdc6-46a8-a014-7cd23e516a91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Ribbon\Progress">
+      <UniqueIdentifier>{a57ffbd2-6d3a-4825-ae26-300f70a09df7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Ribbon\Category_Context\Blue">
+      <UniqueIdentifier>{6c1edc0f-3ef6-4748-8f19-782e0a528dae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Ribbon\Category_Context\Green">
+      <UniqueIdentifier>{161ad12b-86d7-4add-8961-e5a90718354c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Ribbon\Category_Context\Indigo">
+      <UniqueIdentifier>{59fb015c-e9bb-48d6-908c-f32bf41ff8cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Ribbon\Category_Context\Yellow">
+      <UniqueIdentifier>{5e1e2c7f-5709-47bc-8973-27628fa48069}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Ribbon\Category_Context\Violet">
+      <UniqueIdentifier>{0cfc4e29-2fe2-483f-bd57-7736b04065f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Ribbon\Category_Context\Red">
+      <UniqueIdentifier>{d33a14c1-4358-437f-9e28-dc5945c841fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Ribbon\Category_Context\Orange">
+      <UniqueIdentifier>{cc155ba2-f5d7-459f-9389-30dd72e63ea3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\code\BCGCBPro\Styles\BCGPStyleScenic.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\code\BCGCBPro\Styles\BCGPStyleScenic.rc2">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\..\..\code\BCGCBPro\Styles\Scenic\Style.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\ComboBox\Btn.png">
+      <Filter>Resource Files\ComboBox</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Border_Floaty.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Border_Panel.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Border_QAT.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Caption_QA.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Back.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Tab.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Tab_Frame.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Tab_Sep.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\KeyTip.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Panel_Back.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Panel_Back_Sep.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Panel_Main.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Separator.png">
+      <Filter>Resource Files\Ribbon</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Check.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Default.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Default_Icon.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Default_Image.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Default_QAT.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Group_F.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Group_L.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Group_M.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Group_S.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\GroupMenu_F_C.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\GroupMenu_F_M.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\GroupMenu_L_C.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\GroupMenu_L_M.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\GroupMenu_M_C.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\GroupMenu_M_M.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Launch.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Launch_Icon.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Main.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Main_Panel.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Menu_H_C.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Menu_H_M.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Menu_V_C.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Menu_V_M.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Normal_B.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Normal_S.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Page_L.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Page_R.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Palette_B.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Palette_M.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Palette_T.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\Radio.PNG">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Buttons\StatusPane.png">
+      <Filter>Resource Files\Ribbon\Buttons</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Separator.png">
+      <Filter>Resource Files\Ribbon\Category_Context</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Blue\Back.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Blue</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Blue\Caption.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Blue</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Blue\Tab.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Blue</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Green\Back.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Green</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Green\Caption.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Green</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Green\Tab.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Green</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Indigo\Back.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Indigo</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Indigo\Caption.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Indigo</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Indigo\Tab.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Indigo</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Orange\Back.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Orange</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Orange\Caption.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Orange</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Orange\Tab.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Orange</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Red\Back.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Red</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Red\Caption.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Red</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Red\Tab.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Red</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Violet\Back.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Violet</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Violet\Caption.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Violet</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Violet\Tab.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Violet</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Yellow\Back.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Yellow</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Yellow\Caption.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Yellow</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\Ribbon\Category_Context\Yellow\Tab.png">
+      <Filter>Resource Files\Ribbon\Category_Context\Yellow</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\PopupBar\Border.png">
+      <Filter>Resource Files\PopupBar</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\PopupBar\Item_Back.png">
+      <Filter>Resource Files\PopupBar</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\PopupBar\Item_Marker_C.png">
+      <Filter>Resource Files\PopupBar</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\PopupBar\Item_Marker_R.png">
+      <Filter>Resource Files\PopupBar</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\PopupBar\MenuHighlight.png">
+      <Filter>Resource Files\PopupBar</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\PopupBar\MenuHighlightDisabled.png">
+      <Filter>Resource Files\PopupBar</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\PopupBar\ResizeBar.png">
+      <Filter>Resource Files\PopupBar</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\PopupBar\ResizeBar_HV.png">
+      <Filter>Resource Files\PopupBar</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\PopupBar\ResizeBar_HVT.png">
+      <Filter>Resource Files\PopupBar</Filter>
+    </Image>
+    <Image Include="..\..\..\code\BCGCBPro\Styles\Scenic\PopupBar\ResizeBar_V.png">
+      <Filter>Resource Files\PopupBar</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
