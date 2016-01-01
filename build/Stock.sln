@@ -27,6 +27,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BCGPStyleCarbon2210", "Styl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BCGPStyleScenic2210", "Styles\BCGPStyleScenic2210\BCGPStyleScenic2210.vcxproj", "{F61438E4-A221-4BD6-BF9B-E0474C51B719}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stock", "Stock\Stock.vcxproj", "{105B9C5B-EB0A-496F-8419-0020884631B5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1F6F9228-5A39-481F-9F1D-CE7F0E1BFB51} = {1F6F9228-5A39-481F-9F1D-CE7F0E1BFB51}
+		{7F1B57C8-8D75-47CE-96AA-2130991D72CC} = {7F1B57C8-8D75-47CE-96AA-2130991D72CC}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -123,6 +129,14 @@ Global
 		{F61438E4-A221-4BD6-BF9B-E0474C51B719}.Release|x64.Build.0 = Release|x64
 		{F61438E4-A221-4BD6-BF9B-E0474C51B719}.Release|x86.ActiveCfg = Release|Win32
 		{F61438E4-A221-4BD6-BF9B-E0474C51B719}.Release|x86.Build.0 = Release|Win32
+		{105B9C5B-EB0A-496F-8419-0020884631B5}.Debug|x64.ActiveCfg = Debug|x64
+		{105B9C5B-EB0A-496F-8419-0020884631B5}.Debug|x64.Build.0 = Debug|x64
+		{105B9C5B-EB0A-496F-8419-0020884631B5}.Debug|x86.ActiveCfg = Debug|Win32
+		{105B9C5B-EB0A-496F-8419-0020884631B5}.Debug|x86.Build.0 = Debug|Win32
+		{105B9C5B-EB0A-496F-8419-0020884631B5}.Release|x64.ActiveCfg = Release|x64
+		{105B9C5B-EB0A-496F-8419-0020884631B5}.Release|x64.Build.0 = Release|x64
+		{105B9C5B-EB0A-496F-8419-0020884631B5}.Release|x86.ActiveCfg = Release|Win32
+		{105B9C5B-EB0A-496F-8419-0020884631B5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
