@@ -7,6 +7,9 @@
 #define ST_TRADE_VIEW_WIDTH     312
 #define ST_TRADE_VIEW_HEIGHT    484
 
+#define ST_MAIN_FRAME_DEFAULT_WIDTH     577
+#define ST_MAIN_FRAME_DEFAULT_HEIGHT    919
+
 UINT s_trade_toolbar_img[] =
 {
     IDI_NEW,
@@ -43,12 +46,21 @@ CStockMainFrame::~CStockMainFrame()
 
 BOOL CStockMainFrame::PreCreateWindow(CREATESTRUCT & cs)
 {
-    return CMDIFrameWnd::PreCreateWindow(cs);
+    if (!CMDIFrameWnd::PreCreateWindow(cs))
+        return FALSE;
+
+    cs.cx = ST_MAIN_FRAME_DEFAULT_WIDTH;
+    cs.cy = ST_MAIN_FRAME_DEFAULT_HEIGHT;
 }
 
 BOOL CStockMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd * pParentWnd, CCreateContext * pContext)
 {
-    return 0;
+    if (!CMDIFrameWnd::LoadFrame(nIDResource, dwDefaultStyle, pParentWnd, pContext))
+    {
+        return FALSE;
+    }
+
+    return TRUE;
 }
 
 BOOL CStockMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
@@ -84,17 +96,6 @@ int CStockMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     CBCGPPopupMenu::SetForceMenuFocus(FALSE);
 
     //create main tool bar
-    CImageList imageList;
-    imageList.Create(16, 16, ILC_COLOR32 | ILC_MASK, 1, 1);
-
-    CBitmap img;
-    for (size_t i = 0; i < ST_ARRAY_SIZE(s_trade_toolbar_img); ++i)
-    {
-        img.LoadBitmap(s_trade_toolbar_img[i]);
-        imageList.Add(&img, RGB(255, 255, 255));
-        img.DeleteObject();
-    }
-
     if (!m_toolbar.CreateEx(this, TBSTYLE_FLAT,
         WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
         !m_toolbar.LoadToolBar(IDR_TRADE_TOOLBAR))
@@ -103,8 +104,6 @@ int CStockMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
         ASSERT(FALSE);
         return -1;
     }
-
-    m_toolbar.LoadBitmap(IDB_TRADE_TOOLBAR);
 
     CString toolbarTitle;
     toolbarTitle.LoadString(IDS_TRADE_TOOLBAR_TITLE);
@@ -116,6 +115,19 @@ int CStockMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     this->EnableDocking(CBRS_ALIGN_ANY);
 
     // TODO : window manager and window menu
+
+    this->DockControlBar(&m_menu);
+    this->DockControlBar(&m_toolbar);
+
+    // reset tool image
+    CBCGPToolBar::ResetAllImages();
+
+    if (!m_toolbar.LoadBitmap(IDB_TRADE_TOOLBAR))
+    {
+        TRACE0("Failed to load toolbar image\n");
+        ASSERT(false);
+        return -1;
+    }
 
     return 0;
 }

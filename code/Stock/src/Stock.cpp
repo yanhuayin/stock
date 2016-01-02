@@ -5,6 +5,7 @@
 
 
 BEGIN_MESSAGE_MAP(CStockApp, CBCGPWinApp)
+    ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
 END_MESSAGE_MAP()
 
 CStockApp theApp;

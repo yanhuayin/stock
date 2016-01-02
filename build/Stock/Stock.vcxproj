@@ -203,14 +203,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BCGCBPro\BCGCBPro.vcxproj">
-      <Project>{7f1b57c8-8d75-47ce-96aa-2130991d72cc}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\BCGCBRes-chs\BCGCBRes-chs.vcxproj">
-      <Project>{1f6f9228-5a39-481f-9f1d-ce7f0e1bfb51}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\code\Stock\include\stdafx.h" />
     <ClInclude Include="..\..\code\Stock\include\Stock.h" />
     <ClInclude Include="..\..\code\Stock\include\StockConfig.h" />
