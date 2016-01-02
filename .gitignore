@@ -1,7 +1,9 @@
 *.sdf
+*.opensdf
 *.vcxproj.user
+*.aps
 
-
+code/BCGCBPro/
 [Dd]ebug/
 [Bb]in/
 ipch/

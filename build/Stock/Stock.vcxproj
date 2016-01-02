@@ -77,7 +77,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)\..\bin\</OutDir>
     <TargetName>$(ProjectName)_d</TargetName>
-    <GenerateManifest>false</GenerateManifest>
+    <GenerateManifest>true</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -96,7 +96,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\code\Stock\Include;$(SolutionDir)\..\code\BCGCBPro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\code\Stock\include;$(SolutionDir)\..\code\BCGCBPro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -148,7 +149,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\code\Stock\Include;$(SolutionDir)\..\code\BCGCBPro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\code\Stock\include;$(SolutionDir)\..\code\BCGCBPro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
     </ClCompile>
@@ -202,157 +203,36 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\code\Stock\Include\AppLookDlg.h" />
-    <ClInclude Include="..\..\code\Stock\Include\BCGPVisualStudioGUIDemo.h" />
-    <ClInclude Include="..\..\code\Stock\Include\BCGPVisualStudioGUIDemoDoc.h" />
-    <ClInclude Include="..\..\code\Stock\Include\BCGPVisualStudioGUIDemoView.h" />
-    <ClInclude Include="..\..\code\Stock\Include\ChildFrm.h" />
-    <ClInclude Include="..\..\code\Stock\Include\ClassTreeWnd.h" />
-    <ClInclude Include="..\..\code\Stock\Include\ClassViewBar.h" />
-    <ClInclude Include="..\..\code\Stock\Include\CustomEditCtrl.h" />
-    <ClInclude Include="..\..\code\Stock\Include\DockableStartPage.h" />
-    <ClInclude Include="..\..\code\Stock\Include\FileViewBar.h" />
-    <ClInclude Include="..\..\code\Stock\Include\FindComboBox.h" />
-    <ClInclude Include="..\..\code\Stock\Include\GotoLineDlg.h" />
-    <ClInclude Include="..\..\code\Stock\Include\MainFrm.h" />
-    <ClInclude Include="..\..\code\Stock\Include\OutputView.h" />
-    <ClInclude Include="..\..\code\Stock\Include\PropertiesViewBar.h" />
-    <ClInclude Include="..\..\code\Stock\Include\resource.h" />
-    <ClInclude Include="..\..\code\Stock\Include\ResourceView.h" />
-    <ClInclude Include="..\..\code\Stock\Include\StartView.h" />
-    <ClInclude Include="..\..\code\Stock\Include\StdAfx.h" />
-    <ClInclude Include="..\..\code\Stock\Include\ToolBox.h" />
-    <ClInclude Include="..\..\code\Stock\Include\UndoBar.h" />
-    <ClInclude Include="..\..\code\Stock\Include\UndoListBox.h" />
-    <ClInclude Include="..\..\code\Stock\Include\WatchBar.h" />
-    <ClInclude Include="..\..\code\Stock\Include\XmlOutlineParser.h" />
+    <ProjectReference Include="..\BCGCBPro\BCGCBPro.vcxproj">
+      <Project>{7f1b57c8-8d75-47ce-96aa-2130991d72cc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\BCGCBRes-chs\BCGCBRes-chs.vcxproj">
+      <Project>{1f6f9228-5a39-481f-9f1d-ce7f0e1bfb51}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\code\Stock\src\AppLookDlg.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\BCGPVisualStudioGUIDemo.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\BCGPVisualStudioGUIDemoDoc.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\BCGPVisualStudioGUIDemoView.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\ChildFrm.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\ClassTreeWnd.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\ClassViewBar.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\CustomEditCtrl.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\DockableStartPage.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\FileViewBar.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\FindComboBox.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\GotoLineDlg.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\MainFrm.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\OutputView.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\PropertiesViewBar.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\ResourceView.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\StartView.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\StdAfx.cpp">
+    <ClInclude Include="..\..\code\Stock\include\resource.h" />
+    <ClInclude Include="..\..\code\Stock\include\stdafx.h" />
+    <ClInclude Include="..\..\code\Stock\include\Stock.h" />
+    <ClInclude Include="..\..\code\Stock\include\StockMainFrm.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\code\Stock\src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\code\Stock\src\ToolBox.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\UndoBar.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\UndoListBox.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\WatchBar.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\XmlOutlineParser.cpp" />
-    <ClCompile Include="..\..\resource\res\Examples\example.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\Stock.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\StockMainFrm.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\resource\res\asm.ico" />
-    <Image Include="..\..\resource\res\bas.ico" />
-    <Image Include="..\..\resource\res\BCGPVisualStudioGUIDemo.ico" />
-    <Image Include="..\..\resource\res\BCGPVisualStudioGUIDemoDoc.ico" />
-    <Image Include="..\..\resource\res\break.bmp" />
-    <Image Include="..\..\resource\res\build.bmp" />
-    <Image Include="..\..\resource\res\build_2012.png" />
-    <Image Include="..\..\resource\res\build_hc.png" />
-    <Image Include="..\..\resource\res\class_view.bmp" />
-    <Image Include="..\..\resource\res\class_view.ico" />
-    <Image Include="..\..\resource\res\class_view_2012.bmp" />
-    <Image Include="..\..\resource\res\class_view_2012.png" />
-    <Image Include="..\..\resource\res\class_view_hc.bmp" />
-    <Image Include="..\..\resource\res\class_view_hc.ico" />
-    <Image Include="..\..\resource\res\cpp.ico" />
-    <Image Include="..\..\resource\res\cs.ico" />
-    <Image Include="..\..\resource\res\current.bmp" />
-    <Image Include="..\..\resource\res\edit.bmp" />
-    <Image Include="..\..\resource\res\edit_2012.png" />
-    <Image Include="..\..\resource\res\edit_hc.png" />
-    <Image Include="..\..\resource\res\file_view.bmp" />
-    <Image Include="..\..\resource\res\file_view.ico" />
-    <Image Include="..\..\resource\res\file_view_2012.bmp" />
-    <Image Include="..\..\resource\res\file_view_hc.bmp" />
-    <Image Include="..\..\resource\res\file_view_hc.ico" />
-    <Image Include="..\..\resource\res\intellisense.bmp" />
-    <Image Include="..\..\resource\res\intellisense_hc.bmp" />
-    <Image Include="..\..\resource\res\js.ico" />
-    <Image Include="..\..\resource\res\logo.bmp" />
-    <Image Include="..\..\resource\res\menuimages.bmp" />
-    <Image Include="..\..\resource\res\menuimages_2012.png" />
-    <Image Include="..\..\resource\res\menuimages_hc.png" />
-    <Image Include="..\..\resource\res\output_bar.ico" />
-    <Image Include="..\..\resource\res\output_bar_hc.ico" />
-    <Image Include="..\..\resource\res\pas.ico" />
-    <Image Include="..\..\resource\res\properties_bar.bmp" />
-    <Image Include="..\..\resource\res\properties_bar.ico" />
-    <Image Include="..\..\resource\res\properties_bar_hc.ico" />
-    <Image Include="..\..\resource\res\resource_view.bmp" />
-    <Image Include="..\..\resource\res\resource_view.ico" />
-    <Image Include="..\..\resource\res\resource_view_2012.bmp" />
-    <Image Include="..\..\resource\res\resource_view_hc.bmp" />
-    <Image Include="..\..\resource\res\resource_view_hc.ico" />
-    <Image Include="..\..\resource\res\solution_bar.bmp" />
-    <Image Include="..\..\resource\res\solution_bar_hc.png" />
-    <Image Include="..\..\resource\res\sort.bmp" />
-    <Image Include="..\..\resource\res\sort_2012.bmp" />
-    <Image Include="..\..\resource\res\sort_hc.bmp" />
-    <Image Include="..\..\resource\res\sql.ico" />
-    <Image Include="..\..\resource\res\start_hc.png" />
-    <Image Include="..\..\resource\res\start_hc_2010.png" />
-    <Image Include="..\..\resource\res\start_hc_2012.png" />
-    <Image Include="..\..\resource\res\start_hc_2012_dark.png" />
-    <Image Include="..\..\resource\res\Toolbar.bmp" />
-    <Image Include="..\..\resource\res\Toolbar_2012.png" />
-    <Image Include="..\..\resource\res\Toolbar_hc.png" />
-    <Image Include="..\..\resource\res\toolbox.ico" />
-    <Image Include="..\..\resource\res\toolbox_hc.ico" />
-    <Image Include="..\..\resource\res\tools_page1.bmp" />
-    <Image Include="..\..\resource\res\tools_page1_2012.png" />
-    <Image Include="..\..\resource\res\tools_page1_hc.png" />
-    <Image Include="..\..\resource\res\tools_page2.bmp" />
-    <Image Include="..\..\resource\res\tools_page2_2012.png" />
-    <Image Include="..\..\resource\res\tools_page2_hc.png" />
-    <Image Include="..\..\resource\res\tools_page3.bmp" />
-    <Image Include="..\..\resource\res\tools_page3_2012.png" />
-    <Image Include="..\..\resource\res\tools_page3_hc.png" />
-    <Image Include="..\..\resource\res\watch_bar.ico" />
-    <Image Include="..\..\resource\res\watch_bar_hc.ico" />
-    <Image Include="..\..\resource\res\web.ico" />
-    <Image Include="..\..\resource\res\xml.ico" />
+    <Image Include="..\..\resource\locate_32.ico" />
+    <Image Include="..\..\resource\new_32.ico" />
+    <Image Include="..\..\resource\setting_32.ico" />
+    <Image Include="..\..\resource\Toolbar.bmp" />
+    <Image Include="..\..\resource\Toolbar_2012.png" />
+    <Image Include="toolbar1.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\resource\res\BCGPVisualStudioGUIDemo.rc2" />
-    <None Include="..\..\resource\res\Examples\example.asm" />
-    <None Include="..\..\resource\res\Examples\example.asp" />
-    <None Include="..\..\resource\res\Examples\example.bas" />
-    <None Include="..\..\resource\res\Examples\example.cs" />
-    <None Include="..\..\resource\res\Examples\example.js" />
-    <None Include="..\..\resource\res\Examples\example.pas" />
-    <None Include="..\..\resource\res\Examples\example.sql" />
-    <None Include="..\..\resource\xptheme.bin" />
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="..\..\resource\res\Examples\bcgpedit-asm.xml" />
-    <Xml Include="..\..\resource\res\Examples\bcgpedit-bas.xml" />
-    <Xml Include="..\..\resource\res\Examples\bcgpedit-cpp.xml" />
-    <Xml Include="..\..\resource\res\Examples\bcgpedit-cs.xml" />
-    <Xml Include="..\..\resource\res\Examples\bcgpedit-js.xml" />
-    <Xml Include="..\..\resource\res\Examples\bcgpedit-pas.xml" />
-    <Xml Include="..\..\resource\res\Examples\bcgpedit-sql.xml" />
-    <Xml Include="..\..\resource\res\Examples\bcgpedit-web.xml" />
-    <Xml Include="..\..\resource\res\Examples\bcgpedit-xml.xml" />
-    <Xml Include="..\..\resource\res\Examples\example.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\..\resource\BCGPVisualStudioGUIDemo.rc" />
+    <ResourceCompile Include="..\..\resource\Stock.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
