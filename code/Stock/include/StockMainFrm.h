@@ -5,6 +5,9 @@
 #pragma once
 #endif
 
+#include <list>
+#include "StockConfig.h"
+
 #define CMDIFrameWnd    CBCGPMDIFrameWnd
 
 
@@ -35,13 +38,12 @@ protected:
     afx_msg void OnClose();
     DECLARE_MESSAGE_MAP()
 
-protected:
-    BOOL CreateDockingBars();
-    void SetDockingBarsIcons(BOOL bHiColorIcons);
-
 private:
     CBCGPMenuBar            m_menu;
     CBCGPToolBar            m_toolbar;
+
+    // TODO : handle memory release
+    std::list<CTradeView*>  m_views;
 };
 
 

@@ -27,11 +27,7 @@ public:
     // Overrides
 public:
     virtual BOOL    InitInstance();
-    virtual int     ExitInstance();
     virtual void    PreLoadState();
-
-    virtual void    LoadCustomState();
-    virtual void    SaveCustomState();
 
     afx_msg void OnAppAbout();
     DECLARE_MESSAGE_MAP()

@@ -96,7 +96,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\code\Stock\include;$(SolutionDir)\..\code\BCGCBPro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\resource;$(SolutionDir)\..\code\Stock\include;$(SolutionDir)\..\code\BCGCBPro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
@@ -149,7 +149,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\code\Stock\include;$(SolutionDir)\..\code\BCGCBPro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\resource;$(SolutionDir)\..\code\Stock\include;$(SolutionDir)\..\code\BCGCBPro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
     </ClCompile>
@@ -211,10 +211,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\code\Stock\include\resource.h" />
     <ClInclude Include="..\..\code\Stock\include\stdafx.h" />
     <ClInclude Include="..\..\code\Stock\include\Stock.h" />
+    <ClInclude Include="..\..\code\Stock\include\StockConfig.h" />
     <ClInclude Include="..\..\code\Stock\include\StockMainFrm.h" />
+    <ClInclude Include="..\..\code\Stock\include\TradeView.h" />
+    <ClInclude Include="..\..\code\Stock\include\TradeWnd.h" />
+    <ClInclude Include="..\..\code\Stock\include\Utils.h" />
+    <ClInclude Include="..\..\resource\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\Stock\src\stdafx.cpp">
@@ -222,14 +226,19 @@
     </ClCompile>
     <ClCompile Include="..\..\code\Stock\src\Stock.cpp" />
     <ClCompile Include="..\..\code\Stock\src\StockMainFrm.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\TradeView.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\TradeWnd.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\resource\locate_32.ico" />
     <Image Include="..\..\resource\new_32.ico" />
     <Image Include="..\..\resource\setting_32.ico" />
     <Image Include="..\..\resource\Toolbar.bmp" />
+    <Image Include="..\..\resource\toolbar1.bmp" />
     <Image Include="..\..\resource\Toolbar_2012.png" />
+    <Image Include="..\..\resource\trade_toolbar.PNG" />
     <Image Include="toolbar1.bmp" />
+    <Image Include="trade_toolbar.PNG" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\resource\Stock.rc" />

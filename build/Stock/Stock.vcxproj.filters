@@ -27,7 +27,19 @@
     <ClInclude Include="..\..\code\Stock\include\StockMainFrm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\Stock\include\resource.h">
+    <ClInclude Include="..\..\code\Stock\include\StockConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\resource\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\TradeView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\TradeWnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -39,6 +51,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\Stock\src\StockMainFrm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\TradeView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\TradeWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,6 +77,15 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\..\resource\Toolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\resource\toolbar1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="trade_toolbar.PNG">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\resource\trade_toolbar.PNG">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
