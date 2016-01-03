@@ -8,7 +8,7 @@
 #include "StockConfig.h"
 #include "Utils.h"
 
-class CTradeModel
+class CTradeModel : public std::enable_shared_from_this<CTradeModel>
 {
 public:
     CTradeModel();

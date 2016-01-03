@@ -207,6 +207,9 @@
     <ClInclude Include="..\..\code\Stock\include\Stock.h" />
     <ClInclude Include="..\..\code\Stock\include\StockConfig.h" />
     <ClInclude Include="..\..\code\Stock\include\StockMainFrm.h" />
+    <ClInclude Include="..\..\code\Stock\include\TradeControl.h" />
+    <ClInclude Include="..\..\code\Stock\include\TradeModel.h" />
+    <ClInclude Include="..\..\code\Stock\include\TradeSettings.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeView.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeWnd.h" />
     <ClInclude Include="..\..\code\Stock\include\Utils.h" />
@@ -218,6 +221,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\Stock\src\Stock.cpp" />
     <ClCompile Include="..\..\code\Stock\src\StockMainFrm.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\TradeControl.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\TradeModel.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\TradeSettings.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeView.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeWnd.cpp" />
   </ItemGroup>

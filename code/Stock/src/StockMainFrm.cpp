@@ -121,29 +121,26 @@ int CStockMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CStockMainFrame::OnTradeNew()
 {
-    CTradeView *pView = new CTradeView();
+    TradeViewPtr pView(new CTradeView());
 
     CString title;
     title.LoadString(IDS_TRADE_WND_TITLE);
 
     title.AppendFormat(_T("%d"), m_views.size() + 1);
 
-    if (!pView->Create(title, this, CRect(0, 0, ST_TRADE_VIEW_WIDTH, ST_TRADE_VIEW_HEIGHT), TRUE,
+    const CRect defRect(0, 0, ST_TRADE_VIEW_WIDTH, ST_TRADE_VIEW_HEIGHT);
+    if (!pView->Create(title, this, defRect, TRUE,
         ID_TRADE_VIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
     {
         TRACE0("Failed to create tade window\n");
         ASSERT(FALSE);
-        
-        // TODO :
-        ST_SAFE_DELETE(pView);
         return;
     }
-
     m_views.push_back(pView);
 
-    pView->EnableDocking(CBRS_ALIGN_ANY);
+    this->DockControlBar(pView.get(), NULL, &defRect);
 
-    this->DockControlBar(pView);
+    pView->AdjustLayout();
 
     // TODO : dock bar icon
 }

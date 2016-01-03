@@ -4,6 +4,7 @@
 CTradeWnd::CTradeWnd(CWnd * parent)
     : CBCGPDialog(CTradeWnd::IDD, parent)
 {
+    this->EnableVisualManagerStyle(globalData.m_bUseVisualManagerInBuiltInDialogs, TRUE);
 }
 
 CTradeWnd::~CTradeWnd()

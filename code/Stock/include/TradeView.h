@@ -7,19 +7,21 @@
 
 #include "TradeWnd.h"
 
-class CTradeView : public CBCGPDockingControlBar
+class CTradeView : public CBCGPDockingControlBar, public std::enable_shared_from_this<CTradeView>
 {
 public:
     CTradeView();
     virtual ~CTradeView();
 
 public:
+    void AdjustLayout();
 
 protected:
     CTradeWnd       m_tradeWnd;
 
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+    afx_msg void OnSize(UINT nType, int cx, int cy);
     DECLARE_MESSAGE_MAP()
 };
 
