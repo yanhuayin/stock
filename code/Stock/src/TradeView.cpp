@@ -34,7 +34,7 @@ int CTradeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
     m_tradeWnd.UpdateData(FALSE);
 
-    this->EnableDocking(CBRS_ALIGN_ANY);
+    this->EnableDocking(CBRS_ALIGN_TOP);
 
     return 0;
 }

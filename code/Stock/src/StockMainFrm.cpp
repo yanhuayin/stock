@@ -130,7 +130,7 @@ void CStockMainFrame::OnTradeNew()
 
     const CRect defRect(0, 0, ST_TRADE_VIEW_WIDTH, ST_TRADE_VIEW_HEIGHT);
     if (!pView->Create(title, this, defRect, TRUE,
-        ID_TRADE_VIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
+        ID_TRADE_VIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_ALIGN_TOP | CBRS_FLOAT_MULTI))
     {
         TRACE0("Failed to create tade window\n");
         ASSERT(FALSE);
@@ -138,7 +138,35 @@ void CStockMainFrame::OnTradeNew()
     }
     m_views.push_back(pView);
 
-    this->DockControlBar(pView.get(), NULL, &defRect);
+    //this->DockControlBar(pView.get(), NULL, &defRect);
+
+    CRect clientRect;
+    this->GetClientRect(&clientRect);
+    CPoint center((clientRect.left + clientRect.right) / 2, (clientRect.top + clientRect.bottom) / 2);
+
+    ::ClientToScreen(m_hWnd, &center);
+    
+    CBCGPBaseControlBar *pTarget = this->ControlBarFromPoint(center, FALSE, TRUE, pView->GetRuntimeClass());
+    if (pTarget)
+    {
+        pView->AttachToTabWnd(DYNAMIC_DOWNCAST(CTradeView, pTarget), BCGP_DM_SHOW);
+    }
+    else
+    {
+        this->DockControlBar(pView.get());
+
+        if (m_menu.IsDocked())
+        {
+            clientRect.top += m_menu.CalcFixedLayout(FALSE, TRUE).cy;
+        }
+
+        if (m_toolbar.IsDocked())
+        {
+            clientRect.top += m_menu.CalcFixedLayout(FALSE, TRUE).cy;
+        }
+
+        pView->SetWindowPos(NULL, clientRect.left, clientRect.top, clientRect.Width(), clientRect.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
+    }
 
     pView->AdjustLayout();
 

@@ -27,7 +27,11 @@ public:
     // Overrides
 public:
     virtual BOOL    InitInstance();
-    virtual void    PreLoadState();
+    virtual BOOL    LoadState(LPCTSTR lpszSectionName = NULL, CBCGPFrameImpl* pFrameImpl = NULL);
+    virtual BOOL    SaveState(LPCTSTR lpszSectionName = NULL, CBCGPFrameImpl* pFrameImpl = NULL);
+    //virtual BOOL    LoadWindowPlacement(CRect& rectNormalPosition, int& nFflags, int& nShowCmd);
+    //virtual BOOL    StoreWindowPlacement(const CRect& rectNormalPosition, int nFflags, int nShowCmd);
+    //virtual BOOL    ReloadWindowPlacement(CFrameWnd* pFrame);
 
     afx_msg void OnAppAbout();
     DECLARE_MESSAGE_MAP()

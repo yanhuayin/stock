@@ -35,11 +35,11 @@ BOOL CStockApp::InitInstance()
     AfxEnableControlContainer();
 
     // this will under HKEY_CURRENT_USER\\Software
-    this->SetRegistryKey(ST_APP_REGISTRY_KEY);
+    //this->SetRegistryKey(ST_APP_REGISTRY_KEY);
 
-    this->LoadStdProfileSettings();
+    //this->LoadStdProfileSettings();
 
-    this->SetRegistryBase(ST_APP_REGISTRY_SECTION);
+    //this->SetRegistryBase(ST_APP_REGISTRY_SECTION);
 
     CStockMainFrame *pMainFrame = new CStockMainFrame();
 
@@ -72,10 +72,35 @@ BOOL CStockApp::InitInstance()
     return TRUE;
 }
 
-void CStockApp::PreLoadState()
+BOOL CStockApp::LoadState(LPCTSTR lpszSectionName, CBCGPFrameImpl * pFrameImpl)
 {
-    // TODO : add context menu
+    // override this function to avoid some crash when load app
+    return TRUE;
 }
+
+BOOL CStockApp::SaveState(LPCTSTR lpszSectionName, CBCGPFrameImpl * pFrameImpl)
+{
+    // override this function because we overrided loadstate function
+    return TRUE;
+}
+
+//BOOL CStockApp::LoadWindowPlacement(CRect & rectNormalPosition, int & nFflags, int & nShowCmd)
+//{
+//    // override this to disable save/load state to client regedit
+//    return TRUE;
+//}
+//
+//BOOL CStockApp::StoreWindowPlacement(const CRect & rectNormalPosition, int nFflags, int nShowCmd)
+//{
+//    // override this to disable save/load state to client regedit
+//    return TRUE;
+//}
+//
+//BOOL CStockApp::ReloadWindowPlacement(CFrameWnd * pFrame)
+//{
+//    // override this to disable save/load state to client regedit
+//    return TRUE;
+//}
 
 void CStockApp::OnAppAbout()
 {
