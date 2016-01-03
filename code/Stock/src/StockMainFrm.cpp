@@ -10,22 +10,7 @@
 #define ST_MAIN_FRAME_DEFAULT_WIDTH     577
 #define ST_MAIN_FRAME_DEFAULT_HEIGHT    919
 
-UINT s_trade_toolbar_img[] =
-{
-    IDI_NEW,
-    IDI_LOCATE,
-    IDI_SETTINGS
-};
-
-UINT s_trade_toolbar_cmd[] =
-{
-    ID_TRADE_NEW,
-    ID_TRADE_LOCAT,
-    ID_TRADE_SETTING
-};
-
 IMPLEMENT_DYNAMIC(CStockMainFrame, CMDIFrameWnd)
-
 
 BEGIN_MESSAGE_MAP(CStockMainFrame, CMDIFrameWnd)
     ON_WM_CREATE()
@@ -63,11 +48,7 @@ BOOL CStockMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd * p
     return TRUE;
 }
 
-BOOL CStockMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
-{
-    return 0;
-}
-
+#ifdef _DEBUG
 void CStockMainFrame::AssertValid() const
 {
 }
@@ -75,6 +56,7 @@ void CStockMainFrame::AssertValid() const
 void CStockMainFrame::Dump(CDumpContext & dc) const
 {
 }
+#endif
 
 int CStockMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
@@ -82,6 +64,7 @@ int CStockMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
         return -1;
 
     CBCGPToolbarComboBoxButton::SetFlatMode();
+    CBCGPToolBar::EnableQuickCustomization();
 
     //create menu
     if (!m_menu.Create(this))
@@ -98,7 +81,7 @@ int CStockMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     //create main tool bar
     if (!m_toolbar.CreateEx(this, TBSTYLE_FLAT,
         WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
-        !m_toolbar.LoadToolBar(IDR_TRADE_TOOLBAR))
+        !m_toolbar.LoadToolBar(IDR_MAIN_MENU))
     {
         TRACE0("Failed to create trade tool bar\n");
         ASSERT(FALSE);
@@ -108,6 +91,7 @@ int CStockMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     CString toolbarTitle;
     toolbarTitle.LoadString(IDS_TRADE_TOOLBAR_TITLE);
     m_toolbar.SetWindowText(toolbarTitle);
+    m_toolbar.SetPermament();
 
     // TODO : status bar
 
@@ -116,6 +100,9 @@ int CStockMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
     // TODO : window manager and window menu
 
+    // dock bars
+    m_menu.EnableDocking(CBRS_ALIGN_TOP);
+    m_toolbar.EnableDocking(CBRS_ALIGN_TOP);
     this->DockControlBar(&m_menu);
     this->DockControlBar(&m_toolbar);
 
@@ -135,7 +122,6 @@ int CStockMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 void CStockMainFrame::OnTradeNew()
 {
     CTradeView *pView = new CTradeView();
-
 
     CString title;
     title.LoadString(IDS_TRADE_WND_TITLE);

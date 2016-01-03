@@ -12,4 +12,20 @@
 #define ST_ARRAY_SIZE(x)            (sizeof((x)) / sizeof((x)[0]))
 
 
+template<typename T>
+class Singleton
+{
+public:
+    static T&   Instance() { static T _instance; return _instance; }
+    static T*   Instance_ptr() { return &Instance(); }
+
+public:
+    Singleton() {}
+    virtual ~Singleton() {}
+
+private:
+    Singleton(const Singleton&);
+    Singleton& operator=(const Singleton&);
+};
+
 #endif

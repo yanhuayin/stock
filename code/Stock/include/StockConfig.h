@@ -12,5 +12,14 @@
 class CTradeView;
 class CTradeWnd;
 class CStockMainFrame;
+class CTradeControl;
+class CTradeModel;
+class CTradeSettings;
+
+typedef std::shared_ptr<CTradeView>     TradeViewPtr;
+typedef std::shared_ptr<CTradeModel>    TradeModelPtr;
+
+typedef TradeViewPtr                    TradeViewHandle;
+typedef TradeModelPtr                   TradeModelHandle;
 
 #endif

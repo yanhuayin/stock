@@ -22,7 +22,6 @@ public:
 public:
     virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
     virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
-    virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 #ifdef _DEBUG
     virtual void AssertValid() const;
     virtual void Dump(CDumpContext& dc) const;
@@ -42,8 +41,8 @@ private:
     CBCGPMenuBar            m_menu;
     CBCGPToolBar            m_toolbar;
 
-    // TODO : handle memory release
-    std::list<CTradeView*>  m_views;
+    typedef std::list<TradeViewPtr> TradeViewList;
+    TradeViewList           m_views;
 };
 
 

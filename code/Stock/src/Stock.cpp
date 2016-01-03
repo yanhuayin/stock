@@ -34,6 +34,7 @@ BOOL CStockApp::InitInstance()
 
     AfxEnableControlContainer();
 
+    // this will under HKEY_CURRENT_USER\\Software
     this->SetRegistryKey(ST_APP_REGISTRY_KEY);
 
     this->LoadStdProfileSettings();

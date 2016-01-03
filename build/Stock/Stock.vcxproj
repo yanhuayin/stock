@@ -235,6 +235,9 @@
   <ItemGroup>
     <ResourceCompile Include="..\..\resource\Stock.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\resource\Stock.rc2" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
