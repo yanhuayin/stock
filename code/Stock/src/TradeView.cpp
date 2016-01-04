@@ -4,7 +4,6 @@
 BEGIN_MESSAGE_MAP(CTradeView, CBCGPDockingControlBar)
     ON_WM_CREATE()
     ON_WM_SIZE()
-    ON_MESSAGE(BN_CLICKED, OnButtonClicked)
 END_MESSAGE_MAP()
 
 
@@ -30,6 +29,9 @@ int CTradeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
         return -1;
     }
 
+    m_tradeWnd._q1PlusClickEvent = std::bind(&CTradeView::OnQ1PlusClicked, this);
+    m_tradeWnd._q1MinusClickEvent = std::bind(&CTradeView::OnQ1MinusClicked, this);
+
     m_tradeWnd.ShowWindow(SW_SHOW);
     m_tradeWnd.UpdateWindow();
 
@@ -47,11 +49,6 @@ void CTradeView::OnSize(UINT nType, int cx, int cy)
     this->AdjustLayout();
 }
 
-HRESULT CTradeView::OnButtonClicked(WPARAM wParam, LPARAM lParam)
-{
-    return E_NOTIMPL;
-}
-
 void CTradeView::AdjustLayout()
 {
     if (GetSafeHwnd() == NULL)
@@ -66,6 +63,16 @@ void CTradeView::AdjustLayout()
 
     m_tradeWnd.Invalidate(TRUE);
     m_tradeWnd.UpdateWindow();
+}
+
+void CTradeView::OnQ1PlusClicked()
+{
+    MessageBox(_T("fuck"), MB_OK);
+}
+
+void CTradeView::OnQ1MinusClicked()
+{
+    MessageBox(_T("shit"), MB_OK);
 }
 
 

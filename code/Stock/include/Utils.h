@@ -11,6 +11,15 @@
 
 #define ST_ARRAY_SIZE(x)            (sizeof((x)) / sizeof((x)[0]))
 
+template <typename T>
+T clamp(T const& x, T const& lower_bound, T const& upper_bound)
+{
+    if (x < lower_bound) return lower_bound;
+    if (x > upper_bound) return upper_bound;
+
+    return x;
+}
+
 
 template<typename T>
 class Singleton

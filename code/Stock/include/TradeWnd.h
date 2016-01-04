@@ -38,11 +38,19 @@ public:
 public:
     virtual void    DoDataExchange(CDataExchange *pDx);
 
-protected:
-    virtual BOOL    OnInitDialog();
-    virtual BOOL    OnCommand(WPARAM wParam, LPARAM lParam);
+public:
+    typedef std::function<void()>  ButtonClickEvent;
+    
+    ButtonClickEvent    _q1PlusClickEvent;
+    ButtonClickEvent    _q1MinusClickEvent;
 
 protected:
+    virtual BOOL    OnInitDialog();
+
+protected:
+    afx_msg void    OnQ1PlusClicked();
+    afx_msg void    OnQ1MinusClicked();
+    afx_msg void    OnDeltPosSpinCtrl(NMHDR *pNMHDR, LRESULT *pResult);
     DECLARE_MESSAGE_MAP()
 };
 

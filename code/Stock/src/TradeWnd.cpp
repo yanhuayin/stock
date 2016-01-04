@@ -1,13 +1,21 @@
 #include "stdafx.h"
+#include <type_traits>
+#include "Utils.h"
 #include "TradeWnd.h"
 
 #define ST_DIGIT_ONLY_STR           _T("1234567890")
 #define ST_DEFAULT_QUANTITY_STR     _T("0")
 #define ST_MAX_QUANTITY             9999999
 #define ST_MIN_QUANTITY             0
-#define ST_SPIN_BASE                1000
+
+#define ST_SPIN_ACELL               1000
+
+#define ST_LIST_CTRL_MARGIN         5
 
 BEGIN_MESSAGE_MAP(CTradeWnd, CBCGPDialog)
+    ON_BN_CLICKED(IDC_QTOP1_BTI, OnQ1PlusClicked)
+    ON_BN_CLICKED(IDC_QTOP1_BTR, OnQ1MinusClicked)
+    ON_NOTIFY(UDN_DELTAPOS, IDC_QUANTITY_SPIN, OnDeltPosSpinCtrl)
 END_MESSAGE_MAP()
 
 CTradeWnd::CTradeWnd(CWnd * parent)
@@ -41,27 +49,22 @@ void CTradeWnd::DoDataExchange(CDataExchange * pDx)
 
 }
 
-BOOL CTradeWnd::OnCommand(WPARAM wParam, LPARAM lParam)
+template <typename T>
+void TakeMargin(T &min, T &max, T margin)
 {
-    if (CBCGPDialog::OnCommand(wParam, lParam))
-        return TRUE;
+    static_assert(std::is_integral<T>::value, "integral type required");
 
-    HWND hWndCtrl = (HWND)lParam;
-
-    if (hWndCtrl)
+    if ((max - min) > (2 * margin))
     {
-        WORD nCode = HIWORD(wParam);
-        //WORD nId = LOWORD(wParam);
-
-        this->GetParent()->SendMessage(nCode, wParam, lParam);
-
-        return TRUE;
+        min += margin;
+        max -= margin;
     }
-
-    return FALSE;
+    else if (max > (min + 2))
+    {
+        min += 1;
+        max -= 1;
+    }
 }
-
-
 
 BOOL CTradeWnd::OnInitDialog()
 {
@@ -78,20 +81,83 @@ BOOL CTradeWnd::OnInitDialog()
 
     m_quantity.DisableMask();
     m_quantity.SetValidChars(ST_DIGIT_ONLY_STR);
-    m_quantity.SetWindowText(ST_DEFAULT_QUANTITY_STR);
+    //m_quantity.SetWindowText(ST_DEFAULT_QUANTITY_STR);
 
     m_qSpin.SetRange32(ST_MIN_QUANTITY, ST_MAX_QUANTITY);
-    m_qSpin.SetBase(ST_SPIN_BASE);
 
     m_q1.DisableMask();
     m_q1.SetValidChars(ST_DIGIT_ONLY_STR);
-    m_q1.SetWindowText(ST_DEFAULT_QUANTITY_STR);
+    //m_q1.SetWindowText(ST_DEFAULT_QUANTITY_STR);
 
     m_q2.DisableMask();
     m_q2.SetValidChars(ST_DIGIT_ONLY_STR);
-    m_q2.SetWindowText(ST_DEFAULT_QUANTITY_STR);
+    //m_q2.SetWindowText(ST_DEFAULT_QUANTITY_STR);
+
+    CRect infoRect;
+    this->GetDlgItem(IDC_INFO_GROUP)->GetWindowRect(&infoRect);
+    this->ScreenToClient(&infoRect);
+    TakeMargin(infoRect.left, infoRect.right, (LONG)ST_LIST_CTRL_MARGIN);
+    TakeMargin(infoRect.top, infoRect.bottom, (LONG)ST_LIST_CTRL_MARGIN);
+
+    if (!m_info.Create(WS_CHILD, infoRect, this, IDC_INFO_GRID))
+    {
+        TRACE0("Failed create list ctrl\n");
+        ASSERT(FALSE);
+        return FALSE;
+    }
+
+    m_info.SetScrollBarsStyle(CBCGPScrollBar::BCGP_SBSTYLE_VISUAL_MANAGER);
+    m_info.ShowWindow(SW_SHOW);
 
     return TRUE;
+}
+
+void CTradeWnd::OnQ1PlusClicked()
+{
+    if (_q1PlusClickEvent)
+    {
+        _q1PlusClickEvent();
+    }
+}
+
+void CTradeWnd::OnQ1MinusClicked()
+{
+    if (_q1MinusClickEvent)
+    {
+        _q1MinusClickEvent();
+    }
+}
+
+void CTradeWnd::OnDeltPosSpinCtrl(NMHDR * pNMHDR, LRESULT * pResult)
+{
+    LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
+
+    if (pNMUpDown->iDelta == -1) // down
+    {
+        CString quantityStr;
+        m_quantity.GetWindowText(quantityStr);
+        int quantity = _ttoi(quantityStr);
+
+        quantity = clamp(quantity - ST_SPIN_ACELL, ST_MIN_QUANTITY, ST_MAX_QUANTITY);
+
+        quantityStr.Format(_T("%d"), quantity);
+
+        m_quantity.SetWindowText(quantityStr);
+    }
+    else if (pNMUpDown->iDelta == 1) // up
+    {
+        CString quantityStr;
+        m_quantity.GetWindowText(quantityStr);
+        int quantity = _ttoi(quantityStr);
+
+        quantity = clamp(quantity + ST_SPIN_ACELL, ST_MIN_QUANTITY, ST_MAX_QUANTITY);
+
+        quantityStr.Format(_T("%d"), quantity);
+
+        m_quantity.SetWindowText(quantityStr);
+    }
+
+    *pResult = 0;
 }
 
 
