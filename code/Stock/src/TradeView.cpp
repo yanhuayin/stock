@@ -4,6 +4,7 @@
 BEGIN_MESSAGE_MAP(CTradeView, CBCGPDockingControlBar)
     ON_WM_CREATE()
     ON_WM_SIZE()
+    ON_MESSAGE(BN_CLICKED, OnButtonClicked)
 END_MESSAGE_MAP()
 
 
@@ -44,6 +45,11 @@ void CTradeView::OnSize(UINT nType, int cx, int cy)
     CBCGPDockingControlBar::OnSize(nType, cx, cy);
 
     this->AdjustLayout();
+}
+
+HRESULT CTradeView::OnButtonClicked(WPARAM wParam, LPARAM lParam)
+{
+    return E_NOTIMPL;
 }
 
 void CTradeView::AdjustLayout()
