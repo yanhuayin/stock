@@ -51,7 +51,12 @@ protected:
     afx_msg void    OnQ1PlusClicked();
     afx_msg void    OnQ1MinusClicked();
     afx_msg void    OnDeltPosSpinCtrl(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg LRESULT HandleInitDialog(WPARAM wPram, LPARAM lParam);
     DECLARE_MESSAGE_MAP()
+
+private:
+    CStatic         m_infoRect;
+    CStatic         m_orderRect;
 };
 
 

@@ -16,12 +16,14 @@ BEGIN_MESSAGE_MAP(CTradeWnd, CBCGPDialog)
     ON_BN_CLICKED(IDC_QTOP1_BTI, OnQ1PlusClicked)
     ON_BN_CLICKED(IDC_QTOP1_BTR, OnQ1MinusClicked)
     ON_NOTIFY(UDN_DELTAPOS, IDC_QUANTITY_SPIN, OnDeltPosSpinCtrl)
+    ON_MESSAGE(WM_INITDIALOG, HandleInitDialog)
 END_MESSAGE_MAP()
 
 CTradeWnd::CTradeWnd(CWnd * parent)
     : CBCGPDialog(CTradeWnd::IDD, parent)
 {
     this->EnableVisualManagerStyle(globalData.m_bUseVisualManagerInBuiltInDialogs, TRUE);
+    this->EnableLayout(TRUE);
 }
 
 CTradeWnd::~CTradeWnd()
@@ -45,25 +47,9 @@ void CTradeWnd::DoDataExchange(CDataExchange * pDx)
     DDX_Control(pDx, IDC_QTOP2_BTR, m_q2Minus);
     DDX_Control(pDx, IDC_QTOP2_BTI, m_q2Plus);
     DDX_Control(pDx, IDC_DOUBLE_BTN, m_qDouble);
-    DDX_Control(pDx, IDC_DIVIDE_BTN, m_qHalf);
-
-}
-
-template <typename T>
-void TakeMargin(T &min, T &max, T margin)
-{
-    static_assert(std::is_integral<T>::value, "integral type required");
-
-    if ((max - min) > (2 * margin))
-    {
-        min += margin;
-        max -= margin;
-    }
-    else if (max > (min + 2))
-    {
-        min += 1;
-        max -= 1;
-    }
+    DDX_Control(pDx, IDC_HALF_BTN, m_qHalf);
+    DDX_Control(pDx, IDC_INFO_RECT, m_infoRect);
+    DDX_Control(pDx, IDC_ORDER_RECT, m_orderRect);
 }
 
 BOOL CTradeWnd::OnInitDialog()
@@ -94,20 +80,23 @@ BOOL CTradeWnd::OnInitDialog()
     //m_q2.SetWindowText(ST_DEFAULT_QUANTITY_STR);
 
     CRect infoRect;
-    this->GetDlgItem(IDC_INFO_GROUP)->GetWindowRect(&infoRect);
-    this->ScreenToClient(&infoRect);
-    TakeMargin(infoRect.left, infoRect.right, (LONG)ST_LIST_CTRL_MARGIN);
-    TakeMargin(infoRect.top, infoRect.bottom, (LONG)ST_LIST_CTRL_MARGIN);
+    m_infoRect.GetClientRect(&infoRect);
+    m_infoRect.MapWindowPoints(this, &infoRect);
 
-    if (!m_info.Create(WS_CHILD, infoRect, this, IDC_INFO_GRID))
-    {
-        TRACE0("Failed create list ctrl\n");
-        ASSERT(FALSE);
-        return FALSE;
-    }
-
+    m_info.Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, infoRect, this, IDC_INFO_GRID);
+    m_info.EnableColumnAutoSize(TRUE);
+    m_info.SetWholeRowSel();
+    m_info.EnableHeader(TRUE, 0);
     m_info.SetScrollBarsStyle(CBCGPScrollBar::BCGP_SBSTYLE_VISUAL_MANAGER);
-    m_info.ShowWindow(SW_SHOW);
+
+    CRect orderRect;
+    m_orderRect.GetClientRect(&orderRect);
+    m_orderRect.MapWindowPoints(this, &orderRect);
+    m_order.Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, orderRect, this, IDC_ORDER_GRID);
+    m_order.EnableColumnAutoSize(TRUE);
+    m_order.SetWholeRowSel();
+    m_order.EnableHeader(TRUE, 0);
+    m_order.SetScrollBarsStyle(CBCGPScrollBar::BCGP_SBSTYLE_VISUAL_MANAGER);
 
     return TRUE;
 }
@@ -158,6 +147,48 @@ void CTradeWnd::OnDeltPosSpinCtrl(NMHDR * pNMHDR, LRESULT * pResult)
     }
 
     *pResult = 0;
+}
+
+LRESULT CTradeWnd::HandleInitDialog(WPARAM wPram, LPARAM lParam)
+{
+#ifndef _AFX_NO_OCC_SUPPORT
+    LRESULT lRes = CBCGPDialog::HandleInitDialog(wPram, lParam);
+#else
+    LRESULT lRes = 0;
+#endif // !_AFX_NO_OCC_SUPPORT
+
+    CBCGPStaticLayout* pLayout = (CBCGPStaticLayout*)GetLayout();
+    if (pLayout)
+    {
+        pLayout->AddAnchor(IDC_STOCK_GROUP, CBCGPStaticLayout::e_MoveTypeNone, CBCGPStaticLayout::e_SizeTypeHorz, CPoint(0, 0), CPoint(100, 0));
+        pLayout->AddAnchor(IDC_QUANTITY_GROUP, CBCGPStaticLayout::e_MoveTypeNone, CBCGPStaticLayout::e_SizeTypeHorz, CPoint(0, 0), CPoint(100, 0));
+
+        pLayout->AddAnchor(IDC_NAME_LABEL, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_CODE_LABEL, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_QUOTA_LABEL, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_LEFT_LABEL, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+
+        pLayout->AddAnchor(IDC_NAME_EDIT, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_CODE_EDIT, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_QUOTA_EDIT, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_LEFT_EDIT, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+
+        pLayout->AddAnchor(IDC_QUANTITY_EDIT, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_QUANTITY_SPIN, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_DOUBLE_BTN, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_HALF_BTN, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_QTOP1, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_QTOP1_BTI, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_QTOP1_BTR, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_QTOP2, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_QTOP2_BTI, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+        pLayout->AddAnchor(IDC_QTOP2_BTR, CBCGPStaticLayout::e_MoveTypeHorz, CBCGPStaticLayout::e_SizeTypeNone, CPoint(50, 0));
+
+        pLayout->AddAnchor(IDC_INFO_GRID, CBCGPStaticLayout::e_MoveTypeNone, CBCGPStaticLayout::e_SizeTypeHorz, CPoint(0, 0), CPoint(100, 0));
+        pLayout->AddAnchor(IDC_ORDER_GRID, CBCGPStaticLayout::e_MoveTypeNone, CBCGPStaticLayout::e_SizeTypeBoth, CPoint(0, 0), CPoint(100, 100));
+    }
+
+    return lRes;
 }
 
 
