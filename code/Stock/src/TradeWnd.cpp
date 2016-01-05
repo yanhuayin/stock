@@ -17,6 +17,7 @@ BEGIN_MESSAGE_MAP(CTradeWnd, CBCGPDialog)
     ON_BN_CLICKED(IDC_QTOP1_BTR, OnQ1MinusClicked)
     ON_NOTIFY(UDN_DELTAPOS, IDC_QUANTITY_SPIN, OnDeltPosSpinCtrl)
     ON_MESSAGE(WM_INITDIALOG, HandleInitDialog)
+    ON_COMMAND(IDOK, OnEnter)
 END_MESSAGE_MAP()
 
 CTradeWnd::CTradeWnd(CWnd * parent)
@@ -34,20 +35,20 @@ void CTradeWnd::DoDataExchange(CDataExchange * pDx)
 {
     CBCGPDialog::DoDataExchange(pDx);
 
-    DDX_Control(pDx, IDC_CODE_EDIT, m_code);
-    DDX_Control(pDx, IDC_NAME_EDIT, m_name);
-    DDX_Control(pDx, IDC_QUOTA_EDIT, m_quota);
-    DDX_Control(pDx, IDC_LEFT_EDIT, m_left);
-    DDX_Control(pDx, IDC_QUANTITY_EDIT, m_quantity);
-    DDX_Control(pDx, IDC_QUANTITY_SPIN, m_qSpin);
-    DDX_Control(pDx, IDC_QTOP1, m_q1);
-    DDX_Control(pDx, IDC_QTOP2, m_q2);
-    DDX_Control(pDx, IDC_QTOP1_BTR, m_q1Minus);
-    DDX_Control(pDx, IDC_QTOP1_BTI, m_q1Plus);
-    DDX_Control(pDx, IDC_QTOP2_BTR, m_q2Minus);
-    DDX_Control(pDx, IDC_QTOP2_BTI, m_q2Plus);
-    DDX_Control(pDx, IDC_DOUBLE_BTN, m_qDouble);
-    DDX_Control(pDx, IDC_HALF_BTN, m_qHalf);
+    DDX_Control(pDx, IDC_CODE_EDIT, _code);
+    DDX_Control(pDx, IDC_NAME_EDIT, _name);
+    DDX_Control(pDx, IDC_QUOTA_EDIT, _quota);
+    DDX_Control(pDx, IDC_LEFT_EDIT, _left);
+    DDX_Control(pDx, IDC_QUANTITY_EDIT, _quantity);
+    DDX_Control(pDx, IDC_QUANTITY_SPIN, _qSpin);
+    DDX_Control(pDx, IDC_QTOP1, _q1);
+    DDX_Control(pDx, IDC_QTOP2, _q2);
+    DDX_Control(pDx, IDC_QTOP1_BTR, _q1Minus);
+    DDX_Control(pDx, IDC_QTOP1_BTI, _q1Plus);
+    DDX_Control(pDx, IDC_QTOP2_BTR, _q2Minus);
+    DDX_Control(pDx, IDC_QTOP2_BTI, _q2Plus);
+    DDX_Control(pDx, IDC_DOUBLE_BTN, _qDouble);
+    DDX_Control(pDx, IDC_HALF_BTN, _qHalf);
     DDX_Control(pDx, IDC_INFO_RECT, m_infoRect);
     DDX_Control(pDx, IDC_ORDER_RECT, m_orderRect);
 }
@@ -56,47 +57,47 @@ BOOL CTradeWnd::OnInitDialog()
 {
     CBCGPDialog::OnInitDialog();
 
-    m_code.DisableMask();
-    m_code.SetValidChars(ST_DIGIT_ONLY_STR);
+    _code.DisableMask();
+    _code.SetValidChars(ST_DIGIT_ONLY_STR);
 
-    m_name.SetReadOnly(TRUE);
+    _name.SetReadOnly(TRUE);
 
-    m_quota.SetReadOnly(TRUE);
+    _quota.SetReadOnly(TRUE);
     
-    m_left.SetReadOnly(TRUE);
+    _left.SetReadOnly(TRUE);
 
-    m_quantity.DisableMask();
-    m_quantity.SetValidChars(ST_DIGIT_ONLY_STR);
+    _quantity.DisableMask();
+    _quantity.SetValidChars(ST_DIGIT_ONLY_STR);
     //m_quantity.SetWindowText(ST_DEFAULT_QUANTITY_STR);
 
-    m_qSpin.SetRange32(ST_MIN_QUANTITY, ST_MAX_QUANTITY);
+    _qSpin.SetRange32(ST_MIN_QUANTITY, ST_MAX_QUANTITY);
 
-    m_q1.DisableMask();
-    m_q1.SetValidChars(ST_DIGIT_ONLY_STR);
+    _q1.DisableMask();
+    _q1.SetValidChars(ST_DIGIT_ONLY_STR);
     //m_q1.SetWindowText(ST_DEFAULT_QUANTITY_STR);
 
-    m_q2.DisableMask();
-    m_q2.SetValidChars(ST_DIGIT_ONLY_STR);
+    _q2.DisableMask();
+    _q2.SetValidChars(ST_DIGIT_ONLY_STR);
     //m_q2.SetWindowText(ST_DEFAULT_QUANTITY_STR);
 
     CRect infoRect;
     m_infoRect.GetClientRect(&infoRect);
     m_infoRect.MapWindowPoints(this, &infoRect);
 
-    m_info.Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, infoRect, this, IDC_INFO_GRID);
-    m_info.EnableColumnAutoSize(TRUE);
-    m_info.SetWholeRowSel();
-    m_info.EnableHeader(TRUE, 0);
-    m_info.SetScrollBarsStyle(CBCGPScrollBar::BCGP_SBSTYLE_VISUAL_MANAGER);
+    _info.Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, infoRect, this, IDC_INFO_GRID);
+    _info.EnableColumnAutoSize(TRUE);
+    _info.SetWholeRowSel();
+    _info.EnableHeader(TRUE, 0);
+    _info.SetScrollBarsStyle(CBCGPScrollBar::BCGP_SBSTYLE_VISUAL_MANAGER);
 
     CRect orderRect;
     m_orderRect.GetClientRect(&orderRect);
     m_orderRect.MapWindowPoints(this, &orderRect);
-    m_order.Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, orderRect, this, IDC_ORDER_GRID);
-    m_order.EnableColumnAutoSize(TRUE);
-    m_order.SetWholeRowSel();
-    m_order.EnableHeader(TRUE, 0);
-    m_order.SetScrollBarsStyle(CBCGPScrollBar::BCGP_SBSTYLE_VISUAL_MANAGER);
+    _order.Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, orderRect, this, IDC_ORDER_GRID);
+    _order.EnableColumnAutoSize(TRUE);
+    _order.SetWholeRowSel();
+    _order.EnableHeader(TRUE, 0);
+    _order.SetScrollBarsStyle(CBCGPScrollBar::BCGP_SBSTYLE_VISUAL_MANAGER);
 
     return TRUE;
 }
@@ -124,29 +125,34 @@ void CTradeWnd::OnDeltPosSpinCtrl(NMHDR * pNMHDR, LRESULT * pResult)
     if (pNMUpDown->iDelta == -1) // down
     {
         CString quantityStr;
-        m_quantity.GetWindowText(quantityStr);
+        _quantity.GetWindowText(quantityStr);
         int quantity = _ttoi(quantityStr);
 
         quantity = clamp(quantity - ST_SPIN_ACELL, ST_MIN_QUANTITY, ST_MAX_QUANTITY);
 
         quantityStr.Format(_T("%d"), quantity);
 
-        m_quantity.SetWindowText(quantityStr);
+        _quantity.SetWindowText(quantityStr);
     }
     else if (pNMUpDown->iDelta == 1) // up
     {
         CString quantityStr;
-        m_quantity.GetWindowText(quantityStr);
+        _quantity.GetWindowText(quantityStr);
         int quantity = _ttoi(quantityStr);
 
         quantity = clamp(quantity + ST_SPIN_ACELL, ST_MIN_QUANTITY, ST_MAX_QUANTITY);
 
         quantityStr.Format(_T("%d"), quantity);
 
-        m_quantity.SetWindowText(quantityStr);
+        _quantity.SetWindowText(quantityStr);
     }
 
     *pResult = 0;
+}
+
+void CTradeWnd::OnEnter()
+{
+
 }
 
 LRESULT CTradeWnd::HandleInitDialog(WPARAM wPram, LPARAM lParam)

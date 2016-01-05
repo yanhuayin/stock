@@ -18,22 +18,22 @@ public:
     enum { IDD = IDD_TRADEFORM };
 
 public:
-    CBCGPMaskEdit       m_code;
-    CBCGPEdit           m_name;
-    CBCGPEdit           m_quota;
-    CBCGPEdit           m_left;
-    CBCGPMaskEdit       m_quantity;
-    CBCGPSpinButtonCtrl m_qSpin;
-    CBCGPMaskEdit       m_q1;
-    CBCGPMaskEdit       m_q2;
-    CBCGPButton         m_q1Minus;
-    CBCGPButton         m_q1Plus;
-    CBCGPButton         m_q2Minus;
-    CBCGPButton         m_q2Plus;
-    CBCGPButton         m_qDouble;
-    CBCGPButton         m_qHalf;
-    CBCGPGridCtrl       m_info;
-    CBCGPGridCtrl       m_order;
+    CBCGPMaskEdit       _code;
+    CBCGPEdit           _name;
+    CBCGPEdit           _quota;
+    CBCGPEdit           _left;
+    CBCGPMaskEdit       _quantity;
+    CBCGPSpinButtonCtrl _qSpin;
+    CBCGPMaskEdit       _q1;
+    CBCGPMaskEdit       _q2;
+    CBCGPButton         _q1Minus;
+    CBCGPButton         _q1Plus;
+    CBCGPButton         _q2Minus;
+    CBCGPButton         _q2Plus;
+    CBCGPButton         _qDouble;
+    CBCGPButton         _qHalf;
+    CBCGPGridCtrl       _info;
+    CBCGPGridCtrl       _order;
 
 public:
     virtual void    DoDataExchange(CDataExchange *pDx);
@@ -51,6 +51,7 @@ protected:
     afx_msg void    OnQ1PlusClicked();
     afx_msg void    OnQ1MinusClicked();
     afx_msg void    OnDeltPosSpinCtrl(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg void    OnEnter();
     afx_msg LRESULT HandleInitDialog(WPARAM wPram, LPARAM lParam);
     DECLARE_MESSAGE_MAP()
 
