@@ -57,6 +57,36 @@ private:
     CTargetLocationPic      m_pic;
     CMenu                   m_menu;
     UINT                    m_bosId;
+
+    CEdit                   m_hbuyOrSell;
+    HWND                    m_hbuy;
+    CString                 m_buy;
+    HWND                    m_hsell;
+    CString                 m_sell;
+
+    CEdit                   m_hbosCode;
+    HWND                    m_hbuyCode;
+    CString                 m_buyCode;
+    HWND                    m_hsellCode;
+    CString                 m_sellCode;
+    
+    CEdit                   m_hbosPrice;
+    HWND                    m_hbuyPrice;
+    CString                 m_buyPrice;
+    HWND                    m_hsellPrice;
+    CString                 m_sellPrice;
+
+    CEdit                   m_hbosQuant;
+    HWND                    m_hbuyQuant;
+    CString                 m_buyQuant;
+    HWND                    m_hsellQuant;
+    CString                 m_sellQuant;
+
+    CEdit                   m_hbosOrder;
+    HWND                    m_hbuyOrder;
+    CString                 m_buyOrder;
+    HWND                    m_hsellOrder;
+    CString                 m_sellOrder;
 };
 
 

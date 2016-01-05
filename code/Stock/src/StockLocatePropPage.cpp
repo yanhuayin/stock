@@ -9,6 +9,11 @@
 
 #define ST_LOCATE_DRAW_TIME     400
 
+#define ST_LOCATE_MASK_STR      _T(" A DDDDD A DDDDD")
+#define ST_LOCATE_TEMP_STR      _T("(_:_____,_:_____)")
+#define ST_LOCATE_DEF_STR       _T('_')
+#define ST_LOCATE_VALID_STR     _T("1234567890xXyY")
+
 BEGIN_MESSAGE_MAP(CStockLocatePropPage, CBCGPPropertyPage)
     ON_WM_TIMER()
     ON_MESSAGE(ST_LOCATE_WND_MSG, OnTargetWnd)
@@ -17,6 +22,16 @@ END_MESSAGE_MAP()
 
 CStockLocatePropPage::CStockLocatePropPage()
     : m_bosId(ID_LOCATE_OP_BUY)
+    , m_hbuy(NULL)
+    , m_hsell(NULL)
+    , m_hbuyCode(NULL)
+    , m_hsellCode(NULL)
+    , m_hbuyPrice(NULL)
+    , m_hsellPrice(NULL)
+    , m_hbuyQuant(NULL)
+    , m_hsellQuant(NULL)
+    , m_hbuyOrder(NULL)
+    , m_hsellOrder(NULL)
 {
 }
 
@@ -30,18 +45,23 @@ void CStockLocatePropPage::DoDataExchange(CDataExchange * pDX)
 
     DDX_Control(pDX, IDC_LOCATE_OP_COMBO, _tradeSelBtn);
     
-    DDX_Control(pDX, IDC_LOCATE_OP_BTN_EDIT,    _buyOrSell);
-    DDX_Control(pDX, IDC_LOCATE_CODE_EDIT,      _bosCode);
-    DDX_Control(pDX, IDC_LOCATE_OP_PRICE_EDIT,  _bosPrice);
-    DDX_Control(pDX, IDC_LOCATE_QUANTITY_EDIT,  _bosQuantity);
-    DDX_Control(pDX, IDC_LOCATE_SET_ORDER_EDIT, _bosOrder);
+    DDX_Control(pDX, IDC_LOCATE_OP_BTN_EDIT,        _buyOrSell);
+    DDX_Control(pDX, IDC_LOCATE_CODE_EDIT,          _bosCode);
+    DDX_Control(pDX, IDC_LOCATE_OP_PRICE_EDIT,      _bosPrice);
+    DDX_Control(pDX, IDC_LOCATE_QUANTITY_EDIT,      _bosQuantity);
+    DDX_Control(pDX, IDC_LOCATE_SET_ORDER_EDIT,     _bosOrder);
 
+    DDX_Control(pDX, IDC_LOCATE_OP_BTN_HANDLE,      m_hbuyOrSell);
+    DDX_Control(pDX, IDC_LOCATE_CODE_HANDLE,        m_hbosCode);
+    DDX_Control(pDX, IDC_LOCATE_OP_PRICE_HANDLE,    m_hbosPrice);
+    DDX_Control(pDX, IDC_LOCATE_QUANTITY_HANDLE,    m_hbosQuant);
+    DDX_Control(pDX, IDC_LOCATE_SET_ORDER_HANDLE,   m_hbosOrder);
 
-    DDX_Control(pDX, IDC_LOCATE_OP_BTN_LABEL,   _buyOrSellLab);
-    DDX_Control(pDX, IDC_LOCATE_CODE_LABEL,     _bosCodeLab);
-    DDX_Control(pDX, IDC_LOCATE_OP_PRICE_LABEL, _bosPriceLab);
-    DDX_Control(pDX, IDC_LOCATE_QUANTITY_LABEL, _bosQuantityLab);
-    DDX_Control(pDX, IDC_LOCATE_SET_ORDER_LABEL,_bosOrderLab);
+    DDX_Control(pDX, IDC_LOCATE_OP_BTN_LABEL,       _buyOrSellLab);
+    DDX_Control(pDX, IDC_LOCATE_CODE_LABEL,         _bosCodeLab);
+    DDX_Control(pDX, IDC_LOCATE_OP_PRICE_LABEL,     _bosPriceLab);
+    DDX_Control(pDX, IDC_LOCATE_QUANTITY_LABEL,     _bosQuantityLab);
+    DDX_Control(pDX, IDC_LOCATE_SET_ORDER_LABEL,    _bosOrderLab);
 
     DDX_Control(pDX, IDC_LOCATE_CANCEL_ORDER_EDIT,  _cancel);
     DDX_Control(pDX, IDC_LOCATE_CANCEL_LIST_EDIT,   _cancelList);
@@ -59,9 +79,15 @@ BOOL CStockLocatePropPage::OnInitDialog()
     _tradeSelBtn.m_hMenu = m_menu.GetSubMenu(0)->GetSafeHmenu();
     _tradeSelBtn.SizeToContent();
     _tradeSelBtn.m_bOSMenu = FALSE;
+    _tradeSelBtn.m_nMenuResult = m_bosId;
 
+    _buyOrSell.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
+    _bosCode.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
+    _bosPrice.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
+    _bosQuantity.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
+    _bosOrder.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
 
-
+    _locateFile.EnableFileBrowseButton(ST_CONFIG_FILE_EXT, ST_CONFIG_FILE_FILTER);
 
     m_pic.SubclassDlgItem(IDC_LOCATE_IMAGE, this);
 
@@ -128,9 +154,12 @@ void CStockLocatePropPage::OnTimer(UINT nIDEvent)
 
 void CStockLocatePropPage::OnBOSChange()
 {
-    m_bosId = _tradeSelBtn.m_nMenuResult;
+    if (m_bosId != _tradeSelBtn.m_nMenuResult)
+    {
+        // TODO : switch to b or s
 
-    // TODO : switch to b or s
+    }
+
 }
 
 LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
