@@ -206,7 +206,12 @@
     <ClInclude Include="..\..\code\Stock\include\stdafx.h" />
     <ClInclude Include="..\..\code\Stock\include\Stock.h" />
     <ClInclude Include="..\..\code\Stock\include\StockConfig.h" />
+    <ClInclude Include="..\..\code\Stock\include\StockGlobal.h" />
+    <ClInclude Include="..\..\code\Stock\include\StockLocatePropPage.h" />
     <ClInclude Include="..\..\code\Stock\include\StockMainFrm.h" />
+    <ClInclude Include="..\..\code\Stock\include\StockPropSheet.h" />
+    <ClInclude Include="..\..\code\Stock\include\StockTradeSettingsPropPage.h" />
+    <ClInclude Include="..\..\code\Stock\include\TargetLocationPic.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeControl.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeModel.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeSettings.h" />
@@ -220,7 +225,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\code\Stock\src\Stock.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\StockLocatePropPage.cpp" />
     <ClCompile Include="..\..\code\Stock\src\StockMainFrm.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\StockPropSheet.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\StockTradeSettingsPropPage.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\TargetLocationPic.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeControl.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeModel.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeSettings.cpp" />
@@ -228,13 +237,16 @@
     <ClCompile Include="..\..\code\Stock\src\TradeWnd.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\resource\icon1.ico" />
     <Image Include="..\..\resource\locate_32.ico" />
+    <Image Include="..\..\resource\locate_empty_32.ico" />
     <Image Include="..\..\resource\new_32.ico" />
     <Image Include="..\..\resource\setting_32.ico" />
     <Image Include="..\..\resource\Toolbar.bmp" />
     <Image Include="..\..\resource\toolbar1.bmp" />
     <Image Include="..\..\resource\Toolbar_2012.png" />
     <Image Include="..\..\resource\trade_toolbar.PNG" />
+    <Image Include="locate_empty_32.ico" />
     <Image Include="toolbar1.bmp" />
     <Image Include="trade_toolbar.PNG" />
   </ItemGroup>
@@ -242,6 +254,7 @@
     <ResourceCompile Include="..\..\resource\Stock.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\resource\cursor1.cur" />
     <None Include="..\..\resource\Stock.rc2" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -36,6 +36,8 @@ BOOL CStockMainFrame::PreCreateWindow(CREATESTRUCT & cs)
 
     cs.cx = ST_MAIN_FRAME_DEFAULT_WIDTH;
     cs.cy = ST_MAIN_FRAME_DEFAULT_HEIGHT;
+
+    return TRUE;
 }
 
 BOOL CStockMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd * pParentWnd, CCreateContext * pContext)

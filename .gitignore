@@ -2,9 +2,11 @@
 *.opensdf
 *.vcxproj.user
 *.aps
+*.opendb
 
 code/BCGCBPro/
 [Dd]ebug/
 [Bb]in/
 ipch/
 .vs/
+ref/

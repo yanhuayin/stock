@@ -42,6 +42,30 @@
     <ClInclude Include="..\..\code\Stock\include\TradeWnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\TradeControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\TradeModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\TradeSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\StockPropSheet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\StockLocatePropPage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\StockTradeSettingsPropPage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\TargetLocationPic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\StockGlobal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\Stock\src\Stock.cpp">
@@ -57,6 +81,27 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\Stock\src\TradeWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\TradeControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\TradeModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\TradeSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\StockPropSheet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\StockLocatePropPage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\StockTradeSettingsPropPage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\TargetLocationPic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -88,6 +133,15 @@
     <Image Include="..\..\resource\trade_toolbar.PNG">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="locate_empty_32.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\resource\locate_empty_32.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\resource\icon1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\resource\Stock.rc">
@@ -96,6 +150,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\resource\Stock.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\resource\cursor1.cur">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
