@@ -96,7 +96,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\resource;$(SolutionDir)\..\code\Stock\include;$(SolutionDir)\..\code\BCGCBPro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\resource;$(SolutionDir)\..\code\Stock\include;$(SolutionDir)\..\thirdparty;$(SolutionDir)\..\code\BCGCBPro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
@@ -105,6 +105,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
       <AdditionalLibraryDirectories>$(SolutionDir)\..\bin\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Pathcch.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -149,7 +150,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\resource;$(SolutionDir)\..\code\Stock\include;$(SolutionDir)\..\code\BCGCBPro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\resource;$(SolutionDir)\..\code\Stock\include;$(SolutionDir)\..\thirdparty;$(SolutionDir)\..\code\BCGCBPro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
     </ClCompile>
@@ -160,6 +161,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <AdditionalLibraryDirectories>$(SolutionDir)\..\bin\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Pathcch.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -205,8 +207,10 @@
   <ItemGroup>
     <ClInclude Include="..\..\code\Stock\include\stdafx.h" />
     <ClInclude Include="..\..\code\Stock\include\Stock.h" />
+    <ClInclude Include="..\..\code\Stock\include\StockAppData.h" />
     <ClInclude Include="..\..\code\Stock\include\StockConfig.h" />
     <ClInclude Include="..\..\code\Stock\include\StockGlobal.h" />
+    <ClInclude Include="..\..\code\Stock\include\StockLocateData.h" />
     <ClInclude Include="..\..\code\Stock\include\StockLocatePropPage.h" />
     <ClInclude Include="..\..\code\Stock\include\StockMainFrm.h" />
     <ClInclude Include="..\..\code\Stock\include\StockPropSheet.h" />
@@ -215,16 +219,19 @@
     <ClInclude Include="..\..\code\Stock\include\TradeControl.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeModel.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeSettings.h" />
+    <ClInclude Include="..\..\code\Stock\include\TradeSettingsData.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeView.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeWnd.h" />
     <ClInclude Include="..\..\code\Stock\include\Utils.h" />
     <ClInclude Include="..\..\resource\resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\code\Stock\include\StockAppData.cpp" />
     <ClCompile Include="..\..\code\Stock\src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\code\Stock\src\Stock.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\StockLocateData.cpp" />
     <ClCompile Include="..\..\code\Stock\src\StockLocatePropPage.cpp" />
     <ClCompile Include="..\..\code\Stock\src\StockMainFrm.cpp" />
     <ClCompile Include="..\..\code\Stock\src\StockPropSheet.cpp" />
@@ -233,6 +240,7 @@
     <ClCompile Include="..\..\code\Stock\src\TradeControl.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeModel.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeSettings.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\TradeSettingsData.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeView.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeWnd.cpp" />
   </ItemGroup>

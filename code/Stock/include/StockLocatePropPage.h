@@ -45,7 +45,6 @@ public:
 protected:
     virtual void    DoDataExchange(CDataExchange *pDX);
     virtual BOOL    OnInitDialog();
-    virtual BOOL    OnSetActive();
 
 protected:
     afx_msg void    OnTimer(UINT nIDEvent);

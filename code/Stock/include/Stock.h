@@ -11,7 +11,7 @@
 #error "include 'stdafx.h' before including this file for PCH"
 #endif
 
-#include "resource.h"       // main symbols
+#include "StockAppData.h"
 
 
 // CStockApp:
@@ -33,8 +33,15 @@ public:
     //virtual BOOL    StoreWindowPlacement(const CRect& rectNormalPosition, int nFflags, int nShowCmd);
     //virtual BOOL    ReloadWindowPlacement(CFrameWnd* pFrame);
 
+public:
+    CStockAppData&  AppData() { return m_data; }
+
+protected:
     afx_msg void OnAppAbout();
     DECLARE_MESSAGE_MAP()
+
+private:
+    CStockAppData   m_data;
 };
 
 extern CStockApp theApp;

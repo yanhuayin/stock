@@ -66,6 +66,15 @@
     <ClInclude Include="..\..\code\Stock\include\StockGlobal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\StockLocateData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\StockAppData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\TradeSettingsData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\Stock\src\Stock.cpp">
@@ -102,6 +111,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\Stock\src\TargetLocationPic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\StockLocateData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\TradeSettingsData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\include\StockAppData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

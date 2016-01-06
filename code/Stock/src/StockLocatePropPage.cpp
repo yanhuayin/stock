@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "StockGlobal.h"
+#include "Stock.h"
 #include "StockLocatePropPage.h"
 
 #define ST_LOCATE_PEN_STYLE     0

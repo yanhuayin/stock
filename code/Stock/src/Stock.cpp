@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "resource.h"
 #include "StockConfig.h"
 #include "Stock.h"
 #include "StockMainFrm.h"
