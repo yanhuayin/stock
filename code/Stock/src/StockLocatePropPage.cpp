@@ -15,6 +15,8 @@
 #define ST_LOCATE_DEF_STR       _T('_')
 #define ST_LOCATE_VALID_STR     _T("1234567890xXyY")
 
+IMPLEMENT_DYNCREATE(CStockLocatePropPage, CBCGPPropertyPage);
+
 BEGIN_MESSAGE_MAP(CStockLocatePropPage, CBCGPPropertyPage)
     ON_WM_TIMER()
     ON_MESSAGE(ST_LOCATE_WND_MSG, OnTargetWnd)

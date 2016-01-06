@@ -9,7 +9,6 @@ struct CLocateInfo
 {
     POINT       pos;
     CString     name;
-    int         id;
 };
 
 class CStockLocateData

@@ -57,8 +57,6 @@ bool CStockLocateData::Load(CString const & file)
 
             if (!doc.HasParseError() && doc.IsObject())
             {
-                RapidDocument::AllocatorType &a = doc.GetAllocator();
-
                 if (doc.HasMember(ST_LOC_TARGET_NAME))
                 {
                     RapidValue &targetVal = doc[ST_LOC_TARGET_NAME];
@@ -143,6 +141,7 @@ bool CStockLocateData::Load(CString const & file)
 
                                     if (!fixed)
                                     {
+                                        // maybe use the wrong id?
                                         if (name != s_locate_names[id])
                                         {
                                             int new_id = this->FindIdByName(name);
@@ -172,7 +171,6 @@ bool CStockLocateData::Load(CString const & file)
 
                                     CLocateInfo &info = m_info[id];
                                     info.name = name;
-                                    info.id = id;
                                     info.pos.x = x;
                                     info.pos.y = y;
                                     ++count;
@@ -202,7 +200,10 @@ bool CStockLocateData::Load(CString const & file)
             }
             else
             {
-                TRACE1("Failed parse locate file, error code: %d\n", doc.GetParseError());
+                if (doc.HasParseError())
+                    TRACE1("Failed parse locate file, error code: %d\n", doc.GetParseError());
+                else
+                    TRACE0("Failed parse locate file.\n");
             }
 
         }
@@ -226,6 +227,61 @@ bool CStockLocateData::Load(CString const & file)
 
 bool CStockLocateData::Save(CString const & file)
 {
+    ASSERT(m_load);
+
+    CFile f;
+    CFileException fexp;
+
+    if (f.Open(file, CFile::modeCreate | CFile::modeReadWrite, &fexp))
+    {
+        RapidDocument doc;
+        RapidDocument::AllocatorType &a = doc.GetAllocator();
+        RapidValue &root = doc.SetObject();
+
+        if (!m_target.IsEmpty())
+        {
+            root.AddMember(RapidDocument::StringRefType(ST_LOC_TARGET_NAME), RapidDocument::StringRefType(m_target.GetString()), a);
+        }
+
+        RapidValue comps(rapidjson::kArrayType);
+        for (int i = 0; i < LT_Num; ++i)
+        {
+            if (!m_info[i].name.IsEmpty())
+            {
+                RapidValue info(rapidjson::kObjectType);
+                info.AddMember(RapidDocument::StringRefType(ST_LOC_INFO_NAME), RapidDocument::StringRefType(m_info[i].name.GetString()), a);
+                RapidValue pos(rapidjson::kObjectType);
+                pos.AddMember(RapidDocument::StringRefType(ST_LOC_X_NAME), m_info[i].pos.x, a);
+                pos.AddMember(RapidDocument::StringRefType(ST_LOC_Y_NAME), m_info[i].pos.y, a);
+                info.AddMember(RapidDocument::StringRefType(ST_LOC_POS_NAME), pos, a);
+
+                comps.PushBack(info, a);
+            }
+        }
+
+        if (comps.Size())
+        {
+            root.AddMember(RapidDocument::StringRefType(ST_LOC_COMPONENT_NAME), comps, a);
+        }
+
+        RapidStringBuffer buff;
+        RapidWriter writer(buff);
+
+        doc.Accept(writer);
+
+        f.Write(doc.GetString(), doc.GetStringLength());
+
+        return true;
+    }
+    else
+    {
+        TCHAR err[256];
+        fexp.GetErrorMessage(err, 256);
+        TRACE2("Can't open file %s, error is: %s\n", file.GetString(), err);
+    }
+
+    AfxMessageBox(IDS_SAVE_LOCATE_DATA_FAILED);
+
     return false;
 }
 

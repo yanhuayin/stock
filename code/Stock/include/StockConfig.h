@@ -18,8 +18,10 @@ typedef std::shared_ptr<CTradeModel>    TradeModelPtr;
 typedef TradeViewPtr                    TradeViewHandle;
 typedef TradeModelPtr                   TradeModelHandle;
 
-typedef rapidjson::GenericDocument<rapidjson::UTF8<TCHAR> > RapidDocument;
-typedef rapidjson::GenericValue<rapidjson::UTF8<TCHAR> >    RapidValue;
-
+typedef rapidjson::UTF8<TCHAR>                      RapidUTF8;
+typedef rapidjson::GenericDocument<RapidUTF8>       RapidDocument;
+typedef rapidjson::GenericValue<RapidUTF8>          RapidValue;
+typedef rapidjson::GenericStringBuffer<RapidUTF8>   RapidStringBuffer;
+typedef rapidjson::Writer<RapidStringBuffer, RapidUTF8, RapidUTF8>  RapidWriter;
 
 #endif

@@ -16,6 +16,15 @@ public:
 
 public:
     bool    Load();
+    bool    Save();
+    bool    IsRead() const { return m_load; }
+    bool    IsLoaded() const { return m_load; }
+
+    CString const&  LocFile() const { return m_locFile; }
+    void            LocFile(CString const& file) { m_locFile = file; }
+    CString const&  SetFile() const { return m_setFile; }
+    void            SetFile(CString const& file) { m_setFile = file; }
+    CString const&  AppName() const { return m_appName; }
 
 public:
     CStockLocateData&   LocateData() { return m_locate; }

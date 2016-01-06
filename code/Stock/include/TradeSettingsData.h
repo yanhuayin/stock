@@ -8,10 +8,22 @@
 class CTradeSettingsData
 {
 public:
-    CTradeSettingsData() {}
+    CTradeSettingsData()
+        : m_load(false)
+        , m_ready(false)
+        , m_quota(0)
+        {
+        }
 
 public:
     bool    Load(CString const& file);
+    bool    Save(CString const& file);
+
+private:
+    bool    m_load;
+    bool    m_ready;
+
+    UINT    m_quota;
 };
 
 

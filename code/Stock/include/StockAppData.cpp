@@ -6,6 +6,8 @@
 #include "StockGlobal.h"
 #include "StockAppData.h"
 
+#define ST_APP_NAME             (_T("Stock"))
+
 #define ST_CFG_APP_NAME (_T("app_name"))
 #define ST_CFG_LOC_FILE (_T("locate_file"))
 #define ST_CFG_SET_FILE (_T("seetings_file"))
@@ -31,6 +33,8 @@ bool CStockAppData::Load()
         if (::PathCchRemoveFileSpec(buffer, MAX_PATH) == S_OK)
         {
             m_cfgFullPath = buffer;
+            m_locFile.Format(_T("%s\\%s"), buffer, m_locFile.GetString());
+            m_setFile.Format(_T("%s\\%s"), buffer, m_setFile.GetString());
 
             if (::PathCchAppendEx(buffer, MAX_PATH, m_cfgFile, 0) == S_OK)
             {
@@ -54,13 +58,27 @@ bool CStockAppData::Load()
 
                         ST_SAFE_DELETE_ARRAY(buf);
 
-                        if (!doc.HasParseError())
+                        if (!doc.HasParseError() && doc.IsObject())
                         {
-
+                            if (this->ParseConfig(doc))
+                            {
+                                m_load = true;
+                                return m_load;
+                            } // debug output has been done by ParseConfig
                         }
                         else
                         {
-                            TRACE1("Failed parse stock app config, error code: %d\n", m_doc.GetParseError());
+                            if (doc.HasParseError())
+                            {
+                                TRACE1("Failed parse stock app config, error code: %d\n", doc.GetParseError());
+                            }
+                            else
+                            {
+                                TRACE0("Failed parse stock app config\n");
+                            }
+
+                            TRACE1("Warning: Default locate file %s is used\n", m_locFile.GetString());
+                            TRACE1("Warning: Default settings file %s is used\n", m_setFile.GetString());
                         }
                     }
                     else
@@ -85,83 +103,102 @@ bool CStockAppData::Load()
     return m_load;
 }
 
-bool CStockAppData::ParseConfig(RapidDocument & doc)
+bool CStockAppData::Save()
 {
-    if (doc.IsObject())
-    {
+    ASSERT(m_load); // must load before save
 
+    CFile file;
+    CFileException fexp;
+
+    CString name;
+    name.Format(_T("%s\\%s"), m_cfgFullPath, m_cfgFile);
+
+    if (file.Open(name, CFile::modeCreate | CFile::modeReadWrite, &fexp))
+    {
+        RapidDocument doc;
+        RapidDocument::AllocatorType &a = doc.GetAllocator();
+        RapidValue &root = doc.SetObject();
+
+        root.AddMember(RapidDocument::StringRefType(ST_CFG_APP_NAME), RapidDocument::StringRefType(m_appName.GetString()), a);
+        root.AddMember(RapidDocument::StringRefType(ST_CFG_LOC_FILE), RapidDocument::StringRefType(m_locFile.GetString()), a);
+        root.AddMember(RapidDocument::StringRefType(ST_CFG_SET_FILE), RapidDocument::StringRefType(m_setFile.GetString()), a);
+
+        RapidStringBuffer buff;
+        RapidWriter writer(buff);
+
+        doc.Accept(writer);
+
+        file.Write(doc.GetString(), doc.GetStringLength());
+
+        return true;
     }
     else
     {
-        TRACE0("Warning: Failed parse config doc\n");
-        TRACE0("Warning: ")
+        TCHAR err[256];
+        fexp.GetErrorMessage(err, 256);
+        TRACE2("Can't open file %s, error is: %s\n", name.GetString(), err);
     }
 
-    return true;
+    AfxMessageBox(IDS_APP_SAVE_DATA_FAILED);
 
-    RapidDocument::AllocatorType &a = doc.GetAllocator();
+    return false;
+}
 
-    bool parseErr = false;
-    bool showErr = false;
+bool CStockAppData::ParseConfig(RapidDocument & doc)
+{
 
-    if (m_doc.HasMember(ST_CFG_APP_NAME))
+    bool parsed = false;
+
+    if (doc.HasMember(ST_CFG_APP_NAME))
     {
-        RapidValue &name = m_doc[ST_CFG_APP_NAME];
-        if (!name.IsString())
+        RapidValue &name = doc[ST_CFG_APP_NAME];
+        if (name.IsString())
         {
-            parseErr = true;
-            showErr = true;
-        }
-        else
-        {
-            if (m_appName != name.GetString())
+            if (m_appName == name.GetString())
             {
-                TRACE2("Warning: app name is wrong. Expect: %s, Actual: %s\n",
-                    m_appName.GetString(), name.GetString());
+                parsed = true;
             }
         }
     }
-    else
+
+    if (!parsed)
     {
-        m_doc.AddMember(RapidDocument::StringRefType(ST_CFG_APP_NAME), RapidDocument::StringRefType(m_appName.GetString()), a);
+        TRACE0("Warning: cannot parse app name, default is used\n");
     }
 
-    if (m_doc.HasMember(ST_CFG_LOC_FILE))
+    parsed = false;
+
+    if (doc.HasMember(ST_CFG_LOC_FILE))
     {
-        RapidValue &locFile = m_doc[ST_CFG_LOC_FILE];
+        RapidValue &locFile = doc[ST_CFG_LOC_FILE];
         if (locFile.IsString())
         {
-            if (!m_locate.Load(locFile.GetString()))
-                parseErr = true;
-        }
-        else
-        {
-            parseErr = true;
-            showErr = true;
+            m_locFile = locFile.GetString();
+            parsed = true;
         }
     }
 
-    if (m_doc.HasMember(ST_CFG_SET_FILE))
+    if (!parsed)
     {
-        RapidValue &setFile = m_doc[ST_CFG_SET_FILE];
+        TRACE1("Warning: cannot parse locate config file path, default one % is used\n", m_locFile.GetString());
+    }
+
+    parsed = false;
+
+    if (doc.HasMember(ST_CFG_SET_FILE))
+    {
+        RapidValue &setFile = doc[ST_CFG_SET_FILE];
         if (setFile.IsString())
         {
-            if (!m_tSettings.Load(setFile.GetString()))
-                parseErr = true;
-        }
-        else
-        {
-            parseErr = true;
-            showErr = true;
+            m_setFile = setFile.GetString();
+            parsed = true;
         }
     }
 
-    if (!parseErr)
+    if (!parsed)
     {
-        m_load = true;
-        return m_load;
+        TRACE1("Warning: cannot parse trade settings config file path, default one % is used\n", m_setFile.GetString());
     }
 
-    if (!showErr)
-        return m_load;
+    return true;
 }
