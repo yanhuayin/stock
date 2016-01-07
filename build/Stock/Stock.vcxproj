@@ -105,7 +105,8 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
       <AdditionalLibraryDirectories>$(SolutionDir)\..\bin\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Pathcch.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SECTION:.rsrc,rw %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -161,7 +162,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <AdditionalLibraryDirectories>$(SolutionDir)\..\bin\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Pathcch.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SECTION:.rsrc,rw %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -205,6 +207,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\code\Stock\include\ApiHelper.h" />
     <ClInclude Include="..\..\code\Stock\include\stdafx.h" />
     <ClInclude Include="..\..\code\Stock\include\Stock.h" />
     <ClInclude Include="..\..\code\Stock\include\StockAppData.h" />
@@ -227,6 +230,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\Stock\include\StockAppData.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\ApiHelper.cpp" />
     <ClCompile Include="..\..\code\Stock\src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
@@ -249,12 +253,14 @@
     <Image Include="..\..\resource\locate_32.ico" />
     <Image Include="..\..\resource\locate_empty_32.ico" />
     <Image Include="..\..\resource\new_32.ico" />
+    <Image Include="..\..\resource\prop_sheet.PNG" />
     <Image Include="..\..\resource\setting_32.ico" />
     <Image Include="..\..\resource\Toolbar.bmp" />
     <Image Include="..\..\resource\toolbar1.bmp" />
     <Image Include="..\..\resource\Toolbar_2012.png" />
     <Image Include="..\..\resource\trade_toolbar.PNG" />
     <Image Include="locate_empty_32.ico" />
+    <Image Include="prop_sheet.PNG" />
     <Image Include="toolbar1.bmp" />
     <Image Include="trade_toolbar.PNG" />
   </ItemGroup>

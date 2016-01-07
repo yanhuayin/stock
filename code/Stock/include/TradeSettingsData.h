@@ -18,6 +18,8 @@ public:
 public:
     bool    Load(CString const& file);
     bool    Save(CString const& file);
+    bool    IsRead() const { return m_ready; }
+    bool    IsLoaded() const { return m_load; }
 
 private:
     bool    m_load;

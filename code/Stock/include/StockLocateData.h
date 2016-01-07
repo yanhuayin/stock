@@ -5,10 +5,13 @@
 #pragma once
 #endif
 
+#include "StockConfig.h"
+
 struct CLocateInfo
 {
     POINT       pos;
     CString     name;
+    HWND        hwnd;
 };
 
 class CStockLocateData
@@ -23,29 +26,7 @@ public:
     bool    IsLoaded() const { return m_load; }
     bool    IsReady() const { return m_ready; }
 
-public:
-    enum LocateType
-    {
-        LT_Buy = 0,
-        LT_BuyCode,
-        LT_BuyPrice,
-        LT_BuyQuant,
-        LT_BuyOrder,
-
-        LT_Sell,
-        LT_SellCode,
-        LT_SellPrice,
-        LT_SellQuant,
-        LT_SellOrder,
-
-        LT_Cancel,
-        LT_CancelList,
-
-        LT_Delegate,
-        LT_DelegateList,
-
-        LT_Num
-    };
+    CLocateInfo& LocInfo(LocateType type) { return m_info[type]; }
 
 private:
     int FindIdByName(CString const& name);

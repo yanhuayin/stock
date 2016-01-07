@@ -5,7 +5,17 @@
 #pragma once
 #endif
 
+#include "StockConfig.h"
 #include "TargetLocationPic.h"
+
+struct CLocateControl
+{
+    CBCGPStatic    *label;
+    CBCGPMaskEdit  *p;
+    CBCGPEdit      *h;
+    POINT           pos;
+    HWND            hwnd;
+};
 
 class CStockLocatePropPage : public CBCGPPropertyPage
 {
@@ -23,22 +33,7 @@ public:
 
     CBCGPMenuButton         _tradeSelBtn;
 
-    CBCGPMaskEdit           _buyOrSell;
-    CBCGPMaskEdit           _bosCode;
-    CBCGPMaskEdit           _bosPrice;
-    CBCGPMaskEdit           _bosQuantity;
-    CBCGPMaskEdit           _bosOrder;
-
-    CBCGPStatic             _buyOrSellLab;
-    CBCGPStatic             _bosCodeLab;
-    CBCGPStatic             _bosPriceLab;
-    CBCGPStatic             _bosQuantityLab;
-    CBCGPStatic             _bosOrderLab;
-
-    CBCGPMaskEdit           _cancel;
-    CBCGPMaskEdit           _cancelList;
-    CBCGPMaskEdit           _delegate;
-    CBCGPMaskEdit           _delegateList;
+    CLocateControl          _ctrls[LT_Num];
 
     CBCGPEdit               _locateFile;
 
@@ -53,39 +48,45 @@ protected:
     DECLARE_MESSAGE_MAP()
 
 private:
+    void            InitCtrls();
+    CBCGPMaskEdit*  FindMaskCtrl(LocateType type);
+    CBCGPStatic*    FindLabelCtrl(LocateType type);
+    CBCGPEdit*      FindEditCtrl(LocateType type);
+    void            SwitchBOS();
+    void            SetCtrlText(LocateType type);
+
+private:
+    CBCGPMaskEdit           m_buyOrSell;
+    CBCGPMaskEdit           m_bosCode;
+    CBCGPMaskEdit           m_bosPrice;
+    CBCGPMaskEdit           m_bosQuantity;
+    CBCGPMaskEdit           m_bosOrder;
+
+    CBCGPStatic             m_buyOrSellLab;
+    CBCGPStatic             m_bosCodeLab;
+    CBCGPStatic             m_bosPriceLab;
+    CBCGPStatic             m_bosQuantityLab;
+    CBCGPStatic             m_bosOrderLab;
+
+    CBCGPEdit               m_hbuyOrSell;
+    CBCGPEdit               m_hbosCode;
+    CBCGPEdit               m_hbosPrice;
+    CBCGPEdit               m_hbosQuant;
+    CBCGPEdit               m_hbosOrder;
+
+    CBCGPMaskEdit           m_cancel;
+    CBCGPMaskEdit           m_cancelList;
+    CBCGPMaskEdit           m_delegate;
+    CBCGPMaskEdit           m_delegateList;
+
+    CBCGPEdit               m_hcancel;
+    CBCGPEdit               m_hcancelList;
+    CBCGPEdit               m_hdelegate;
+    CBCGPEdit               m_hdelegateList;
+
     CTargetLocationPic      m_pic;
     CMenu                   m_menu;
     UINT                    m_bosId;
-
-    CEdit                   m_hbuyOrSell;
-    HWND                    m_hbuy;
-    CString                 m_buy;
-    HWND                    m_hsell;
-    CString                 m_sell;
-
-    CEdit                   m_hbosCode;
-    HWND                    m_hbuyCode;
-    CString                 m_buyCode;
-    HWND                    m_hsellCode;
-    CString                 m_sellCode;
-    
-    CEdit                   m_hbosPrice;
-    HWND                    m_hbuyPrice;
-    CString                 m_buyPrice;
-    HWND                    m_hsellPrice;
-    CString                 m_sellPrice;
-
-    CEdit                   m_hbosQuant;
-    HWND                    m_hbuyQuant;
-    CString                 m_buyQuant;
-    HWND                    m_hsellQuant;
-    CString                 m_sellQuant;
-
-    CEdit                   m_hbosOrder;
-    HWND                    m_hbuyOrder;
-    CString                 m_buyOrder;
-    HWND                    m_hsellOrder;
-    CString                 m_sellOrder;
 };
 
 

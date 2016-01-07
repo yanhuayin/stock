@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "resource.h"
+#include "ApiHelper.h"
 #include "StockGlobal.h"
 #include "TargetLocationPic.h"
 
@@ -35,30 +36,7 @@ void CTargetLocationPic::OnLButtonUp(UINT nFlags, CPoint point)
     this->ShowWindow(SW_SHOW);
 
     ::GetCursorPos(&m_pos);
-    m_tHWnd = ::WindowFromPoint(m_pos);
-
-    HWND grayHwnd = ::GetWindow(m_tHWnd, GW_CHILD);
-    RECT tempRc;
-    BOOL bFind = FALSE;
-    while (grayHwnd)
-    {
-        ::GetWindowRect(grayHwnd, &tempRc);
-        if (::PtInRect(&tempRc, m_pos))
-        {
-            bFind = TRUE;
-            break;
-        }
-        else
-        {
-            grayHwnd = ::GetWindow(grayHwnd, GW_HWNDNEXT);
-        }
-    }
-
-    if (bFind == TRUE)
-    {
-        bFind = FALSE;
-        m_tHWnd = grayHwnd;
-    }
+    m_tHWnd = TopWndFromPoint(m_pos);
 
     this->GetParent()->PostMessage(ST_LOCATE_WND_MSG, 0, 0);
 

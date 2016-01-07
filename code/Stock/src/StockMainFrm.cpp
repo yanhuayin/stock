@@ -2,6 +2,7 @@
 #include "resource.h"
 #include "Utils.h"
 #include "TradeView.h"
+#include "StockPropSheet.h"
 #include "StockMainFrm.h"
 
 #define ST_TRADE_VIEW_WIDTH     312
@@ -177,10 +178,16 @@ void CStockMainFrame::OnTradeNew()
 
 void CStockMainFrame::OnTradeLocate()
 {
+    CStockPropSheet prop;
+    prop.SetActivePage(&(prop._locatePage));
+    prop.DoModal();
 }
 
 void CStockMainFrame::OnTradeSettings()
 {
+    CStockPropSheet prop;
+    prop.SetActivePage(&(prop._settingsPage));
+    prop.DoModal();
 }
 
 void CStockMainFrame::OnClose()

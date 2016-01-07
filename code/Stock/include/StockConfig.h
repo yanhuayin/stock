@@ -24,4 +24,27 @@ typedef rapidjson::GenericValue<RapidUTF8>          RapidValue;
 typedef rapidjson::GenericStringBuffer<RapidUTF8>   RapidStringBuffer;
 typedef rapidjson::Writer<RapidStringBuffer, RapidUTF8, RapidUTF8>  RapidWriter;
 
+enum LocateType
+{
+    LT_Buy = 0,
+    LT_BuyCode,
+    LT_BuyPrice,
+    LT_BuyQuant,
+    LT_BuyOrder,
+
+    LT_Sell,
+    LT_SellCode,
+    LT_SellPrice,
+    LT_SellQuant,
+    LT_SellOrder,
+
+    LT_Cancel,
+    LT_CancelList,
+
+    LT_Delegate,
+    LT_DelegateList,
+
+    LT_Num
+};
+
 #endif

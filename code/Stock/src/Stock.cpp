@@ -42,6 +42,16 @@ BOOL CStockApp::InitInstance()
 
     //this->SetRegistryBase(ST_APP_REGISTRY_SECTION);
 
+    // load data
+    if (!m_data.Load())
+        return FALSE;
+
+    if (!m_data.LocateData().Load(m_data.LocFile()))
+        return FALSE;
+
+    if (!m_data.TradeSettingsData().Load(m_data.SetFile()))
+        return FALSE;
+
     CStockMainFrame *pMainFrame = new CStockMainFrame();
 
     this->EnableLoadWindowPlacement(FALSE);
@@ -69,6 +79,16 @@ BOOL CStockApp::InitInstance()
     }
 
     pMainFrame->SendMessageToDescendants(WM_IDLEUPDATECMDUI, (WPARAM)TRUE, 0, TRUE, TRUE);
+
+    if (!m_data.LocateData().IsReady())
+    {
+        pMainFrame->PostMessage(WM_COMMAND, MAKEWPARAM(ID_TRADE_LOCAT, 0), 0);
+    }
+    else if (!m_data.TradeSettingsData().IsRead())
+    {
+        pMainFrame->PostMessage(WM_COMMAND, MAKEWPARAM(ID_TRADE_SETTING, 0), 0);
+    }
+
 
     return TRUE;
 }

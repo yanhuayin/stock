@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "resource.h"
 #include <Psapi.h>
-#include <PathCch.h>
 #include "Utils.h"
+#include "ApiHelper.h"
 #include "StockGlobal.h"
 #include "StockAppData.h"
 
@@ -30,15 +30,15 @@ bool CStockAppData::Load()
     {
         TRACE1("Full process image name is %s\n", buffer);
 
-        if (::PathCchRemoveFileSpec(buffer, MAX_PATH) == S_OK)
+        if (::PathRemoveFileSpec(buffer) == TRUE)
         {
             m_cfgFullPath = buffer;
             m_locFile.Format(_T("%s\\%s"), buffer, m_locFile.GetString());
             m_setFile.Format(_T("%s\\%s"), buffer, m_setFile.GetString());
 
-            if (::PathCchAppendEx(buffer, MAX_PATH, m_cfgFile, 0) == S_OK)
+            if (::PathAppend(buffer, m_cfgFile) == TRUE)
             {
-                BOOL exists = ::PathFileExists(buffer);
+                BOOL exists = FileExists(buffer);
 
                 if (exists)
                 {

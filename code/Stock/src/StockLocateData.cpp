@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "resource.h"
-#include <PathCch.h>
 #include "Utils.h"
+#include "ApiHelper.h"
 #include "StockConfig.h"
 #include "StockLocateData.h"
 
@@ -36,7 +36,13 @@ const TCHAR*    s_locate_names [] =
 
 bool CStockLocateData::Load(CString const & file)
 {
-    BOOL exists = ::PathFileExists(file);
+    BOOL exists = FileExists(file);
+
+    // clear info data everytime when loading
+    for (int i = 0; i < LT_Num; ++i)
+    {
+        m_info[i].hwnd = NULL;
+    }
 
     if (exists)
     {
@@ -103,6 +109,7 @@ bool CStockLocateData::Load(CString const & file)
                                     int id = idVal.GetInt();
 
                                     bool posErr = false;
+                                    HWND hwnd = nullptr;
                                     int x, y;
                                     if (posVal.HasMember(ST_LOC_X_NAME) &&
                                         posVal.HasMember(ST_LOC_Y_NAME))
@@ -113,6 +120,17 @@ bool CStockLocateData::Load(CString const & file)
                                         {
                                             x = xVal.GetInt();
                                             y = yVal.GetInt();
+
+                                            POINT pos;
+                                            pos.x = x;
+                                            pos.y = y;
+
+                                            hwnd = TopWndFromPoint(pos);
+                                            if (!::IsWindow(hwnd))
+                                            {
+                                                posErr = true;
+                                                TRACE2("Warning: can not locate a window under the pos (x:%d,y%d)\n", x, y);
+                                            }
                                         }
                                         else
                                             posErr = true;
@@ -122,7 +140,7 @@ bool CStockLocateData::Load(CString const & file)
 
                                     if (posErr)
                                     {
-                                        TRACE1("Warning: entry %s does not have valid pos info, ignore\n", name.GetString());
+                                        TRACE1("Warning: entry %s does not have valid pos info, it is ignored\n", name.GetString());
                                         continue;
                                     }
 
@@ -133,7 +151,7 @@ bool CStockLocateData::Load(CString const & file)
                                         id = this->FindIdByName(name);
                                         if (id >= LT_Num)
                                         {
-                                            TRACE1("Warning: unrecorgnized entry %s, ignore\n", name.GetString());
+                                            TRACE1("Warning: unrecorgnized entry %s, it is ignored\n", name.GetString());
                                             continue;
                                         }
                                         fixed = true;
@@ -156,7 +174,7 @@ bool CStockLocateData::Load(CString const & file)
                                             {
                                                 if (new_id >= LT_Num)
                                                 {
-                                                    TRACE1("Warning: unkowned entry %s, ignore it\n", name.GetString());
+                                                    TRACE1("Warning: unkowned entry %s, it is ignored\n", name.GetString());
                                                 }
                                                 else
                                                 {
@@ -173,6 +191,7 @@ bool CStockLocateData::Load(CString const & file)
                                     info.name = name;
                                     info.pos.x = x;
                                     info.pos.y = y;
+                                    info.hwnd = hwnd;
                                     ++count;
                                 }
                                 else
@@ -246,7 +265,7 @@ bool CStockLocateData::Save(CString const & file)
         RapidValue comps(rapidjson::kArrayType);
         for (int i = 0; i < LT_Num; ++i)
         {
-            if (!m_info[i].name.IsEmpty())
+            if (m_info[i].hwnd)
             {
                 RapidValue info(rapidjson::kObjectType);
                 info.AddMember(RapidDocument::StringRefType(ST_LOC_INFO_NAME), RapidDocument::StringRefType(m_info[i].name.GetString()), a);
