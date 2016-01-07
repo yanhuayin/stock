@@ -1,12 +1,11 @@
 #include "stdafx.h"
-#include <type_traits>
+//#include <type_traits>
 #include "Utils.h"
+#include "StockGlobal.h"
 #include "TradeWnd.h"
 
 #define ST_DIGIT_ONLY_STR           _T("1234567890")
 #define ST_DEFAULT_QUANTITY_STR     _T("0")
-#define ST_MAX_QUANTITY             9999999
-#define ST_MIN_QUANTITY             0
 
 #define ST_SPIN_ACELL               1000
 

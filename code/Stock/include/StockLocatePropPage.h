@@ -45,6 +45,7 @@ protected:
 protected:
     afx_msg void    OnTimer(UINT nIDEvent);
     afx_msg void    OnBOSChange();
+    afx_msg void    OnFileChange();
     afx_msg LRESULT OnTargetWnd(WPARAM wParam, LPARAM lParam);
     DECLARE_MESSAGE_MAP()
 
@@ -56,6 +57,7 @@ private:
     void            SwitchBOS();
     void            SetCtrlText(LocateType type);
     void            SetCtrlFocus();
+    LocateType      GetCtrlFocus();
 
 private:
     CBCGPMaskEdit           m_buyOrSell;

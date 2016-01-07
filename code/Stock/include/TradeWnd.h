@@ -7,6 +7,7 @@
 #endif
 
 #include "resource.h"
+#include <functional>
 
 class CTradeWnd : public CBCGPDialog
 {

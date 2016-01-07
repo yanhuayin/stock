@@ -16,12 +16,15 @@
 #define ST_LOCATE_DEF_STR       _T('_')
 #define ST_LOCATE_VALID_STR     _T("1234567890xXyY")
 
+#define ST_LOCATE_POS_FORMAT_STR    _T("(x:%d,y:%d)")
+
 IMPLEMENT_DYNCREATE(CStockLocatePropPage, CBCGPPropertyPage)
 
 BEGIN_MESSAGE_MAP(CStockLocatePropPage, CBCGPPropertyPage)
     ON_WM_TIMER()
     ON_MESSAGE(ST_LOCATE_WND_MSG, OnTargetWnd)
     ON_BN_CLICKED(IDC_LOCATE_OP_COMBO, OnBOSChange)
+    ON_EN_CHANGE(IDC_LOCATE_FILE_EDIT, OnFileChange)
 END_MESSAGE_MAP()
 
 CStockLocatePropPage::CStockLocatePropPage()
@@ -105,7 +108,7 @@ BOOL CStockLocatePropPage::OnInitDialog()
 
     this->SwitchBOS();
 
-    return TRUE;
+    return FALSE; // we set the focus
 }
 
 void CStockLocatePropPage::OnOK()
@@ -117,7 +120,7 @@ void CStockLocatePropPage::OnOK()
         this->UpdateData(TRUE);
 
         CStockAppData &app = theApp.AppData();
-        CStockLocateData &data = theApp.AppData().LocateData();
+        CStockLocateData &data = app.LocateData();
 
         for (int i = 0; i < LT_Num; ++i)
         {
@@ -135,6 +138,7 @@ void CStockLocatePropPage::OnOK()
         {
             if (app.Save())
             {
+                this->SetModified(FALSE);
                 m_dirty = false;
             }
         }
@@ -160,6 +164,7 @@ void CStockLocatePropPage::InitCtrls()
         }
     }
     
+    _locateFile.SetWindowText(theApp.AppData().LocFile());
 }
 
 CBCGPMaskEdit * CStockLocatePropPage::FindMaskCtrl(LocateType type)
@@ -294,6 +299,7 @@ void CStockLocatePropPage::SwitchBOS()
         this->SetCtrlText(LT_Buy);
         this->SetCtrlText(LT_BuyCode);
         this->SetCtrlText(LT_BuyPrice);
+        this->SetCtrlText(LT_BuyQuant);
         this->SetCtrlText(LT_BuyOrder);
     }
     else if (m_bosId == ID_LOCATE_OP_SELL)
@@ -304,6 +310,7 @@ void CStockLocatePropPage::SwitchBOS()
         _ctrls[LT_SellOrder].label->SetWindowText(CString(MAKEINTRESOURCE(IDS_SELL_ORDER)));
 
         this->SetCtrlText(LT_Sell);
+        this->SetCtrlText(LT_SellCode);
         this->SetCtrlText(LT_SellPrice);
         this->SetCtrlText(LT_SellQuant);
         this->SetCtrlText(LT_SellOrder);
@@ -316,15 +323,14 @@ void CStockLocatePropPage::SwitchBOS()
 
 void CStockLocatePropPage::SetCtrlText(LocateType type)
 {
-    CLocateInfo const& info = theApp.AppData().LocateData().LocInfo(type);
-    if (info.hwnd)
+    if (_ctrls[type].hwnd)
     {
         CString pos;
-        pos.Format(_T("(x:%d,y:%d)"), info.pos.x, info.pos.y);
+        pos.Format(ST_LOCATE_POS_FORMAT_STR, _ctrls[type].pos.x, _ctrls[type].pos.y);
         _ctrls[type].p->SetWindowText(pos);
 
         CString hwnd;
-        hwnd.Format(_T("%x"), info.hwnd);
+        hwnd.Format(_T("%x"), _ctrls[type].hwnd);
         _ctrls[type].h->SetWindowText(hwnd);
     }
     else
@@ -332,6 +338,7 @@ void CStockLocatePropPage::SetCtrlText(LocateType type)
         _ctrls[type].p->SetWindowText(_T(""));
         _ctrls[type].h->SetWindowText(_T(""));
     }
+
 }
 
 void CStockLocatePropPage::SetCtrlFocus()
@@ -364,8 +371,51 @@ void CStockLocatePropPage::SetCtrlFocus()
         if (_ctrls[i].hwnd == nullptr)
         {
             _ctrls[i].p->SetFocus();
+            return;
         }
     }
+}
+
+LocateType CStockLocatePropPage::GetCtrlFocus()
+{
+    CWnd *pWnd = this->GetFocus();
+
+    if (pWnd)
+    {
+        if (m_bosId == ID_LOCATE_OP_BUY)
+        {
+            for (int i = LT_Buy; i < LT_Sell; ++i)
+            {
+                if (pWnd == _ctrls[i].p ||
+                    pWnd == _ctrls[i].h)
+                {
+                    return (LocateType)i;
+                }
+            }
+        }
+        else if (m_bosId == ID_LOCATE_OP_SELL)
+        {
+            for (int i = LT_Sell; i < LT_Cancel; ++i)
+            {
+                if (pWnd == _ctrls[i].p ||
+                    pWnd == _ctrls[i].h)
+                {
+                    return (LocateType)i;
+                }
+            }
+        }
+
+        for (int i = LT_Cancel; i < LT_Num; ++i)
+        {
+            if (pWnd == _ctrls[i].p ||
+                pWnd == _ctrls[i].h)
+            {
+                return (LocateType)i;
+            }
+        }
+    }
+
+    return LT_Num;
 }
 
 void CStockLocatePropPage::OnTimer(UINT nIDEvent)
@@ -417,8 +467,42 @@ void CStockLocatePropPage::OnBOSChange()
 
 }
 
+void CStockLocatePropPage::OnFileChange()
+{
+    this->SetModified(TRUE);
+    m_dirty = true;
+}
+
 LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 {
+    HWND hwnd = m_pic.TargetHWnd();
+
+    if (::IsWindow(hwnd))
+    {
+        LocateType type = this->GetCtrlFocus();
+
+        if (type < LT_Num)
+        {
+            _ctrls[type].hwnd = hwnd;
+            _ctrls[type].pos = m_pic.TargetPos();
+
+            CString posTxt;
+            posTxt.Format(ST_LOCATE_POS_FORMAT_STR, _ctrls[type].pos.x, _ctrls[type].pos.y);
+            _ctrls[type].p->SetWindowText(posTxt);
+
+            CString hwndTxt;
+            hwndTxt.Format(_T("%x"), hwnd);
+            _ctrls[type].h->SetWindowText(hwndTxt);
+
+            this->SetModified(TRUE);
+            m_dirty = true;
+
+            this->UpdateData(FALSE);
+
+            this->SetCtrlFocus();
+        }
+    }
+
 
 
     return 0;

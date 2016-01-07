@@ -33,17 +33,6 @@
 
 #include <afxcontrolbars.h>     // MFC support for ribbons and control bars
 
-#include <list>
-#include <vector>
-#include <map>
-#include <memory>
-#include <functional>
-#include <regex>
-
-#include "rapidjson\document.h"
-#include "rapidjson\stringbuffer.h"
-#include "rapidjson\writer.h"
-
 
 
 

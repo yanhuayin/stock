@@ -56,6 +56,12 @@ bool CStockLocateData::Load(CString const & file)
             TCHAR *buf = new TCHAR[len];
             len = f.Read(buf, len);
 
+            if (len == 0)
+            {
+                m_load = true; // empty file
+                return m_load;
+            }
+
             RapidDocument doc;
             doc.Parse(buf);
 
@@ -288,7 +294,7 @@ bool CStockLocateData::Save(CString const & file)
 
         doc.Accept(writer);
 
-        f.Write(doc.GetString(), doc.GetStringLength());
+        f.Write(buff.GetString(), buff.GetSize());
 
         return true;
     }
@@ -306,6 +312,13 @@ bool CStockLocateData::Save(CString const & file)
 
 void CStockLocateData::SetInfo(LocateType type, POINT pos, HWND hwnd)
 {
+    m_info[type].pos = pos;
+    m_info[type].hwnd = hwnd;
+
+    if (m_info[type].name.IsEmpty())
+    {
+        m_info[type].name = s_locate_names[type];
+    }
 }
 
 int CStockLocateData::FindIdByName(CString const & name)

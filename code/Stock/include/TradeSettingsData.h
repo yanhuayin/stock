@@ -20,6 +20,8 @@ public:
     bool    Save(CString const& file);
     bool    IsRead() const { return m_ready; }
     bool    IsLoaded() const { return m_load; }
+    UINT    Quota() const { return m_quota; }
+    void    Quota(UINT value) { m_quota = value; }
 
 private:
     bool    m_load;

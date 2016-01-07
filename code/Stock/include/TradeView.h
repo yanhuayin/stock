@@ -5,6 +5,7 @@
 #pragma once
 #endif
 
+#include <memory>
 #include "TradeWnd.h"
 
 class CTradeView : public CBCGPDockingControlBar, public std::enable_shared_from_this<CTradeView>

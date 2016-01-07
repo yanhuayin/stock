@@ -5,6 +5,12 @@
 #pragma once
 #endif
 
+#include <memory>
+
+#include "rapidjson\document.h"
+#include "rapidjson\stringbuffer.h"
+#include "rapidjson\writer.h"
+
 class CTradeView;
 class CTradeWnd;
 class CStockMainFrame;
@@ -18,11 +24,12 @@ typedef std::shared_ptr<CTradeModel>    TradeModelPtr;
 typedef TradeViewPtr                    TradeViewHandle;
 typedef TradeModelPtr                   TradeModelHandle;
 
-typedef rapidjson::UTF8<TCHAR>                      RapidUTF8;
-typedef rapidjson::GenericDocument<RapidUTF8>       RapidDocument;
-typedef rapidjson::GenericValue<RapidUTF8>          RapidValue;
-typedef rapidjson::GenericStringBuffer<RapidUTF8>   RapidStringBuffer;
-typedef rapidjson::Writer<RapidStringBuffer, RapidUTF8, RapidUTF8>  RapidWriter;
+//typedef rapidjson::UTF8<TCHAR>                      RapidUTF8;
+typedef rapidjson::UTF16<>                          RapidUTF16;
+typedef rapidjson::GenericDocument<RapidUTF16>      RapidDocument;
+typedef rapidjson::GenericValue<RapidUTF16>         RapidValue;
+typedef rapidjson::GenericStringBuffer<RapidUTF16>  RapidStringBuffer;
+typedef rapidjson::Writer<RapidStringBuffer, RapidUTF16, RapidUTF16>  RapidWriter;
 
 enum LocateType
 {

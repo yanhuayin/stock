@@ -23,6 +23,12 @@ bool CTradeSettingsData::Load(CString const & file)
             TCHAR *buf = new TCHAR[len];
             len = f.Read(buf, len);
 
+            if (len == 0)
+            {
+                m_load = true;
+                return m_load;
+            }
+
             RapidDocument doc;
             doc.Parse(buf);
 
@@ -97,7 +103,7 @@ bool CTradeSettingsData::Save(CString const & file)
 
         doc.Accept(writer);
 
-        f.Write(doc.GetString(), doc.GetStringLength());
+        f.Write(buff.GetString(), buff.GetSize());
 
         return true;
     }

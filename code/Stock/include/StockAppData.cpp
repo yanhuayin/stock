@@ -53,6 +53,12 @@ bool CStockAppData::Load()
                         TCHAR *buf = new TCHAR[len];
                         len = cfg.Read(buf, len);
 
+                        if (len == 0)
+                        {
+                            m_load = true;
+                            return m_load;
+                        }
+
                         RapidDocument doc;
                         doc.Parse(buf);
 
@@ -128,7 +134,7 @@ bool CStockAppData::Save()
 
         doc.Accept(writer);
 
-        file.Write(doc.GetString(), doc.GetStringLength());
+        file.Write(buff.GetString(), buff.GetSize());
 
         return true;
     }

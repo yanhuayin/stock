@@ -12,6 +12,9 @@
 #define ST_CONFIG_FILE_EXT      (_T(".json"))
 #define ST_CONFIG_FILE_FILTER   (_T("Json File (*.json)|*.json||"))
 
+#define ST_MAX_QUANTITY         9999999
+#define ST_MIN_QUANTITY         0
+
 #define ST_LOCATE_WND_MSG       (WM_APP + 1)
 
 

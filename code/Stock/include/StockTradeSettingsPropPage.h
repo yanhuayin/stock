@@ -22,9 +22,15 @@ public:
 protected:
     virtual void    DoDataExchange(CDataExchange *pDx);
     virtual BOOL    OnInitDialog();
+    virtual void    OnOK();
 
 protected:
+    afx_msg void    OnFileChange();
+    afx_msg void    OnQuotaChange();
     DECLARE_MESSAGE_MAP()
+
+private:
+    bool            m_dirty;
 };
 
 
