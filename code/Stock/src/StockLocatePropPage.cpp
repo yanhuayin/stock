@@ -27,6 +27,7 @@ END_MESSAGE_MAP()
 CStockLocatePropPage::CStockLocatePropPage()
     : CBCGPPropertyPage(CStockLocatePropPage::IDD)
     , m_bosId(ID_LOCATE_OP_BUY)
+    , m_dirty(false)
 {
 }
 
@@ -80,13 +81,19 @@ BOOL CStockLocatePropPage::OnInitDialog()
     _tradeSelBtn.SizeToContent();
     _tradeSelBtn.m_bOSMenu = FALSE;
     _tradeSelBtn.m_nMenuResult = m_bosId;
+    _tradeSelBtn.m_bStayPressed = FALSE;
     ::CheckMenuItem(_tradeSelBtn.m_hMenu, m_bosId, MF_CHECKED);
 
-    m_buyOrSell.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
-    m_bosCode.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
-    m_bosPrice.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
-    m_bosQuantity.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
-    m_bosOrder.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
+    //m_buyOrSell.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
+    //m_bosCode.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
+    //m_bosPrice.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
+    //m_bosQuantity.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
+    //m_bosOrder.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
+    m_buyOrSell.DisableMask();
+    m_bosCode.DisableMask();
+    m_bosPrice.DisableMask();
+    m_bosQuantity.DisableMask();
+    m_bosOrder.DisableMask();
 
     _locateFile.EnableFileBrowseButton(ST_CONFIG_FILE_EXT, ST_CONFIG_FILE_FILTER);
 
@@ -101,6 +108,40 @@ BOOL CStockLocatePropPage::OnInitDialog()
     return TRUE;
 }
 
+void CStockLocatePropPage::OnOK()
+{
+    CPropertyPage::OnOK();
+
+    if (m_dirty)
+    {
+        this->UpdateData(TRUE);
+
+        CStockAppData &app = theApp.AppData();
+        CStockLocateData &data = theApp.AppData().LocateData();
+
+        for (int i = 0; i < LT_Num; ++i)
+        {
+            if (_ctrls[i].hwnd)
+            {
+                data.SetInfo((LocateType)i, _ctrls[i].pos, _ctrls[i].hwnd);
+            }
+        }
+
+        CString locFile;
+        _locateFile.GetWindowText(locFile);
+        app.LocFile(locFile);
+
+        if (data.Save(locFile))
+        {
+            if (app.Save())
+            {
+                m_dirty = false;
+            }
+        }
+
+    }
+}
+
 void CStockLocatePropPage::InitCtrls()
 {
     // TODO : access locate data directly, may change this later
@@ -111,7 +152,7 @@ void CStockLocatePropPage::InitCtrls()
         _ctrls[i].label = this->FindLabelCtrl((LocateType)i);
         _ctrls[i].p = this->FindMaskCtrl((LocateType)i);
         _ctrls[i].h = this->FindEditCtrl((LocateType)i);
-        CLocateInfo &info = data.LocInfo((LocateType)i);
+        CLocateInfo const& info = data.LocInfo((LocateType)i);
         _ctrls[i].hwnd = info.hwnd;
         if (info.hwnd)
         {
@@ -268,12 +309,14 @@ void CStockLocatePropPage::SwitchBOS()
         this->SetCtrlText(LT_SellOrder);
     }
 
+    this->SetCtrlFocus();
+
     this->UpdateData(FALSE);
 }
 
 void CStockLocatePropPage::SetCtrlText(LocateType type)
 {
-    CLocateInfo &info = theApp.AppData().LocateData().LocInfo(type);
+    CLocateInfo const& info = theApp.AppData().LocateData().LocInfo(type);
     if (info.hwnd)
     {
         CString pos;
@@ -286,8 +329,42 @@ void CStockLocatePropPage::SetCtrlText(LocateType type)
     }
     else
     {
-        _ctrls[type].p->SetWindowText(ST_LOCATE_TEMP_STR);
+        _ctrls[type].p->SetWindowText(_T(""));
         _ctrls[type].h->SetWindowText(_T(""));
+    }
+}
+
+void CStockLocatePropPage::SetCtrlFocus()
+{
+    if (m_bosId == ID_LOCATE_OP_BUY)
+    {
+        for (int i = LT_Buy; i < LT_Sell; ++i)
+        {
+            if (_ctrls[i].hwnd == nullptr)
+            {
+                _ctrls[i].p->SetFocus();
+                return;
+            }
+        }
+    }
+    else
+    {
+        for (int i = LT_Sell; i < LT_Cancel; ++i)
+        {
+            if (_ctrls[i].hwnd == nullptr)
+            {
+                _ctrls[i].p->SetFocus();
+                return;
+            }
+        }
+    }
+
+    for (int i = LT_Cancel; i < LT_Num; ++i)
+    {
+        if (_ctrls[i].hwnd == nullptr)
+        {
+            _ctrls[i].p->SetFocus();
+        }
     }
 }
 
@@ -333,6 +410,7 @@ void CStockLocatePropPage::OnBOSChange()
         ::CheckMenuItem(_tradeSelBtn.m_hMenu, m_bosId, MF_UNCHECKED);
         m_bosId = _tradeSelBtn.m_nMenuResult;
         ::CheckMenuItem(_tradeSelBtn.m_hMenu, m_bosId, MF_CHECKED);
+        
 
         this->SwitchBOS();
     }
@@ -341,5 +419,7 @@ void CStockLocatePropPage::OnBOSChange()
 
 LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 {
-    return LRESULT();
+
+
+    return 0;
 }

@@ -26,7 +26,8 @@ public:
     bool    IsLoaded() const { return m_load; }
     bool    IsReady() const { return m_ready; }
 
-    CLocateInfo& LocInfo(LocateType type) { return m_info[type]; }
+    CLocateInfo const& LocInfo(LocateType type) const { return m_info[type]; }
+    void    SetInfo(LocateType type, POINT pos, HWND hwnd);
 
 private:
     int FindIdByName(CString const& name);

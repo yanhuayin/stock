@@ -304,6 +304,10 @@ bool CStockLocateData::Save(CString const & file)
     return false;
 }
 
+void CStockLocateData::SetInfo(LocateType type, POINT pos, HWND hwnd)
+{
+}
+
 int CStockLocateData::FindIdByName(CString const & name)
 {
     int i = 0;

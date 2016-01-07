@@ -40,6 +40,7 @@ public:
 protected:
     virtual void    DoDataExchange(CDataExchange *pDX);
     virtual BOOL    OnInitDialog();
+    virtual void    OnOK();
 
 protected:
     afx_msg void    OnTimer(UINT nIDEvent);
@@ -54,6 +55,7 @@ private:
     CBCGPEdit*      FindEditCtrl(LocateType type);
     void            SwitchBOS();
     void            SetCtrlText(LocateType type);
+    void            SetCtrlFocus();
 
 private:
     CBCGPMaskEdit           m_buyOrSell;
@@ -87,6 +89,8 @@ private:
     CTargetLocationPic      m_pic;
     CMenu                   m_menu;
     UINT                    m_bosId;
+
+    bool                    m_dirty;
 };
 
 
