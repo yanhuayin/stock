@@ -29,8 +29,8 @@ int CTradeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
         return -1;
     }
 
-    m_tradeWnd._q1PlusClickEvent = std::bind(&CTradeView::OnQ1PlusClicked, this);
-    m_tradeWnd._q1MinusClickEvent = std::bind(&CTradeView::OnQ1MinusClicked, this);
+    //m_tradeWnd._q1PlusClickEvent = std::bind(&CTradeView::OnQ1PlusClicked, this);
+    //m_tradeWnd._q1MinusClickEvent = std::bind(&CTradeView::OnQ1MinusClicked, this);
 
     m_tradeWnd.ShowWindow(SW_SHOW);
     m_tradeWnd.UpdateWindow();
@@ -65,14 +65,19 @@ void CTradeView::AdjustLayout()
     m_tradeWnd.UpdateWindow();
 }
 
-void CTradeView::OnQ1PlusClicked()
+void CTradeView::OnOK()
 {
-    MessageBox(_T("fuck"), MB_OK);
+    // request stock info
 }
 
-void CTradeView::OnQ1MinusClicked()
-{
-    MessageBox(_T("shit"), MB_OK);
-}
+//void CTradeView::OnQ1PlusClicked()
+//{
+//    MessageBox(_T("fuck"), MB_OK);
+//}
+//
+//void CTradeView::OnQ1MinusClicked()
+//{
+//    MessageBox(_T("shit"), MB_OK);
+//}
 
 

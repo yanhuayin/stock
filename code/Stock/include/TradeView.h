@@ -18,8 +18,9 @@ public:
     void AdjustLayout();
 
 public:
-    void OnQ1PlusClicked();
-    void OnQ1MinusClicked();
+    //void OnQ1PlusClicked();
+    //void OnQ1MinusClicked();
+    void    OnOK();
 
 protected:
     CTradeWnd       m_tradeWnd;

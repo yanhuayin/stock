@@ -58,4 +58,31 @@ enum LocateType
     LT_Num
 };
 
+enum StockInfoType
+{
+    SIT_Sell10 = 0,
+    SIT_Sell9,
+    SIT_Sell8,
+    SIT_Sell7,
+    SIT_Sell6,
+    SIT_Sell5,
+    SIT_Sell4,
+    SIT_Sell3,
+    SIT_Sell2,
+    SIT_Sell1,
+
+    SIT_Buy1,
+    SIT_Buy2,
+    SIT_Buy3,
+    SIT_Buy4,
+    SIT_Buy5,
+    SIT_Buy6,
+    SIT_Buy7,
+    SIT_Buy8,
+    SIT_Buy9,
+    SIT_Buy10,
+
+    SIT_Num
+};
+
 #endif
