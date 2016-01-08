@@ -20,7 +20,7 @@ bool CTradeSettingsData::Load(CString const & file)
             f.SeekToBegin();
 
             UINT len = (UINT)f.GetLength() + 1;
-            TCHAR *buf = new TCHAR[len];
+            char *buf = new char[len];
             len = f.Read(buf, len);
 
             if (len == 0)
@@ -29,10 +29,13 @@ bool CTradeSettingsData::Load(CString const & file)
                 return m_load;
             }
 
-            buf[len - 1] = '\0';
+            buf[len] = '\0';
+
+            RapidStringStream s(buf);
+            RapidEncodeInputStream eis(s);
 
             RapidDocument doc;
-            doc.Parse<rapidjson::kParseDefaultFlags | rapidjson::kParseStopWhenDoneFlag>(buf);
+            doc.ParseStream<rapidjson::kParseDefaultFlags | rapidjson::kParseStopWhenDoneFlag, RapidUTF8>(eis);
 
             ST_SAFE_DELETE_ARRAY(buf);
 
@@ -101,7 +104,8 @@ bool CTradeSettingsData::Save(CString const & file)
         root.AddMember(RapidDocument::StringRefType(ST_SET_QUOTA_NAME), m_quota, a);
 
         RapidStringBuffer buff;
-        RapidWriter writer(buff);
+        RapidEncodeOutputStream eos(buff);
+        RapidWriter writer(eos);
 
         doc.Accept(writer);
 

@@ -50,7 +50,7 @@ bool CStockAppData::Load()
                         cfg.SeekToBegin();
 
                         UINT len = (UINT)cfg.GetLength() + 1;
-                        TCHAR *buf = new TCHAR[len];
+                        char *buf = new char[len];
                         len = cfg.Read(buf, len);
 
                         if (len == 0)
@@ -59,10 +59,13 @@ bool CStockAppData::Load()
                             return m_load;
                         }
 
-                        buf[len - 1] = '\0';
+                        buf[len] = '\0';
+
+                        RapidStringStream s(buf);
+                        RapidEncodeInputStream eis(s);
 
                         RapidDocument doc;
-                        doc.Parse<rapidjson::kParseDefaultFlags | rapidjson::kParseStopWhenDoneFlag>(buf);
+                        doc.ParseStream<rapidjson::kParseDefaultFlags | rapidjson::kParseStopWhenDoneFlag, RapidUTF8>(eis);
 
                         ST_SAFE_DELETE_ARRAY(buf);
 
@@ -132,7 +135,8 @@ bool CStockAppData::Save()
         root.AddMember(RapidDocument::StringRefType(ST_CFG_SET_FILE), RapidDocument::StringRefType(m_setFile.GetString()), a);
 
         RapidStringBuffer buff;
-        RapidWriter writer(buff);
+        RapidEncodeOutputStream eos(buff);
+        RapidWriter writer(eos);
 
         doc.Accept(writer);
 

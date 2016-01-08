@@ -53,7 +53,7 @@ bool CStockLocateData::Load(CString const & file)
             f.SeekToBegin();
 
             UINT len = (UINT)f.GetLength() + 1;
-            TCHAR *buf = new TCHAR[len];
+            char *buf = new char[len];
             len = f.Read(buf, len);
 
             if (len == 0)
@@ -62,15 +62,19 @@ bool CStockLocateData::Load(CString const & file)
                 return m_load;
             }
 
-            buf[len - 1] = '\0';
+            buf[len] = '\0';
+
+            RapidStringStream s(buf);
+            RapidEncodeInputStream eis(s);
 
             RapidDocument doc;
-            doc.Parse<rapidjson::kParseDefaultFlags | rapidjson::kParseStopWhenDoneFlag>(buf);
+            doc.ParseStream<rapidjson::kParseDefaultFlags | rapidjson::kParseStopWhenDoneFlag, RapidUTF8>(eis);
 
             ST_SAFE_DELETE_ARRAY(buf);
 
             if (!doc.HasParseError() && doc.IsObject())
             {
+                // TODO : use rapidjson pointer instead
                 if (doc.HasMember(ST_LOC_TARGET_NAME))
                 {
                     RapidValue &targetVal = doc[ST_LOC_TARGET_NAME];
@@ -293,7 +297,8 @@ bool CStockLocateData::Save(CString const & file)
         }
 
         RapidStringBuffer buff;
-        RapidWriter writer(buff);
+        RapidEncodeOutputStream eos(buff);
+        RapidWriter writer(eos);
 
         doc.Accept(writer);
 
