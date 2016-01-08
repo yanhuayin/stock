@@ -62,8 +62,10 @@ bool CStockLocateData::Load(CString const & file)
                 return m_load;
             }
 
+            buf[len - 1] = '\0';
+
             RapidDocument doc;
-            doc.Parse(buf);
+            doc.Parse<rapidjson::kParseDefaultFlags | rapidjson::kParseStopWhenDoneFlag>(buf);
 
             ST_SAFE_DELETE_ARRAY(buf);
 
@@ -279,6 +281,7 @@ bool CStockLocateData::Save(CString const & file)
                 pos.AddMember(RapidDocument::StringRefType(ST_LOC_X_NAME), m_info[i].pos.x, a);
                 pos.AddMember(RapidDocument::StringRefType(ST_LOC_Y_NAME), m_info[i].pos.y, a);
                 info.AddMember(RapidDocument::StringRefType(ST_LOC_POS_NAME), pos, a);
+                info.AddMember(RapidDocument::StringRefType(ST_LOC_ID_NAME), i, a);
 
                 comps.PushBack(info, a);
             }

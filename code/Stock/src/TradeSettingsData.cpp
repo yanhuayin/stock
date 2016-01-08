@@ -29,8 +29,10 @@ bool CTradeSettingsData::Load(CString const & file)
                 return m_load;
             }
 
+            buf[len - 1] = '\0';
+
             RapidDocument doc;
-            doc.Parse(buf);
+            doc.Parse<rapidjson::kParseDefaultFlags | rapidjson::kParseStopWhenDoneFlag>(buf);
 
             ST_SAFE_DELETE_ARRAY(buf);
 
