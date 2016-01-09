@@ -32,6 +32,8 @@ public:
 
 private:
     bool    ParseConfig(RapidDocument &doc);
+    bool    LoadWind();
+    bool    LoadConfig();
 
 private:
     CStockLocateData    m_locate;
@@ -44,6 +46,7 @@ private:
     CString             m_appName;
     CString             m_locFile;
     CString             m_setFile;
+    CString             m_windFile;
 };
 
 

@@ -23,93 +23,10 @@ CStockAppData::CStockAppData()
 
 bool CStockAppData::Load()
 {
-    TCHAR buffer[MAX_PATH];
-    DWORD size = MAX_PATH;
+    m_load = this->LoadConfig() && this->LoadWind();
 
-    if (::QueryFullProcessImageName(::GetCurrentProcess(), 0, buffer, &size))
-    {
-        TRACE1("Full process image name is %s\n", buffer);
-
-        if (::PathRemoveFileSpec(buffer) == TRUE)
-        {
-            m_cfgFullPath = buffer;
-            m_locFile.Format(_T("%s\\%s"), buffer, m_locFile.GetString());
-            m_setFile.Format(_T("%s\\%s"), buffer, m_setFile.GetString());
-
-            if (::PathAppend(buffer, m_cfgFile) == TRUE)
-            {
-                BOOL exists = FileExists(buffer);
-
-                if (exists)
-                {
-                    CFile cfg;
-                    CFileException  exp;
-
-                    if (cfg.Open(buffer, CFile::modeRead, &exp))
-                    {
-                        cfg.SeekToBegin();
-
-                        UINT len = (UINT)cfg.GetLength() + 1;
-                        char *buf = new char[len];
-                        len = cfg.Read(buf, len);
-
-                        if (len == 0)
-                        {
-                            m_load = true;
-                            return m_load;
-                        }
-
-                        buf[len] = '\0';
-
-                        RapidStringStream s(buf);
-                        RapidEncodeInputStream eis(s);
-
-                        RapidDocument doc;
-                        doc.ParseStream<rapidjson::kParseDefaultFlags | rapidjson::kParseStopWhenDoneFlag, RapidUTF8>(eis);
-
-                        ST_SAFE_DELETE_ARRAY(buf);
-
-                        if (!doc.HasParseError() && doc.IsObject())
-                        {
-                            if (this->ParseConfig(doc))
-                            {
-                                m_load = true;
-                                return m_load;
-                            } // debug output has been done by ParseConfig
-                        }
-                        else
-                        {
-                            if (doc.HasParseError())
-                            {
-                                TRACE1("Failed parse stock app config, error code: %d\n", doc.GetParseError());
-                            }
-                            else
-                            {
-                                TRACE0("Failed parse stock app config\n");
-                            }
-
-                            TRACE1("Warning: Default locate file %s is used\n", m_locFile.GetString());
-                            TRACE1("Warning: Default settings file %s is used\n", m_setFile.GetString());
-                        }
-                    }
-                    else
-                    {
-                        TCHAR err[256];
-                        exp.GetErrorMessage(err, 256);
-                        TRACE2("Can't open file %s, error is: %s\n", buffer, err);
-                    }
-                }
-                else
-                {
-                    m_load = true;
-                    return m_load;
-                }
-                
-            }
-        }
-    }
-
-    AfxMessageBox(IDS_APP_LOAD_DATA_FAILED);
+    if (!m_load)
+        AfxMessageBox(IDS_APP_LOAD_DATA_FAILED);
 
     return m_load;
 }
@@ -213,4 +130,130 @@ bool CStockAppData::ParseConfig(RapidDocument & doc)
     }
 
     return true;
+}
+
+bool CStockAppData::LoadWind()
+{
+    bool res = false;
+
+    CString keyPath(MAKEINTRESOURCE(IDS_WIND_PATH));
+    CString valueName(_T("BinPath"));
+
+    HKEY windKey;
+    if (::RegOpenKeyEx(HKEY_CURRENT_USER, keyPath, 0, KEY_READ, &windKey) == ERROR_SUCCESS)
+    {
+        DWORD type = REG_SZ;
+        DWORD size = 0;
+
+        if (::RegQueryValueEx(windKey, valueName, NULL, &type, NULL, &size) == ERROR_SUCCESS)
+        {
+            BYTE *path = new BYTE[size + 1];
+            path[size] = '\0';
+
+            if (::RegQueryValueEx(windKey, valueName, NULL, &type, path, &size) == ERROR_SUCCESS)
+            {
+                m_windFile.Format(_T("%sWindQuantLibrary.dll"), (TCHAR*)path);
+                res = true;
+            }
+
+            ST_SAFE_DELETE_ARRAY(path);
+        }
+
+        ::RegCloseKey(windKey);
+        ::RegCloseKey(HKEY_CURRENT_USER);
+    }
+    else
+    {
+        ::RegCloseKey(HKEY_CURRENT_USER);
+    }
+
+    return res;
+}
+
+bool CStockAppData::LoadConfig()
+{
+    bool res = false;
+
+    TCHAR buffer[MAX_PATH];
+    DWORD size = MAX_PATH;
+
+    if (::QueryFullProcessImageName(::GetCurrentProcess(), 0, buffer, &size))
+    {
+        TRACE1("Full process image name is %s\n", buffer);
+
+        if (::PathRemoveFileSpec(buffer) == TRUE)
+        {
+            m_cfgFullPath = buffer;
+            m_locFile.Format(_T("%s\\%s"), buffer, m_locFile.GetString());
+            m_setFile.Format(_T("%s\\%s"), buffer, m_setFile.GetString());
+
+            if (::PathAppend(buffer, m_cfgFile) == TRUE)
+            {
+                BOOL exists = FileExists(buffer);
+
+                if (exists)
+                {
+                    CFile cfg;
+                    CFileException  exp;
+
+                    if (cfg.Open(buffer, CFile::modeRead, &exp))
+                    {
+                        cfg.SeekToBegin();
+
+                        UINT len = (UINT)cfg.GetLength() + 1;
+                        char *buf = new char[len];
+                        len = cfg.Read(buf, len);
+
+                        if (len == 0)
+                        {
+                            m_load = true;
+                            return m_load;
+                        }
+
+                        buf[len] = '\0';
+
+                        RapidStringStream s(buf);
+                        RapidEncodeInputStream eis(s);
+
+                        RapidDocument doc;
+                        doc.ParseStream<rapidjson::kParseDefaultFlags | rapidjson::kParseStopWhenDoneFlag, RapidUTF8>(eis);
+
+                        ST_SAFE_DELETE_ARRAY(buf);
+
+                        if (!doc.HasParseError() && doc.IsObject())
+                        {
+                            res = this->ParseConfig(doc);
+                        }
+                        else
+                        {
+                            if (doc.HasParseError())
+                            {
+                                TRACE1("Failed parse stock app config, error code: %d\n", doc.GetParseError());
+                            }
+                            else
+                            {
+                                TRACE0("Failed parse stock app config\n");
+                            }
+
+                            TRACE1("Warning: Default locate file %s is used\n", m_locFile.GetString());
+                            TRACE1("Warning: Default settings file %s is used\n", m_setFile.GetString());
+                        }
+                    }
+                    else
+                    {
+                        TCHAR err[256];
+                        exp.GetErrorMessage(err, 256);
+                        TRACE2("Can't open file %s, error is: %s\n", buffer, err);
+                    }
+                }
+                else
+                {
+                    res = true;
+                }
+
+            }
+        }
+    }
+
+    return res;
 }
