@@ -12,7 +12,7 @@
 #endif
 
 #include "StockAppData.h"
-
+#include "StockSplash.h"
 
 // CStockApp:
 // See Stock.cpp for the implementation of this class
@@ -42,6 +42,7 @@ protected:
 
 private:
     CStockAppData   m_data;
+    CStockSplash    m_splash;
 };
 
 extern CStockApp theApp;

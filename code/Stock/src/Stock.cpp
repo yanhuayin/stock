@@ -1,9 +1,92 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "StockConfig.h"
+#include "StockGlobal.h"
+#include "Utils.h"
 #include "Stock.h"
 #include "StockMainFrm.h"
 
+#define ST_LOAD_APP_ERR 1
+#define ST_LOAD_LOC_ERR 2
+#define ST_LOAD_SET_ERR 3
+#define ST_LOAD_UI_ERR  5
+#define ST_LOAD_NO_ERR  0
+
+class CStockLoadThread : public CWinThread
+{
+    DECLARE_DYNCREATE(CStockLoadThread)
+
+public:
+    CStockLoadThread(): m_wnd(nullptr) {}
+
+public:
+    virtual BOOL    InitInstance();
+    //virtual int     ExitInstance();
+
+public:
+    void    UIWnd(CWnd *pWnd) { m_wnd = pWnd; }
+
+protected:
+    afx_msg void    OnLoad(WPARAM wParam, LPARAM lParam);
+    DECLARE_MESSAGE_MAP();
+
+private:
+    CWnd   *m_wnd;
+};
+
+IMPLEMENT_DYNCREATE(CStockLoadThread, CWinThread)
+
+BEGIN_MESSAGE_MAP(CStockLoadThread, CWinThread)
+    ON_THREAD_MESSAGE(ST_LOAD_MSG, OnLoad)
+END_MESSAGE_MAP()
+
+BOOL CStockLoadThread::InitInstance()
+{
+    m_bAutoDelete = FALSE;
+    return TRUE;
+}
+
+//int CStockLoadThread::ExitInstance()
+//{
+//    CWinThread::ExitInstance();
+//}
+
+void CStockLoadThread::OnLoad(WPARAM wParam, LPARAM lParam)
+{
+    CStockAppData &data = theApp.AppData();
+
+    if (!m_wnd)
+    {
+        ::AfxEndThread(ST_LOAD_UI_ERR, FALSE);
+        return;
+    }
+
+    UINT res = ST_LOAD_NO_ERR;
+
+    m_wnd->PostMessage(ST_LOAD_MSG, (WPARAM)(ST_LOAD_ST_CONFIG));
+    if (data.Load())
+    {
+        if (data.LocateData().Load(data.LocFile()))
+        {
+            if (!data.TradeSettingsData().Load(data.SetFile()))
+            {
+                res = ST_LOAD_SET_ERR;
+            }
+        }
+        else
+        {
+            res = ST_LOAD_LOC_ERR;
+        }
+    }
+    else
+    {
+        res = ST_LOAD_APP_ERR;
+    }
+
+    m_wnd->PostMessage(ST_LOAD_MSG, (WPARAM)(ST_LOAD_ST_FINISH));
+
+    ::AfxEndThread(res, FALSE);
+}
 
 BEGIN_MESSAGE_MAP(CStockApp, CBCGPWinApp)
     ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
@@ -42,15 +125,32 @@ BOOL CStockApp::InitInstance()
 
     //this->SetRegistryBase(ST_APP_REGISTRY_SECTION);
 
-    // load data
-    if (!m_data.Load())
+    CStockLoadThread *pThread = (CStockLoadThread*)AfxBeginThread(RUNTIME_CLASS(CStockLoadThread), 0, 0, CREATE_SUSPENDED);
+    pThread->UIWnd(&m_splash);
+    pThread->ResumeThread();
+
+    m_splash.Worker(pThread);
+    if (m_splash.DoModal() != IDOK)
         return FALSE;
 
-    if (!m_data.LocateData().Load(m_data.LocFile()))
+    DWORD err = ST_LOAD_APP_ERR;
+    ::GetExitCodeThread(pThread->m_hThread, &err);
+
+    ST_SAFE_DELETE(pThread);
+
+    if (err != ST_LOAD_NO_ERR)
         return FALSE;
 
-    if (!m_data.TradeSettingsData().Load(m_data.SetFile()))
-        return FALSE;
+    // Parse command line for standard shell commands, DDE, file open
+    //CCommandLineInfo cmdInfo;
+    //this->ParseCommandLine(cmdInfo);
+
+    // TODO : parse command line
+
+    // Dispatch commands specified on the command line.  Will return FALSE if
+    // app was launched with /RegServer, /Register, /Unregserver or /Unregister.
+    //if (!this->ProcessShellCommand(cmdInfo))
+    //    return FALSE;
 
     CStockMainFrame *pMainFrame = new CStockMainFrame();
 
@@ -60,17 +160,6 @@ BOOL CStockApp::InitInstance()
         return FALSE;
 
     m_pMainWnd = pMainFrame;
-
-    // Parse command line for standard shell commands, DDE, file open
-    CCommandLineInfo cmdInfo;
-    this->ParseCommandLine(cmdInfo);
-
-    // TODO : parse command line
-
-    // Dispatch commands specified on the command line.  Will return FALSE if
-    // app was launched with /RegServer, /Register, /Unregserver or /Unregister.
-    if (!this->ProcessShellCommand(cmdInfo))
-        return FALSE;
 
     if (!this->ReloadWindowPlacement(pMainFrame))
     {
@@ -126,6 +215,3 @@ BOOL CStockApp::SaveState(LPCTSTR lpszSectionName, CBCGPFrameImpl * pFrameImpl)
 void CStockApp::OnAppAbout()
 {
 }
-
-
-

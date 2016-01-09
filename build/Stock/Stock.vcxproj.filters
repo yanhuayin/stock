@@ -78,6 +78,9 @@
     <ClInclude Include="..\..\code\Stock\include\ApiHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\StockSplash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\Stock\src\Stock.cpp">
@@ -128,6 +131,9 @@
     <ClCompile Include="..\..\code\Stock\src\ApiHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\StockSplash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\resource\Toolbar_2012.png">
@@ -170,6 +176,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\..\resource\prop_sheet.PNG">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="splash.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\resource\splash.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

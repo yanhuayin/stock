@@ -16,6 +16,10 @@
 #define ST_MIN_QUANTITY         0
 
 #define ST_LOCATE_WND_MSG       (WM_APP + 1)
+#define ST_LOAD_MSG             (WM_APP + 2)
+
+#define ST_LOAD_ST_CONFIG       1
+#define ST_LOAD_ST_FINISH       5
 
 
 #endif // !__STOCK_GLOBAL_H__

@@ -223,6 +223,7 @@
     <ClInclude Include="..\..\code\Stock\include\StockLocatePropPage.h" />
     <ClInclude Include="..\..\code\Stock\include\StockMainFrm.h" />
     <ClInclude Include="..\..\code\Stock\include\StockPropSheet.h" />
+    <ClInclude Include="..\..\code\Stock\include\StockSplash.h" />
     <ClInclude Include="..\..\code\Stock\include\StockTradeSettingsPropPage.h" />
     <ClInclude Include="..\..\code\Stock\include\TargetLocationPic.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeControl.h" />
@@ -245,6 +246,7 @@
     <ClCompile Include="..\..\code\Stock\src\StockLocatePropPage.cpp" />
     <ClCompile Include="..\..\code\Stock\src\StockMainFrm.cpp" />
     <ClCompile Include="..\..\code\Stock\src\StockPropSheet.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\StockSplash.cpp" />
     <ClCompile Include="..\..\code\Stock\src\StockTradeSettingsPropPage.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TargetLocationPic.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeControl.cpp" />
@@ -261,12 +263,14 @@
     <Image Include="..\..\resource\new_32.ico" />
     <Image Include="..\..\resource\prop_sheet.PNG" />
     <Image Include="..\..\resource\setting_32.ico" />
+    <Image Include="..\..\resource\splash.bmp" />
     <Image Include="..\..\resource\Toolbar.bmp" />
     <Image Include="..\..\resource\toolbar1.bmp" />
     <Image Include="..\..\resource\Toolbar_2012.png" />
     <Image Include="..\..\resource\trade_toolbar.PNG" />
     <Image Include="locate_empty_32.ico" />
     <Image Include="prop_sheet.PNG" />
+    <Image Include="splash.bmp" />
     <Image Include="toolbar1.bmp" />
     <Image Include="trade_toolbar.PNG" />
   </ItemGroup>
