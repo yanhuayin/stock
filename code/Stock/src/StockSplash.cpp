@@ -47,6 +47,9 @@ LRESULT CStockSplash::OnLoading(WPARAM wParam, LPARAM lParam)
     case ST_LOAD_ST_CONFIG:
         m_status = _T("loading...");
         break;
+    case ST_INIT_DATABASE:
+        m_status = _T("initializing...");
+        break;
     case ST_LOAD_ST_FINISH:
         this->EndDialog(IDOK);
         return 0;

@@ -26,6 +26,8 @@ public:
     virtual void AssertValid() const;
     virtual void Dump(CDumpContext& dc) const;
 #endif
+public:
+    void    RemoveView(TradeViewHandle h);
 
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -41,8 +43,9 @@ private:
     CBCGPMenuBar            m_menu;
     CBCGPToolBar            m_toolbar;
 
-    typedef std::list<TradeViewPtr> TradeViewList;
+    typedef std::list<TradeViewHandle> TradeViewList;
     TradeViewList           m_views;
+    UINT                    m_viewCount;
 };
 
 

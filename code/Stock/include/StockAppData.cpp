@@ -23,7 +23,7 @@ CStockAppData::CStockAppData()
 
 bool CStockAppData::Load()
 {
-    m_load = this->LoadConfig() && this->LoadWind();
+    m_load = this->LoadConfig(); //&& this->LoadWind();
 
     if (!m_load)
         AfxMessageBox(IDS_APP_LOAD_DATA_FAILED);

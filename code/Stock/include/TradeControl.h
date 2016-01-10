@@ -5,6 +5,9 @@
 #pragma once
 #endif
 
+#include <list>
+#include <vector>
+#include <unordered_map>
 #include "StockConfig.h"
 #include "Utils.h"
 
@@ -12,11 +15,31 @@
 class CTradeControl : public Singleton<CTradeControl>
 {
 public:
-    CTradeControl();
-   ~CTradeControl();
+    CTradeControl() : m_mainWnd(nullptr), m_init(false) {}
+   ~CTradeControl() {}
 
 public:
+    bool    Init(CStockMainFrame *pMainWnd);
+    bool    Close();
+    bool    IsInit() { return m_init; }
+    bool    IsClose() { return !m_init; }
 
+public:
+    void    ViewClosed(TradeViewHandle h);
+
+    typedef std::vector<LPCTSTR>    CandidatesList;
+    InfoNumArrayPtr RequestInfo(TradeViewHandle h, CandidatesList *c = nullptr);
+
+private:
+    typedef std::list<TradeViewHandle>  ViewList;
+    typedef std::shared_ptr<ViewList>   ViewListPtr;
+    typedef std::unordered_map<TradeModelHandle, ViewListPtr>       ModelViewMap;
+    typedef std::unordered_map<TradeViewHandle, TradeModelHandle>   ViewModelMap;
+
+    ModelViewMap        m_modelView;
+    ViewModelMap        m_viewModel;
+    CStockMainFrame    *m_mainWnd;
+    bool                m_init;
 };
 
 

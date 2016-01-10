@@ -1,9 +1,11 @@
 #include "stdafx.h"
+#include <algorithm>
 #include "resource.h"
 #include "Utils.h"
 #include "TradeView.h"
 #include "StockPropSheet.h"
 #include "StockMainFrm.h"
+#include "TradeControl.h"
 
 #define ST_TRADE_VIEW_WIDTH     312
 #define ST_TRADE_VIEW_HEIGHT    484
@@ -22,6 +24,7 @@ BEGIN_MESSAGE_MAP(CStockMainFrame, CMDIFrameWnd)
 END_MESSAGE_MAP()
 
 CStockMainFrame::CStockMainFrame()
+    : m_viewCount(0)
 {
     CBCGPPopupMenu::SetForceShadow(TRUE);
 }
@@ -129,7 +132,7 @@ void CStockMainFrame::OnTradeNew()
     CString title;
     title.LoadString(IDS_TRADE_WND_TITLE);
 
-    title.AppendFormat(_T("%d"), m_views.size() + 1);
+    title.AppendFormat(_T("%d"), m_viewCount + 1);
 
     const CRect defRect(0, 0, ST_TRADE_VIEW_WIDTH, ST_TRADE_VIEW_HEIGHT);
     if (!pView->Create(title, this, defRect, TRUE,
@@ -140,6 +143,7 @@ void CStockMainFrame::OnTradeNew()
         return;
     }
     m_views.push_back(pView);
+    ++m_viewCount;
 
     //this->DockControlBar(pView.get(), NULL, &defRect);
 
@@ -192,8 +196,19 @@ void CStockMainFrame::OnTradeSettings()
 
 void CStockMainFrame::OnClose()
 {
-    // TODO :  release views memory
+    // control will closed first
+    // then all view will be notified
+
+    CTradeControl::Instance().Close();
 
     CMDIFrameWnd::OnClose();
+}
+
+void CStockMainFrame::RemoveView(TradeViewHandle h)
+{
+    if (h)
+    {
+        m_views.remove(h);
+    }
 }
 

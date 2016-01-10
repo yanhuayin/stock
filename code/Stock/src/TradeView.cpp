@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "TradeView.h"
+#include "TradeControl.h"
 
 BEGIN_MESSAGE_MAP(CTradeView, CBCGPDockingControlBar)
     ON_WM_CREATE()
@@ -68,6 +69,18 @@ void CTradeView::AdjustLayout()
 void CTradeView::OnOK()
 {
     // request stock info
+}
+
+void CTradeView::PostNcDestroy()
+{
+    // ok, let control remove this view
+    CBCGPDockingControlBar::PostNcDestroy();
+
+    CTradeControl &tctl = CTradeControl::Instance();
+    if (!tctl.IsClose())
+    {
+        tctl.ViewClosed(shared_from_this());
+    }
 }
 
 //void CTradeView::OnQ1PlusClicked()

@@ -19,6 +19,7 @@
 #define ST_LOAD_MSG             (WM_APP + 2)
 
 #define ST_LOAD_ST_CONFIG       1
+#define ST_INIT_DATABASE        2
 #define ST_LOAD_ST_FINISH       5
 
 

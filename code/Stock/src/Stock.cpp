@@ -5,12 +5,15 @@
 #include "Utils.h"
 #include "Stock.h"
 #include "StockMainFrm.h"
+#include "TradeModel.h"
+#include "TradeControl.h"
 
-#define ST_LOAD_APP_ERR 1
-#define ST_LOAD_LOC_ERR 2
-#define ST_LOAD_SET_ERR 3
-#define ST_LOAD_UI_ERR  5
-#define ST_LOAD_NO_ERR  0
+#define ST_LOAD_APP_ERR     1
+#define ST_LOAD_LOC_ERR     2
+#define ST_LOAD_SET_ERR     3
+#define ST_INIT_MODEL_ERR   4
+#define ST_LOAD_UI_ERR      5
+#define ST_LOAD_NO_ERR      0
 
 class CStockLoadThread : public CWinThread
 {
@@ -81,6 +84,19 @@ void CStockLoadThread::OnLoad(WPARAM wParam, LPARAM lParam)
     else
     {
         res = ST_LOAD_APP_ERR;
+    }
+
+    if (res == ST_LOAD_NO_ERR)
+    {
+        m_wnd->PostMessage(ST_LOAD_MSG, (WPARAM)(ST_INIT_DATABASE));
+        if (CTradeModelManager::Instance().Init())
+        {
+            res = ST_LOAD_NO_ERR;
+        }
+        else
+        {
+            res = ST_INIT_MODEL_ERR;
+        }
     }
 
     m_wnd->PostMessage(ST_LOAD_MSG, (WPARAM)(ST_LOAD_ST_FINISH));
@@ -160,6 +176,9 @@ BOOL CStockApp::InitInstance()
         return FALSE;
 
     m_pMainWnd = pMainFrame;
+
+    if (!CTradeControl::Instance().Instance().Init(pMainFrame))
+        return FALSE;
 
     if (!this->ReloadWindowPlacement(pMainFrame))
     {

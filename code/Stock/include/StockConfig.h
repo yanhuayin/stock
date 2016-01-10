@@ -85,4 +85,22 @@ enum StockInfoType
     SIT_Num
 };
 
+typedef std::array<double, SIT_Num>     InfoNumArray;
+typedef std::shared_ptr<InfoNumArray>   InfoNumArrayPtr;
+
+namespace std
+{
+    template<> struct hash<CString>
+    {
+        typedef CString argument_type;
+        typedef std::size_t result_type;
+
+        result_type operator()(argument_type const& s) const
+        {
+            CMapStringToOb hasher;
+            return hasher.HashKey(s);
+        }
+    };
+}
+
 #endif
