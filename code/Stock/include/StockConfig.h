@@ -6,11 +6,14 @@
 #endif
 
 #include <memory>
+#include <string>
 
 #include "rapidjson\document.h"
 #include "rapidjson\stringbuffer.h"
 #include "rapidjson\writer.h"
 #include "rapidjson\encodedstream.h"
+
+typedef std::basic_string<TCHAR, std::char_traits<TCHAR>, std::allocator<TCHAR> >   String;
 
 class CTradeView;
 class CTradeWnd;
@@ -85,22 +88,27 @@ enum StockInfoType
     SIT_Num
 };
 
-typedef std::array<double, SIT_Num>     InfoNumArray;
-typedef std::shared_ptr<InfoNumArray>   InfoNumArrayPtr;
-
-namespace std
+enum StockInfoField
 {
-    template<> struct hash<CString>
-    {
-        typedef CString argument_type;
-        typedef std::size_t result_type;
+    SIF_Price = 0,
+    SIF_Quant,
 
-        result_type operator()(argument_type const& s) const
-        {
-            CMapStringToOb hasher;
-            return hasher.HashKey(s);
-        }
-    };
-}
+    SIF_Num
+};
+
+//namespace std
+//{
+//    template<> struct hash<CString>
+//    {
+//        typedef CString argument_type;
+//        typedef std::size_t result_type;
+//
+//        result_type operator()(argument_type const& s) const
+//        {
+//            CMapStringToOb hasher;
+//            return hasher.HashKey(s);
+//        }
+//    };
+//}
 
 #endif

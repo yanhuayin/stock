@@ -32,6 +32,7 @@ int CTradeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
     //m_tradeWnd._q1PlusClickEvent = std::bind(&CTradeView::OnQ1PlusClicked, this);
     //m_tradeWnd._q1MinusClickEvent = std::bind(&CTradeView::OnQ1MinusClicked, this);
+    m_tradeWnd._enterOKEvent = std::bind(&CTradeView::OnOK, this);
 
     m_tradeWnd.ShowWindow(SW_SHOW);
     m_tradeWnd.UpdateWindow();
@@ -66,9 +67,49 @@ void CTradeView::AdjustLayout()
     m_tradeWnd.UpdateWindow();
 }
 
+void CTradeView::SetName(CString const & name)
+{
+    m_tradeWnd._name.SetWindowText(name);
+}
+
+void CTradeView::SetInfo(StockInfoField field, InfoNumArrayPtr info)
+{
+    CTradeWnd::StockInfoCol col;
+    switch (field)
+    {
+    case SIF_Price:
+        col = CTradeWnd::SIC_Price;
+        break;
+    case SIF_Quant:
+        col = CTradeWnd::SIC_BuyQuant;
+        break;
+    default:
+        return;
+    }
+
+    InfoNumArray &arr = *info;
+
+    for (std::size_t i = 0; i < SIT_Num; ++i)
+    {
+        CBCGPGridRow *pRow = m_tradeWnd._info.GetRow(i);
+        if (pRow)
+        {
+            CString val;
+            val.Format(_T("%f"), arr[i]);
+            pRow->GetItem(col)->SetValue(val.GetString());
+        }
+    }
+}
+
 void CTradeView::OnOK()
 {
     // request stock info
+    CString code;
+    m_tradeWnd._code.GetWindowText(code);
+    if (!code.IsEmpty())
+    {
+        CTradeControl::Instance().RequestInfo(shared_from_this(), code);
+    }
 }
 
 void CTradeView::PostNcDestroy()

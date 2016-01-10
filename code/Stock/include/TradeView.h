@@ -6,6 +6,8 @@
 #endif
 
 #include <memory>
+#include <array>
+#include "StockConfig.h"
 #include "TradeWnd.h"
 
 class CTradeView : public CBCGPDockingControlBar, public std::enable_shared_from_this<CTradeView>
@@ -16,6 +18,14 @@ public:
 
 public:
     void AdjustLayout();
+
+public:
+    typedef std::array<double, SIT_Num>     InfoNumArray;
+    typedef std::shared_ptr<InfoNumArray>   InfoNumArrayPtr;
+
+    void    SetName(CString const& name);
+    void    SetInfo(StockInfoField field, InfoNumArrayPtr info);
+    void    Flush() { m_tradeWnd.UpdateData(FALSE); }
 
 public:
     void    OnOK();

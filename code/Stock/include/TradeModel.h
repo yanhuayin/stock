@@ -7,50 +7,72 @@
 
 #include <array>
 #include <unordered_map>
+#include "wind\WAPIWrapperCpp.h"
 #include "StockConfig.h"
 #include "Utils.h"
 
 class CTradeModel : public std::enable_shared_from_this<CTradeModel>
 {
 public:
-    CTradeModel() {}
+    CTradeModel() : m_reqId(0) {}
    ~CTradeModel() {}
 
 public:
+    typedef std::array<double, SIT_Num>     InfoNumArray;
+    typedef std::shared_ptr<InfoNumArray>   InfoNumArrayPtr;
+
+public:
+    ULONGLONG       ReqId() { return m_reqId; }
+    String const&   Code() { return m_code; }
+    String const&   Name() { return m_name; }
+    InfoNumArrayPtr NumInfo(StockInfoField field);
 
 private:
     friend class CTradeModelManager;
 
-    CString         m_code;
-    CString         m_name;
+    String         m_code;
+    String         m_name;
 
-    InfoNumArrayPtr    m_price;
-    InfoNumArrayPtr    m_quant;
+    InfoNumArrayPtr     m_price;
+    InfoNumArrayPtr     m_quant;
+
+    ULONGLONG           m_reqId;
 };
 
 
 class CTradeModelManager : public Singleton<CTradeModelManager>
 {
 public:
-    CTradeModelManager() {}
+    CTradeModelManager() : m_init(false) {}
    ~CTradeModelManager() {}
 
 public:
     bool    Init();
     bool    Shutdown();
+    bool    IsInit() { return m_init; }
 
 public:
     void    FreeModel(TradeModelHandle h);
+    bool    RequestModel(TradeModelHandle h);
+
+    void    UpdateModel(ULONGLONG reqId, WindData const& wd);
+
+    typedef std::vector<String> CandidatesList;
+    TradeModelHandle FindModel(String const& code, CandidatesList *c);
 
 private:
-    typedef std::unordered_map<CString, TradeModelHandle>   ModelMap;
+    typedef std::unordered_map<String, TradeModelHandle>    ModelMap;
     ModelMap        m_models;
 
-    CString         m_00;
-    CString         m_30;
-    CString         m_60;
+    typedef std::unordered_map<ULONGLONG, TradeModelHandle> ReqMap;
+    ReqMap          m_reqs;
 
-    CString         m_date;
+    String          m_00;
+    String          m_30;
+    String          m_60;
+
+    String          m_date;
+    bool            m_init;
 };
 
 

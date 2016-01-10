@@ -314,7 +314,12 @@ void CTradeWnd::OnDeltPosSpinCtrl(NMHDR * pNMHDR, LRESULT * pResult)
 
 void CTradeWnd::OnEnter()
 {
+    this->UpdateData();
 
+    if (_enterOKEvent)
+    {
+        _enterOKEvent();
+    }
 }
 
 void CTradeWnd::OnSellSell10()

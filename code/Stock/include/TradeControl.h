@@ -27,8 +27,12 @@ public:
 public:
     void    ViewClosed(TradeViewHandle h);
 
-    typedef std::vector<LPCTSTR>    CandidatesList;
-    InfoNumArrayPtr RequestInfo(TradeViewHandle h, CandidatesList *c = nullptr);
+    bool    RequestInfo(TradeViewHandle h, CString const& code);
+    
+    void    RefreshView(TradeModelHandle h);
+
+private:
+    bool    Watch(TradeViewHandle v, TradeModelHandle m);
 
 private:
     typedef std::list<TradeViewHandle>  ViewList;
