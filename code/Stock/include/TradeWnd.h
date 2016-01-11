@@ -45,8 +45,9 @@ public:
         SIC_OpBuy = 0,
         SIC_Name,
         SIC_Price,
-        SIC_BuyQuant,
-        SIC_SellQuant,
+        SIC_Quant,
+        //SIC_BuyQuant,
+        //SIC_SellQuant,
         SIC_OpSell,
 
         SIC_Num

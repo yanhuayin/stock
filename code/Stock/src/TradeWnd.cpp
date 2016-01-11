@@ -214,19 +214,16 @@ BOOL CTradeWnd::OnInitDialog()
 
     _info.InsertColumn(SIC_OpBuy, _T(""), 20);
     _info.InsertColumn(SIC_Name, CString(MAKEINTRESOURCE(IDS_INFO_NAME_COL)), 30);
-    _info.InsertColumn(SIC_Price, CString(MAKEINTRESOURCE(IDS_INFO_PRICE_COL)), 60);
-    _info.InsertColumn(SIC_BuyQuant, CString(MAKEINTRESOURCE(IDS_INFO_BUY_QUANT_COL)), 60);
-    _info.InsertColumn(SIC_SellQuant, CString(MAKEINTRESOURCE(IDS_INFO_SELL_QUANT_COL)), 60);
+    _info.InsertColumn(SIC_Price, CString(MAKEINTRESOURCE(IDS_INFO_PRICE_COL)), 75);
+    _info.InsertColumn(SIC_Quant, CString(MAKEINTRESOURCE(IDS_INFO_SELL_QUANT_COL)), 75);
     _info.InsertColumn(SIC_OpSell, _T(""), 20);
 
     _info.SetHeaderAlign(SIC_Name, HDF_CENTER);
     _info.SetColumnAlign(SIC_Name, HDF_CENTER);
     _info.SetHeaderAlign(SIC_Price, HDF_RIGHT);
     _info.SetColumnAlign(SIC_Price, HDF_RIGHT);
-    _info.SetHeaderAlign(SIC_BuyQuant, HDF_RIGHT);
-    _info.SetColumnAlign(SIC_BuyQuant, HDF_RIGHT);
-    _info.SetHeaderAlign(SIC_SellQuant, HDF_RIGHT);
-    _info.SetColumnAlign(SIC_SellQuant, HDF_RIGHT);
+    _info.SetHeaderAlign(SIC_Quant, HDF_RIGHT);
+    _info.SetColumnAlign(SIC_Quant, HDF_RIGHT);
 
     //int col = _info.GetColumnCount();
     for (int i = 0; i < SIT_Num; ++i)

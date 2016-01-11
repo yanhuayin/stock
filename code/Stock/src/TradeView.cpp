@@ -81,7 +81,7 @@ void CTradeView::SetInfo(StockInfoField field, InfoNumArrayPtr info)
         col = CTradeWnd::SIC_Price;
         break;
     case SIF_Quant:
-        col = CTradeWnd::SIC_BuyQuant;
+        col = CTradeWnd::SIC_Quant;
         break;
     default:
         return;
