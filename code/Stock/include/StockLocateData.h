@@ -11,7 +11,11 @@ struct CLocateInfo
 {
     POINT       pos;
     CString     name;
-    HWND        hwnd;
+    union 
+    {
+        HWND        hwnd;
+        HTREEITEM   hitem;
+    };
 };
 
 class CStockLocateData
@@ -29,11 +33,13 @@ public:
 
     CLocateInfo const& LocInfo(LocateType type) const { return m_info[type]; }
     void    SetInfo(LocateType type, POINT pos, HWND hwnd);
+    HTREEITEM   LocateTreeItem(HWND tree, LocateType type);
+    bool        ValidateHwnd(HWND hwnd, LocateType type);
 
 private:
-    int     FindIdByName(CString const& name);
-    HWND    SelectDelegateTreeItem(HWND tree);
-    HWND    PointToWnd(POINT const& pos);
+    int         FindIdByName(CString const& name);
+    HTREEITEM   SelectTreeItem(HWND tree, LocateType type);
+    HWND        PointToWnd(POINT const& pos);
 
 private:
     bool            m_load;

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <Psapi.h>
 #include "resource.h"
 #include "Utils.h"
 #include "ApiHelper.h"
@@ -33,6 +34,16 @@ const TCHAR*    s_locate_names [] =
 #define ST_LOC_POS_NAME         _T("pos")
 #define ST_LOC_X_NAME           _T("x")
 #define ST_LOC_Y_NAME           _T("y")
+
+#define ST_LOC_LIST_CTRL_NAME   _T("SysListView32")
+#define ST_LOC_TREE_CTRL_NAME   _T("SysTreeView32")
+#define ST_LOC_MAX_CLASS_NAME   256
+
+namespace
+{
+    static CString s_list_ctrl_name(ST_LOC_LIST_CTRL_NAME);
+    static CString s_tree_ctrl_name(ST_LOC_TREE_CTRL_NAME);
+}
 
 bool CStockLocateData::Load(CString const & file)
 {
@@ -333,34 +344,23 @@ bool CStockLocateData::LocateWnd()
                 case LT_Buy:
                 case LT_Sell:
                 case LT_Cancel:
-                    m_info[i].hwnd = TopWndFromPoint(m_info[i].pos);
-                    if (!::IsWindow(m_info[i].hwnd))
-                    {
-                        m_info[i].hwnd = nullptr;
-                        continue;
-                    }
-                    ::SendMessage(m_info[i].hwnd, BN_CLICKED, 0, 0);
-                    ++count;
-                    break;
                 case LT_Delegate:
-                    m_info[i].hwnd = TopWndFromPoint(m_info[i].pos);
-                    if (!::IsWindow(m_info[i].hwnd))
+                    m_info[i].hwnd = this->PointToWnd(m_info[i].pos);
+                    if (m_info[i].hwnd)
                     {
-                        m_info[i].hwnd = nullptr;
-                        continue;
+                        m_info[i].hitem = this->SelectTreeItem(m_info[i].hwnd, (LocateType)i);
+                        if (m_info[i].hitem)
+                            ++count;
                     }
-                    this->SelectDelegateTreeItem(m_info[i].hwnd);
                     break;
                 case LT_BuyCode:
                 case LT_BuyPrice:
                 case LT_BuyQuant:
                 case LT_BuyOrder:
-                    if (m_info[LT_Buy].hwnd)
+                    if (m_info[LT_Buy].hitem)
                     {
-                        m_info[i].hwnd = TopWndFromPoint(m_info[i].pos);
-                        if (!::IsWindow(m_info[i].hwnd))
-                            m_info[i].hwnd = nullptr;
-                        else
+                        m_info[i].hwnd = this->PointToWnd(m_info[i].pos);
+                        if (m_info[i].hwnd)
                             ++count;
                     }
                     break;
@@ -368,32 +368,26 @@ bool CStockLocateData::LocateWnd()
                 case LT_SellPrice:
                 case LT_SellQuant:
                 case LT_SellOrder:
-                    if (m_info[LT_Sell].hwnd)
+                    if (m_info[LT_Sell].hitem)
                     {
-                        m_info[i].hwnd = TopWndFromPoint(m_info[i].pos);
-                        if (!::IsWindow(m_info[i].hwnd))
-                            m_info[i].hwnd = nullptr;
-                        else
+                        m_info[i].hwnd = this->PointToWnd(m_info[i].pos);
+                        if (m_info[i].hwnd)
                             ++count;
                     }
                     break;
                 case LT_CancelList:
-                    if (m_info[LT_Cancel].hwnd)
+                    if (m_info[LT_Cancel].hitem)
                     {
-                        m_info[i].hwnd = TopWndFromPoint(m_info[i].pos);
-                        if (!::IsWindow(m_info[i].hwnd))
-                            m_info[i].hwnd = nullptr;
-                        else
+                        m_info[i].hwnd = this->PointToWnd(m_info[i].pos);
+                        if (m_info[i].hwnd)
                             ++count;
                     }
                     break;
                 case LT_DelegateList:
-                    if (m_info[LT_DelegateList].hwnd)
+                    if (m_info[LT_Delegate].hitem)
                     {
-                        m_info[i].hwnd = TopWndFromPoint(m_info[i].pos);
-                        if (!::IsWindow(m_info[i].hwnd))
-                            m_info[i].hwnd = nullptr;
-                        else
+                        m_info[i].hwnd = this->PointToWnd(m_info[i].pos);
+                        if (m_info[i].hwnd)
                             ++count;
                     }
                     break;
@@ -431,12 +425,121 @@ int CStockLocateData::FindIdByName(CString const & name)
     return LT_Num;
 }
 
-HWND CStockLocateData::SelectDelegateTreeItem(HWND tree)
+HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type)
 {
-    // http://stackoverflow.com/questions/2244037/why-does-the-tvm-getitem-message-fail-on-comctl32-ocx-or-mscomctl-ocx-tree-views
-    // https://msdn.microsoft.com/en-us/library/windows/desktop/bb773622%28v=vs.85%29.aspx
+    // make sure it's a real tree control
+    TCHAR className[MAX_CLASS_NAME];
+    ::GetClassName(tree, className, MAX_CLASS_NAME);
+    if (s_tree_ctrl_name != className)
+        return nullptr;
 
-    HTREEITEM root = TreeView_GetRoot(tree);
+    HANDLE process = ::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, m_tID);
+
+    if (!process)
+        return nullptr;
+
+
+    TVITEM tvi;
+    LPVOID ttvi = ::VirtualAllocEx(process, NULL, sizeof(tvi), MEM_COMMIT, PAGE_READWRITE);
+    if (!ttvi)
+        return nullptr;
+
+    TCHAR txtBuf[512] = { 0 };
+    LPVOID ttxt = ::VirtualAllocEx(process, NULL, sizeof(txtBuf), MEM_COMMIT, PAGE_READWRITE);
+    if (!ttxt)
+    {
+        ::VirtualFreeEx(process, ttvi, 0, MEM_RELEASE);
+        return nullptr;
+    }
+
+    CString target;
+    CString parent;
+    switch (type)
+    {
+    case LT_Buy:
+        target.LoadString(IDS_BUY);
+        break;
+    case LT_Sell:
+        target.LoadString(IDS_SELL);
+        break;
+    case LT_Cancel:
+        target.LoadString(IDS_CANCLE);
+        break;
+    case LT_Delegate:
+        parent.LoadString(IDS_QUERY);
+        target.LoadString(IDS_DELEGATE);
+        break;
+    default:
+        break;
+    }
+
+    HTREEITEM item = TreeView_GetRoot(tree);
+    do
+    {
+        ::ZeroMemory(&tvi, sizeof(tvi));
+        ::ZeroMemory(txtBuf, sizeof(txtBuf));
+
+        tvi.mask = TVIF_TEXT | TVIF_HANDLE;
+        tvi.pszText = (LPTSTR)ttxt;
+        tvi.cchTextMax = ST_ARRAY_SIZE(txtBuf);
+        tvi.hItem = item;
+
+        if (!::WriteProcessMemory(process, ttvi, &tvi, sizeof(tvi), NULL))
+        {
+            item = nullptr;
+            break;
+        }
+
+        if (!::SendMessage(tree, TVM_GETITEM, 0, (LPARAM)ttvi))
+        {
+            item = nullptr;
+            break;
+        }
+
+        if (!::ReadProcessMemory(process, (LPCVOID)ttxt, txtBuf, sizeof(txtBuf), NULL))
+        {
+            item = nullptr;
+            break;
+        }
+
+        if (!parent.IsEmpty())
+        {
+            if (parent == txtBuf) // find parent
+            {
+                item = TreeView_GetChild(tree, item);
+                parent.Empty();
+                continue;
+            }
+            
+            item = TreeView_GetNextSibling(tree, item);
+            continue;
+        }
+
+        if (target == txtBuf) // find target
+        {
+            break;
+        }
+
+        item = TreeView_GetNextSibling(tree, item);
+
+    } while (item);
+
+    ::VirtualFreeEx(process, ttxt, 0, MEM_RELEASE);
+    ::VirtualFreeEx(process, ttvi, 0, MEM_RELEASE);
+
+    if (item)
+    {
+        TreeView_SelectItem(tree, item);
+    }
+
+    return item;
+}
+
+HTREEITEM CStockLocateData::LocateTreeItem(HWND tree, LocateType type)
+{
+    DWORD id;
+    ::GetWindowThreadProcessId(tree, &id);
+
 }
 
 HWND CStockLocateData::PointToWnd(POINT const & pos)
@@ -444,18 +547,52 @@ HWND CStockLocateData::PointToWnd(POINT const & pos)
     HWND hwnd = TopWndFromPoint(pos);
     if (::IsWindow(hwnd))
     {
+        DWORD id;
+        ::GetWindowThreadProcessId(hwnd, &id);
+
         // does this window belong to a valid target?
         if (m_tID != 0)
         {
-            
+            if (id == m_tID)
+            {
+                return hwnd;
+            }
         }
-        else if (!m_target.IsEmpty())
+        else 
         {
+            HANDLE process = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, id);
 
-        }
-        else // ok the first control will determine the target
-        {
+            if (process)
+            {
+                TCHAR buffer[MAX_PATH];
+                DWORD size = MAX_PATH;
+                if (::QueryFullProcessImageName(process, 0, buffer, &size))
+                {
+                    if (!m_target.IsEmpty())
+                    {
+                        // now we get the target process image name
+                        // compare it
+                        if (m_target != CString(buffer))
+                        {
+                            hwnd = nullptr;
+                        }
+                        else
+                        {
+                            m_tID = id;
+                        }
+                    }
+                    else // ok the first control will determine the target
+                    {
+                        m_target = buffer;
+                        m_tID = id;
+                    }
 
+                }
+
+                ::CloseHandle(process);
+
+                return hwnd;
+            }
         }
     }
 
