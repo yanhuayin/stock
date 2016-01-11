@@ -22,6 +22,7 @@ public:
 public:
     bool    Load(CString const& file);
     bool    Save(CString const& file);
+    bool    LocateWnd();
 
     bool    IsLoaded() const { return m_load; }
     bool    IsReady() const { return m_ready; }
@@ -30,7 +31,8 @@ public:
     void    SetInfo(LocateType type, POINT pos, HWND hwnd);
 
 private:
-    int FindIdByName(CString const& name);
+    int     FindIdByName(CString const& name);
+    HWND    SelectDelegateTreeItem(HWND tree);
 
 private:
     bool            m_load;

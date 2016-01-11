@@ -100,7 +100,7 @@ bool CStockLocateData::Load(CString const & file)
                             TRACE1("Warning: %s's entry num are more than expected, some entries will be ignored\n", ST_LOC_COMPONENT_NAME);
                         }
 
-                        int count = 0;
+                        //int count = 0;
                         for (size_t i = 0; i < size; ++i)
                         {
                             RapidValue &infoVal = compVal[i];
@@ -121,7 +121,7 @@ bool CStockLocateData::Load(CString const & file)
                                     int id = idVal.GetInt();
 
                                     bool posErr = false;
-                                    HWND hwnd = nullptr;
+                                    //HWND hwnd = nullptr;
                                     int x, y;
                                     if (posVal.HasMember(ST_LOC_X_NAME) &&
                                         posVal.HasMember(ST_LOC_Y_NAME))
@@ -137,12 +137,13 @@ bool CStockLocateData::Load(CString const & file)
                                             pos.x = x;
                                             pos.y = y;
 
-                                            hwnd = TopWndFromPoint(pos);
-                                            if (!::IsWindow(hwnd))
-                                            {
+                                            // we need switch the window then retrive the hwnd
+                                            //hwnd = TopWndFromPoint(pos);
+                                            //if (!::IsWindow(hwnd))
+                                            //{
                                                 posErr = true;
-                                                TRACE2("Warning: can not locate a window under the pos (x:%d,y%d)\n", x, y);
-                                            }
+                                                //TRACE2("Warning: can not locate a window under the pos (x:%d,y%d)\n", x, y);
+                                            //}
                                         }
                                         else
                                             posErr = true;
@@ -203,8 +204,8 @@ bool CStockLocateData::Load(CString const & file)
                                     info.name = name;
                                     info.pos.x = x;
                                     info.pos.y = y;
-                                    info.hwnd = hwnd;
-                                    ++count;
+                                    //info.hwnd = hwnd;
+                                    //++count;
                                 }
                                 else
                                 {
@@ -217,8 +218,8 @@ bool CStockLocateData::Load(CString const & file)
                             }
                         }
 
-                        if (count == LT_Num)
-                            m_ready = true;
+                        //if (count == LT_Num)
+                        //    m_ready = true;
                     }
                     else
                     {
@@ -318,6 +319,95 @@ bool CStockLocateData::Save(CString const & file)
     return false;
 }
 
+bool CStockLocateData::LocateWnd()
+{
+    if (m_load)
+    {
+        int count = 0;
+        for (int i = 0; i < LT_Num; ++i)
+        {
+            if (!m_info[i].name.IsEmpty())
+            {
+                switch ((LocateType)i) // TODO : check the window type and process
+                {
+                case LT_Buy:
+                case LT_Sell:
+                case LT_Cancel:
+                    m_info[i].hwnd = TopWndFromPoint(m_info[i].pos);
+                    if (!::IsWindow(m_info[i].hwnd))
+                    {
+                        m_info[i].hwnd = nullptr;
+                        continue;
+                    }
+                    ::SendMessage(m_info[i].hwnd, BN_CLICKED, 0, 0);
+                    ++count;
+                    break;
+                case LT_Delegate:
+                    m_info[i].hwnd = TopWndFromPoint(m_info[i].pos);
+                    if (!::IsWindow(m_info[i].hwnd))
+                    {
+                        m_info[i].hwnd = nullptr;
+                        continue;
+                    }
+                    this->SelectDelegateTreeItem(m_info[i].hwnd);
+                    break;
+                case LT_BuyCode:
+                case LT_BuyPrice:
+                case LT_BuyQuant:
+                case LT_BuyOrder:
+                    if (m_info[LT_Buy].hwnd)
+                    {
+                        m_info[i].hwnd = TopWndFromPoint(m_info[i].pos);
+                        if (!::IsWindow(m_info[i].hwnd))
+                            m_info[i].hwnd = nullptr;
+                        else
+                            ++count;
+                    }
+                    break;
+                case LT_SellCode:
+                case LT_SellPrice:
+                case LT_SellQuant:
+                case LT_SellOrder:
+                    if (m_info[LT_Sell].hwnd)
+                    {
+                        m_info[i].hwnd = TopWndFromPoint(m_info[i].pos);
+                        if (!::IsWindow(m_info[i].hwnd))
+                            m_info[i].hwnd = nullptr;
+                        else
+                            ++count;
+                    }
+                    break;
+                case LT_CancelList:
+                    if (m_info[LT_Cancel].hwnd)
+                    {
+                        m_info[i].hwnd = TopWndFromPoint(m_info[i].pos);
+                        if (!::IsWindow(m_info[i].hwnd))
+                            m_info[i].hwnd = nullptr;
+                        else
+                            ++count;
+                    }
+                    break;
+                case LT_DelegateList:
+                    if (m_info[LT_DelegateList].hwnd)
+                    {
+                        m_info[i].hwnd = TopWndFromPoint(m_info[i].pos);
+                        if (!::IsWindow(m_info[i].hwnd))
+                            m_info[i].hwnd = nullptr;
+                        else
+                            ++count;
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+
+        if (count == LT_Num)
+            m_ready = true;
+    }
+}
+
 void CStockLocateData::SetInfo(LocateType type, POINT pos, HWND hwnd)
 {
     m_info[type].pos = pos;
@@ -339,4 +429,12 @@ int CStockLocateData::FindIdByName(CString const & name)
     }
 
     return LT_Num;
+}
+
+HWND CStockLocateData::SelectDelegateTreeItem(HWND tree)
+{
+    // http://stackoverflow.com/questions/2244037/why-does-the-tvm-getitem-message-fail-on-comctl32-ocx-or-mscomctl-ocx-tree-views
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/bb773622%28v=vs.85%29.aspx
+
+    HTREEITEM root = TreeView_GetRoot(tree);
 }
