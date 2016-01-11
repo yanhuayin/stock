@@ -17,7 +17,7 @@ struct CLocateInfo
 class CStockLocateData
 {
 public:
-    CStockLocateData(): m_load(false), m_ready(false) {}
+    CStockLocateData(): m_load(false), m_ready(false), m_tID(0) {}
 
 public:
     bool    Load(CString const& file);
@@ -33,10 +33,12 @@ public:
 private:
     int     FindIdByName(CString const& name);
     HWND    SelectDelegateTreeItem(HWND tree);
+    HWND    PointToWnd(POINT const& pos);
 
 private:
     bool            m_load;
     bool            m_ready;
+    DWORD           m_tID;
 
     CString         m_target;
     CLocateInfo     m_info[LT_Num];

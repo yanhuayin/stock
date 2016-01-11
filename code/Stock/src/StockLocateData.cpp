@@ -438,3 +438,26 @@ HWND CStockLocateData::SelectDelegateTreeItem(HWND tree)
 
     HTREEITEM root = TreeView_GetRoot(tree);
 }
+
+HWND CStockLocateData::PointToWnd(POINT const & pos)
+{
+    HWND hwnd = TopWndFromPoint(pos);
+    if (::IsWindow(hwnd))
+    {
+        // does this window belong to a valid target?
+        if (m_tID != 0)
+        {
+            
+        }
+        else if (!m_target.IsEmpty())
+        {
+
+        }
+        else // ok the first control will determine the target
+        {
+
+        }
+    }
+
+    return nullptr;
+}
