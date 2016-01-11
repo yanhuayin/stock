@@ -25,6 +25,11 @@ bool CTradeControl::Close()
     return CTradeModelManager::Instance().Shutdown();
 }
 
+bool CTradeControl::NeedTimer() const
+{
+    return CTradeModelManager::Instance().Type() == CTradeModelManager::RT_Immediate;
+}
+
 void CTradeControl::ViewClosed(TradeViewHandle h)
 {
     if (m_init)
@@ -67,7 +72,12 @@ bool CTradeControl::RequestInfo(TradeViewHandle h, CString const& code)
 
         if (hm)
         {
-            return this->Watch(h, hm);
+            if (this->Watch(h, hm)) // if refresh view
+            {
+                this->RefreshView(hm, h);
+            }
+
+            return true;
         }
 
         if (!cands.empty())
@@ -85,23 +95,37 @@ bool CTradeControl::RequestInfo(TradeViewHandle h, CString const& code)
     return false;
 }
 
-void CTradeControl::RefreshView(TradeModelHandle h)
+void CTradeControl::RefreshViews(TradeModelHandle h)
 {
+#ifdef DEBUG
+    CTradeModelManager &cmm = CTradeModelManager::Instance();
+    ASSERT(cmm.Type() == CTradeModelManager::RT_MultiThread);
+#endif
+
     if (m_init && h)
     {
         auto it = m_modelView.find(h);
 
         if (it != m_modelView.end())
         {
-            auto vls = *(it->second);
+            this->RefreshViews(h, it->second);
+        }
+    }
+}
 
-            for (auto i = vls.begin(); i != vls.end(); ++i)
-            {
-                (*i)->SetName(h->Name().c_str());
-                (*i)->SetInfo(SIF_Price, h->NumInfo(SIF_Price));
-                (*i)->SetInfo(SIF_Price, h->NumInfo(SIF_Quant));
-                (*i)->Flush();
-            }
+void CTradeControl::Update()
+{
+#ifdef DEBUG
+    CTradeModelManager &cmm = CTradeModelManager::Instance();
+    ASSERT(cmm.Type() == CTradeModelManager::RT_Immediate);
+#endif
+
+    if (m_init)
+    {
+        for (auto & i : m_modelView)
+        {
+            cmm.RequestModel(i.first, true);
+            this->RefreshViews(i.first, i.second);
         }
     }
 }
@@ -139,7 +163,7 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
         }
         else // has watched this model
         {
-            return true;
+            return false; // return false then no need to refresh the view
         }
     }
 
@@ -154,7 +178,13 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
 
         m_modelView[m] = vls;
 
-        return cmm.RequestModel(m);
+        if (cmm.RequestModel(m))
+        {
+            if (cmm.Type() == CTradeModelManager::RT_Immediate)
+                return true; // if request successfully, then refresh the view
+        }
+
+        return false; // for multi thread request, do not refresh at the first request
     }
     else // this model has been requested
     {
@@ -162,6 +192,25 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
     }
 
     return true;
+}
+
+void CTradeControl::RefreshViews(TradeModelHandle h, ViewListPtr vls)
+{
+    for (auto & i : (*vls))
+    {
+        i->SetName(h->Name().c_str());
+        i->SetInfo(SIF_Price, h->NumInfo(SIF_Price));
+        i->SetInfo(SIF_Price, h->NumInfo(SIF_Quant));
+        i->Flush();
+    }
+}
+
+void CTradeControl::RefreshView(TradeModelHandle m, TradeViewHandle v)
+{
+    v->SetName(m->Name().c_str());
+    v->SetInfo(SIF_Price, m->NumInfo(SIF_Price));
+    v->SetInfo(SIF_Price, m->NumInfo(SIF_Quant));
+    v->Flush();
 }
 
 //InfoNumArrayPtr CTradeControl::RequestInfo(TradeViewHandle h, CandidatesList * c)

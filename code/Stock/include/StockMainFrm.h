@@ -37,6 +37,7 @@ protected:
     afx_msg void OnTradeLocate();
     afx_msg void OnTradeSettings();
     afx_msg void OnClose();
+    afx_msg void OnTimer(UINT_PTR nIDEvent);
     DECLARE_MESSAGE_MAP()
 
 private:

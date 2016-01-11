@@ -22,7 +22,7 @@ public:
     typedef std::shared_ptr<InfoNumArray>   InfoNumArrayPtr;
 
 public:
-    ULONGLONG       ReqId() { return m_reqId; }
+    //ULONGLONG       ReqId() { return m_reqId; }
     //String const&   WindCode() { return m_windCode; }
     String const&   Code() { return m_windCode; }
     String const&   Name() { return m_name; }
@@ -38,7 +38,7 @@ private:
     InfoNumArrayPtr     m_price;
     InfoNumArrayPtr     m_quant;
 
-    ULONGLONG           m_reqId; // for multithread usage
+    ULONGLONG           m_reqId;
 };
 
 
@@ -49,18 +49,32 @@ public:
    ~CTradeModelManager() {}
 
 public:
-    bool    Init();
+    enum RequestType
+    {
+        RT_MultiThread = 0,
+        RT_Immediate,
+
+        RT_Num
+    };
+
+    bool    Init(RequestType type = RT_Immediate);
     bool    Shutdown();
     bool    IsInit() { return m_init; }
 
 public:
     void    FreeModel(TradeModelHandle h);
-    bool    RequestModel(TradeModelHandle h);
+    bool    RequestModel(TradeModelHandle h, bool force = false);
 
+    // only used by multi thread request
     void    UpdateModel(ULONGLONG reqId, WindData const& wd);
 
     typedef std::vector<String> CandidatesList;
     TradeModelHandle FindModel(String const& code, CandidatesList *c);
+
+    RequestType Type() const { return m_type; }
+
+private:
+    void    UpdateModel(TradeModelHandle h, WindData const& wd);
 
 private:
     typedef std::unordered_map<String, TradeModelHandle>    ModelMap;
@@ -76,6 +90,8 @@ private:
 
     String          m_date;
     bool            m_init;
+
+    RequestType     m_type;
 };
 
 

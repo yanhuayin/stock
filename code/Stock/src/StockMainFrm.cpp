@@ -13,6 +13,9 @@
 #define ST_MAIN_FRAME_DEFAULT_WIDTH     577
 #define ST_MAIN_FRAME_DEFAULT_HEIGHT    919
 
+#define ST_MAIN_FRAME_TIMER             1
+#define ST_MAIN_FRAME_TIMER_ELAPSE      3000
+
 IMPLEMENT_DYNAMIC(CStockMainFrame, CMDIFrameWnd)
 
 BEGIN_MESSAGE_MAP(CStockMainFrame, CMDIFrameWnd)
@@ -21,6 +24,7 @@ BEGIN_MESSAGE_MAP(CStockMainFrame, CMDIFrameWnd)
     ON_COMMAND(ID_TRADE_LOCAT, OnTradeLocate)
     ON_COMMAND(ID_TRADE_SETTING, OnTradeSettings)
     ON_WM_CLOSE()
+    ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 CStockMainFrame::CStockMainFrame()
@@ -122,6 +126,11 @@ int CStockMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
         return -1;
     }
 
+    if (CTradeControl::Instance().NeedTimer())
+    {
+        this->SetTimer(ST_MAIN_FRAME_TIMER, ST_MAIN_FRAME_TIMER_ELAPSE, nullptr);
+    }
+
     return 0;
 }
 
@@ -199,9 +208,22 @@ void CStockMainFrame::OnClose()
     // control will closed first
     // then all view will be notified
 
+    this->KillTimer(ST_MAIN_FRAME_TIMER);
+
     CTradeControl::Instance().Close();
 
     CMDIFrameWnd::OnClose();
+}
+
+void CStockMainFrame::OnTimer(UINT_PTR nIDEvent)
+{
+    if (nIDEvent == ST_MAIN_FRAME_TIMER)
+    {
+        if (m_views.size())
+        {
+            CTradeControl::Instance().Update();
+        }
+    }
 }
 
 void CStockMainFrame::RemoveView(TradeViewHandle h)
