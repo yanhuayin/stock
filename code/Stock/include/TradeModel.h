@@ -23,20 +23,22 @@ public:
 
 public:
     ULONGLONG       ReqId() { return m_reqId; }
-    String const&   Code() { return m_code; }
+    //String const&   WindCode() { return m_windCode; }
+    String const&   Code() { return m_windCode; }
     String const&   Name() { return m_name; }
     InfoNumArrayPtr NumInfo(StockInfoField field);
 
 private:
     friend class CTradeModelManager;
 
-    String         m_code;
-    String         m_name;
+    String          m_code;
+    String          m_name;
+    String          m_windCode;
 
     InfoNumArrayPtr     m_price;
     InfoNumArrayPtr     m_quant;
 
-    ULONGLONG           m_reqId;
+    ULONGLONG           m_reqId; // for multithread usage
 };
 
 
@@ -64,6 +66,7 @@ private:
     typedef std::unordered_map<String, TradeModelHandle>    ModelMap;
     ModelMap        m_models;
 
+    // for multithread use
     typedef std::unordered_map<ULONGLONG, TradeModelHandle> ReqMap;
     ReqMap          m_reqs;
 

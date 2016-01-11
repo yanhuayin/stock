@@ -6,7 +6,8 @@
 
 #define ST_REPORT_NAME              _T("SectorConstituent")
 #define ST_SECTOR_ID                _T("a001010100000000")
-#define ST_NAME_FILED               _T("sec_name")
+#define ST_NAME_FIELD               _T("sec_name")
+#define ST_CODE_FIELD               _T("wind_code")
 
 #define ST_CODE_NUM_LEN             6
 #define ST_CODE_60                  _T('6')
@@ -65,7 +66,7 @@ namespace
 
     LPCTSTR s_code_suffix(String const& code)
     {
-        static String s_sz(_T("sz")), s_sh(_T("sh"));
+        static String s_sz(_T("SZ")), s_sh(_T("SH"));
 
         if (code.at(0) == ST_CODE_60)
         {
@@ -110,19 +111,24 @@ bool CTradeModelManager::Init()
     INT codesLen = wd.GetCodesLength();
     INT fieldsLen = wd.GetFieldsLength();
 
-    INT j = 0;
-    CString secName(ST_NAME_FILED);
-    for (; j < fieldsLen; ++j)
+    INT nId = -1, cId = -1;
+    CString secName(ST_NAME_FIELD);
+    CString windCode(ST_CODE_FIELD);
+    for (INT i = 0; i < fieldsLen; ++i)
     {
-        if (secName == wd.GetFieldsByIndex(j))
+        if (secName == wd.GetFieldsByIndex(i))
         {
-            break;
+            nId = i;
+        }
+        else if (windCode == wd.GetFieldsByIndex(i))
+        {
+            cId = i;
         }
     }
 
     // date wind_code sec_name
 
-    if (j == fieldsLen)
+    if (nId < 0 || cId < 0)
     {
         AfxMessageBox(_T("wind error!")); // TODO 
         this->Shutdown();
@@ -135,10 +141,13 @@ bool CTradeModelManager::Init()
         h->m_code = wd.GetCodeByIndex(i);
 
         VARIANT var;
-        wd.GetDataItem(0, i, j, var);
+        wd.GetDataItem(0, i, nId, var);
         s_variant_to_cstring(&var, h->m_name);
 
-        m_models[h->m_code] = h;
+        wd.GetDataItem(0, i, cId, var);
+        s_variant_to_cstring(&var, h->m_windCode);
+
+        m_models[h->m_windCode] = h;
     }
 
     m_init = true;
@@ -164,6 +173,7 @@ bool CTradeModelManager::Shutdown()
 
 void CTradeModelManager::FreeModel(TradeModelHandle h)
 {
+    // for multithread 
     if (h && h->m_reqId)
     {
         CWAPIWrapperCpp::cancelRequest(h->m_reqId);
@@ -177,7 +187,7 @@ bool CTradeModelManager::RequestModel(TradeModelHandle h)
 {
     if (m_init && h && h->m_reqId == 0)
     {
-        LONG errCode = CWAPIWrapperCpp::wsq(h->m_reqId, h->m_code.c_str(), ST_REQ_FIELD, s_req_callback, nullptr, TRUE);
+        LONG errCode = CWAPIWrapperCpp::wsq(h->m_reqId, h->m_windCode.c_str(), ST_REQ_FIELD, s_req_callback, nullptr, TRUE);
 
         if (errCode != 0)
         {
