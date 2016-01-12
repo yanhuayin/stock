@@ -21,7 +21,7 @@ public:
     bool    IsRead() const { return m_ready; }
     bool    IsLoaded() const { return m_load; }
     UINT    Quota() const { return m_quota; }
-    void    Quota(UINT value) { m_quota = value; }
+    void    Quota(UINT value);
 
 private:
     bool    m_load;

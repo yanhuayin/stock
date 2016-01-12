@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include "StockConfig.h"
 #include "TradeSettingsData.h"
+#include "TradeControl.h"
 
 #define ST_SET_QUOTA_NAME       _T("quota")
 
@@ -123,4 +124,11 @@ bool CTradeSettingsData::Save(CString const & file)
     AfxMessageBox(IDS_SAVE_SETTINGS_DATA_FAILED);
 
     return false;
+}
+
+void CTradeSettingsData::Quota(UINT value)
+{
+    m_quota = value;
+
+    CTradeControl::Instance().RefreshViewQuota(m_quota);
 }

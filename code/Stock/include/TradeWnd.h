@@ -86,12 +86,14 @@ public:
     virtual void    DoDataExchange(CDataExchange *pDx);
 
 public:
-    typedef std::function<void()>   ButtonClickEvent;
+    //typedef std::function<void()>   ButtonClickEvent;
     typedef std::function<void()>   OKEvent;
+    typedef std::function<void(StockInfoType, StockTradeOp)> TradeEvent;
     
     //ButtonClickEvent    _q1PlusClickEvent;
     //ButtonClickEvent    _q1MinusClickEvent;
     OKEvent             _enterOKEvent;
+    TradeEvent          _tradeEvent;
 
 protected:
     virtual BOOL    OnInitDialog();

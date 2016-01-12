@@ -34,6 +34,12 @@ public:
 
     void    Update(); // used by immediate request type only
 
+    int     Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op) const;
+
+    UINT    Quota() const;
+
+    void    RefreshViewQuota(UINT quota) const;
+
 private:
     typedef std::list<TradeViewHandle>  ViewList;
     typedef std::shared_ptr<ViewList>   ViewListPtr;

@@ -96,6 +96,14 @@ enum StockInfoField
     SIF_Num
 };
 
+enum StockTradeOp
+{
+    STO_Buy = 0,
+    STO_Sell,
+
+    STO_Num
+};
+
 //namespace std
 //{
 //    template<> struct hash<CString>

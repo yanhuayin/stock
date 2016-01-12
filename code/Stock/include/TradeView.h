@@ -25,10 +25,12 @@ public:
 
     void    SetName(CString const& name);
     void    SetInfo(StockInfoField field, InfoNumArrayPtr info);
+    void    SetQuota(CString const& quota);
     void    Flush() { m_tradeWnd.UpdateData(FALSE); }
 
 public:
     void    OnOK();
+    void    OnTrade(StockInfoType info, StockTradeOp op);
 
 protected:
     virtual void    PostNcDestroy();

@@ -33,6 +33,12 @@ int CTradeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
     //m_tradeWnd._q1PlusClickEvent = std::bind(&CTradeView::OnQ1PlusClicked, this);
     //m_tradeWnd._q1MinusClickEvent = std::bind(&CTradeView::OnQ1MinusClicked, this);
     m_tradeWnd._enterOKEvent = std::bind(&CTradeView::OnOK, this);
+    m_tradeWnd._tradeEvent = std::bind(&CTradeView::OnTrade, this);
+
+    UINT quota = CTradeControl::Instance().Quota();
+    CString quotaStr;
+    quotaStr.Format(_T("%u"), quota);
+    m_tradeWnd._quota.SetWindowText(quotaStr);
 
     m_tradeWnd.ShowWindow(SW_SHOW);
     m_tradeWnd.UpdateWindow();
@@ -101,6 +107,11 @@ void CTradeView::SetInfo(StockInfoField field, InfoNumArrayPtr info)
     }
 }
 
+void CTradeView::SetQuota(CString const & quota)
+{
+    m_tradeWnd._quota.SetWindowText(quota);
+}
+
 void CTradeView::OnOK()
 {
     // request stock info
@@ -110,6 +121,11 @@ void CTradeView::OnOK()
     {
         CTradeControl::Instance().RequestInfo(shared_from_this(), code);
     }
+}
+
+void CTradeView::OnTrade(StockInfoType info, StockTradeOp op)
+{
+    CTradeControl::Instance().Trade(shared_from_this(), info, op);
 }
 
 void CTradeView::PostNcDestroy()

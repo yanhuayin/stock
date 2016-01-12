@@ -5,6 +5,7 @@
 #include "TradeModel.h"
 #include "TradeView.h"
 #include "StockMainFrm.h"
+#include "Stock.h"
 
 bool CTradeControl::Init(CStockMainFrame * pMainWnd)
 {
@@ -128,6 +129,28 @@ void CTradeControl::Update()
             this->RefreshViews(i.first, i.second);
         }
     }
+}
+
+UINT CTradeControl::Quota() const
+{
+    return theApp.AppData().TradeSettingsData().Quota();
+}
+
+void CTradeControl::RefreshViewQuota(UINT quota) const
+{
+    CString quotaStr;
+    quotaStr.Format(_T("%u"), quota);
+
+    for (auto & i : m_viewModel)
+    {
+        i.first->SetQuota(quotaStr);
+        i.first->Flush();
+    }
+}
+
+int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op) const
+{
+
 }
 
 bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)

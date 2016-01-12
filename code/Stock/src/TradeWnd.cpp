@@ -321,42 +321,92 @@ void CTradeWnd::OnEnter()
 
 void CTradeWnd::OnSellSell10()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell10, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellSell9()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell9, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellSell8()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell8, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellSell7()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell7, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellSell6()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell6, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellSell5()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell5, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellSell4()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell4, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellSell3()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell3, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellSell2()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell2, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellSell1()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell1, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellBuy1()
