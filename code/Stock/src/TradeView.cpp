@@ -33,7 +33,7 @@ int CTradeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
     //m_tradeWnd._q1PlusClickEvent = std::bind(&CTradeView::OnQ1PlusClicked, this);
     //m_tradeWnd._q1MinusClickEvent = std::bind(&CTradeView::OnQ1MinusClicked, this);
     m_tradeWnd._enterOKEvent = std::bind(&CTradeView::OnOK, this);
-    m_tradeWnd._tradeEvent = std::bind(&CTradeView::OnTrade, this);
+    m_tradeWnd._tradeEvent = std::bind(&CTradeView::OnTrade, this, std::placeholders::_1, std::placeholders::_2);
 
     UINT quota = CTradeControl::Instance().Quota();
     CString quotaStr;

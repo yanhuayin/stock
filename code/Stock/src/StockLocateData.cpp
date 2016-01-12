@@ -540,7 +540,39 @@ HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type, DWORD pId
     if (item)
     {
         TreeView_SelectItem(tree, item);
+
+        // fuck, we still need to send a click message to the tree ctrl
+        RECT rc;
+        ::ZeroMemory(&rc, sizeof(rc));
+        *(HTREEITEM*)&rc = item;
+
+        LPVOID _trc = ::VirtualAllocEx(process, NULL, sizeof(rc), MEM_COMMIT, PAGE_READWRITE);
+        // TODO : handle error
+        ::WriteProcessMemory(process, _trc, &rc, sizeof(rc), NULL);
+        // TODO : handle error
+        ::SendMessage(tree, TVM_GETITEMRECT, TRUE, (LPARAM)_trc);
+        // TODO : handle error
+        ::ReadProcessMemory(process, _trc, &rc, sizeof(rc), NULL);
+        // TODO : handle error
+
+        //::SendMessage(tree, WM_LBUTTONDBLCLK, 0, (LPARAM)MAKELONG(rc.left, rc.top));
+
+        ::VirtualFreeEx(process, _trc, 0, MEM_RELEASE);
+
+        POINT pt;
+        pt.x = rc.left;
+        pt.y = rc.top;
+
+        ::ClientToScreen(tree, &pt);
+
+        POINT cpt;
+        ::GetCursorPos(&cpt);
+
+        mouse_event(MOUSEEVENTF_MOVE, (pt.x - cpt.x), (pt.y - cpt.y), 0, 0);
+        mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
     }
+
+    ::CloseHandle(process);
 
     return item;
 }

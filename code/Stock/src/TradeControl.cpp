@@ -150,7 +150,8 @@ void CTradeControl::RefreshViewQuota(UINT quota) const
 
 int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op) const
 {
-
+    // TODO:
+    return 0;
 }
 
 bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
