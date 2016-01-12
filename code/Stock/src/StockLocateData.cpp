@@ -2,7 +2,6 @@
 #include <Psapi.h>
 #include "resource.h"
 #include "Utils.h"
-#include "ApiHelper.h"
 #include "StockConfig.h"
 #include "StockLocateData.h"
 
@@ -52,7 +51,8 @@ bool CStockLocateData::Load(CString const & file)
     // clear info data everytime when loading
     for (int i = 0; i < LT_Num; ++i)
     {
-        m_info[i].hwnd = NULL;
+        m_info[i].hwnd = nullptr;
+        m_info[i].hitem = nullptr;
     }
 
     if (exists)
@@ -345,12 +345,14 @@ bool CStockLocateData::LocateWnd()
                 case LT_Sell:
                 case LT_Cancel:
                 case LT_Delegate:
-                    m_info[i].hwnd = this->PointToWnd(m_info[i].pos);
+                    m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
                     if (m_info[i].hwnd)
                     {
-                        m_info[i].hitem = this->SelectTreeItem(m_info[i].hwnd, (LocateType)i);
+                        m_info[i].hitem = this->SelectTreeItem(m_info[i].hwnd, (LocateType)i, m_tID);
                         if (m_info[i].hitem)
                             ++count;
+                        else
+                            m_info[i].hwnd = nullptr;
                     }
                     break;
                 case LT_BuyCode:
@@ -359,7 +361,7 @@ bool CStockLocateData::LocateWnd()
                 case LT_BuyOrder:
                     if (m_info[LT_Buy].hitem)
                     {
-                        m_info[i].hwnd = this->PointToWnd(m_info[i].pos);
+                        m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
                         if (m_info[i].hwnd)
                             ++count;
                     }
@@ -370,7 +372,7 @@ bool CStockLocateData::LocateWnd()
                 case LT_SellOrder:
                     if (m_info[LT_Sell].hitem)
                     {
-                        m_info[i].hwnd = this->PointToWnd(m_info[i].pos);
+                        m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
                         if (m_info[i].hwnd)
                             ++count;
                     }
@@ -378,7 +380,7 @@ bool CStockLocateData::LocateWnd()
                 case LT_CancelList:
                     if (m_info[LT_Cancel].hitem)
                     {
-                        m_info[i].hwnd = this->PointToWnd(m_info[i].pos);
+                        m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
                         if (m_info[i].hwnd)
                             ++count;
                     }
@@ -386,7 +388,7 @@ bool CStockLocateData::LocateWnd()
                 case LT_DelegateList:
                     if (m_info[LT_Delegate].hitem)
                     {
-                        m_info[i].hwnd = this->PointToWnd(m_info[i].pos);
+                        m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
                         if (m_info[i].hwnd)
                             ++count;
                     }
@@ -399,13 +401,19 @@ bool CStockLocateData::LocateWnd()
 
         if (count == LT_Num)
             m_ready = true;
+
+        return true;
     }
+
+    return false;
 }
 
-void CStockLocateData::SetInfo(LocateType type, POINT pos, HWND hwnd)
+void CStockLocateData::SetInfo(LocateType type, POINT const& pos, HWND hwnd, HTREEITEM hitem)
 {
+    // Note: you must call ValidateWnd before you set info
     m_info[type].pos = pos;
     m_info[type].hwnd = hwnd;
+    m_info[type].hitem = hitem;
 
     if (m_info[type].name.IsEmpty())
     {
@@ -413,7 +421,7 @@ void CStockLocateData::SetInfo(LocateType type, POINT pos, HWND hwnd)
     }
 }
 
-int CStockLocateData::FindIdByName(CString const & name)
+int CStockLocateData::FindIdByName(CString const & name) const
 {
     int i = 0;
     for (; i < LT_Num; ++i)
@@ -425,15 +433,17 @@ int CStockLocateData::FindIdByName(CString const & name)
     return LT_Num;
 }
 
-HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type)
+HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type, DWORD pId) const
 {
+    //process id must be a valid value
+
     // make sure it's a real tree control
     TCHAR className[MAX_CLASS_NAME];
     ::GetClassName(tree, className, MAX_CLASS_NAME);
     if (s_tree_ctrl_name != className)
         return nullptr;
 
-    HANDLE process = ::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, m_tID);
+    HANDLE process = ::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, pId);
 
     if (!process)
         return nullptr;
@@ -535,66 +545,147 @@ HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type)
     return item;
 }
 
-HTREEITEM CStockLocateData::LocateTreeItem(HWND tree, LocateType type)
+HWND CStockLocateData::PointToTopWnd(POINT const & pos)
 {
-    DWORD id;
-    ::GetWindowThreadProcessId(tree, &id);
+    HWND hwnd = ::TopWndFromPoint(pos); 
 
-}
-
-HWND CStockLocateData::PointToWnd(POINT const & pos)
-{
-    HWND hwnd = TopWndFromPoint(pos);
     if (::IsWindow(hwnd))
     {
-        DWORD id;
+        // if target has not been set, then set it
+        if (m_target.IsEmpty())
+        {
+            m_tID = this->QueryTargetName(hwnd, m_target, 0);
+            if (m_tID)
+                return hwnd;
+
+            return nullptr;
+        }
+
+        hwnd = this->ValidateTopWnd(hwnd, m_target, m_tID);
+
+        if (m_tID == 0 && hwnd) // this happpens when load target from config file
+        {
+            ::GetWindowThreadProcessId(hwnd, &m_tID);
+        } // if non control loaded from config file match the loaded target then m_tID still can be 0
+    }
+    
+    return nullptr;
+}
+
+DWORD CStockLocateData::QueryTargetName(HWND hwnd, CString & outName, DWORD pId) const
+{
+    // hwnd must be valid
+    DWORD id = pId;
+    if (id == 0)
         ::GetWindowThreadProcessId(hwnd, &id);
 
-        // does this window belong to a valid target?
-        if (m_tID != 0)
+    if (id)
+    {
+        HANDLE process = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, id);
+        if (process)
         {
-            if (id == m_tID)
+            TCHAR buffer[MAX_PATH];
+            DWORD size = MAX_PATH;
+            if (::QueryFullProcessImageName(process, 0, buffer, &size))
             {
-                return hwnd;
+                outName = buffer;
             }
+            else
+            {
+                id = 0;
+            }
+
+            ::CloseHandle(process);
         }
-        else 
+        else
         {
-            HANDLE process = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, id);
-
-            if (process)
-            {
-                TCHAR buffer[MAX_PATH];
-                DWORD size = MAX_PATH;
-                if (::QueryFullProcessImageName(process, 0, buffer, &size))
-                {
-                    if (!m_target.IsEmpty())
-                    {
-                        // now we get the target process image name
-                        // compare it
-                        if (m_target != CString(buffer))
-                        {
-                            hwnd = nullptr;
-                        }
-                        else
-                        {
-                            m_tID = id;
-                        }
-                    }
-                    else // ok the first control will determine the target
-                    {
-                        m_target = buffer;
-                        m_tID = id;
-                    }
-
-                }
-
-                ::CloseHandle(process);
-
-                return hwnd;
-            }
+            id = 0;
         }
     }
 
-    return nullptr;
+    return id;
+}
+
+HWND CStockLocateData::ValidateTopWnd(HWND hwnd, CString const& t, DWORD pId) const
+{
+    // we can make sure t has a valid value or loaded from file here
+    // but pId still can be 0
+
+    DWORD id;
+    ::GetWindowThreadProcessId(hwnd, &id);
+
+    if (id == 0)
+        return nullptr;
+
+    // does this window belong to a valid target?
+    if (pId != 0)
+    {
+        if (id != pId)
+            hwnd = nullptr;
+    }
+    else
+    {
+        CString target;
+        this->QueryTargetName(hwnd, target, id);
+
+        if (!target.IsEmpty())
+        {
+            if (target != t)
+                hwnd = nullptr;
+        }
+        else
+        {
+            hwnd = nullptr;
+        }
+    }
+
+
+    return hwnd;
+}
+
+
+
+bool CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HTREEITEM * hitem)
+{
+    if (::IsWindow(hwnd))
+    {
+        bool isTSet = false;
+        if (target.IsEmpty())
+        {
+            pId = this->QueryTargetName(hwnd, target, 0);
+            if (pId == 0)
+                return false;
+            
+            isTSet = true;
+        }
+        else
+        {
+            hwnd = this->ValidateTopWnd(hwnd, target, pId);
+            if (!hwnd)
+                return false;
+
+            if (pId == 0)
+            {
+                ::GetWindowThreadProcessId(hwnd, &pId);
+            }
+        }
+
+        switch (type)
+        {
+        case LT_Buy:
+        case LT_Sell:
+        case LT_Cancel:
+        case LT_Delegate:
+            *hitem = this->SelectTreeItem(hwnd, type, pId);
+            if (*hitem) //though it's in valid top wnd but may not a tree ctrl
+                return true;
+            if (isTSet)
+                target.Empty();
+        default:
+            return true;
+        }
+    }
+
+    return false;
+
 }

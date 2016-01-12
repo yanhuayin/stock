@@ -15,6 +15,7 @@ struct CLocateControl
     CBCGPEdit      *h;
     POINT           pos;
     HWND            hwnd;
+    HTREEITEM       hitem;
 };
 
 class CStockLocatePropPage : public CBCGPPropertyPage
@@ -46,6 +47,7 @@ protected:
     afx_msg void    OnTimer(UINT nIDEvent);
     afx_msg void    OnBOSChange();
     afx_msg void    OnFileChange();
+    afx_msg void    OnClear();
     afx_msg LRESULT OnTargetWnd(WPARAM wParam, LPARAM lParam);
     DECLARE_MESSAGE_MAP()
 
@@ -91,6 +93,9 @@ private:
     CTargetLocationPic      m_pic;
     CMenu                   m_menu;
     UINT                    m_bosId;
+
+    CString                 m_target;
+    DWORD                   m_tID;
 
     bool                    m_dirty;
 };

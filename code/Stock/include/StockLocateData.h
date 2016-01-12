@@ -6,16 +6,14 @@
 #endif
 
 #include "StockConfig.h"
+#include "ApiHelper.h"
 
 struct CLocateInfo
 {
     POINT       pos;
     CString     name;
-    union 
-    {
-        HWND        hwnd;
-        HTREEITEM   hitem;
-    };
+    HWND        hwnd;
+    HTREEITEM   hitem;
 };
 
 class CStockLocateData
@@ -32,14 +30,17 @@ public:
     bool    IsReady() const { return m_ready; }
 
     CLocateInfo const& LocInfo(LocateType type) const { return m_info[type]; }
-    void    SetInfo(LocateType type, POINT pos, HWND hwnd);
-    HTREEITEM   LocateTreeItem(HWND tree, LocateType type);
-    bool        ValidateHwnd(HWND hwnd, LocateType type);
+    DWORD       Target(CString & outTarget) const { outTarget = m_target; return m_tID; }
+    void        SetInfo(LocateType type, POINT const& pos, HWND hwnd, HTREEITEM hitem);
+    void        SetTarget(CString const& target, DWORD id) { m_target = target; m_tID = id; }
+    bool        ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HTREEITEM *hitem = nullptr);
 
 private:
-    int         FindIdByName(CString const& name);
-    HTREEITEM   SelectTreeItem(HWND tree, LocateType type);
-    HWND        PointToWnd(POINT const& pos);
+    int         FindIdByName(CString const& name) const;
+    HTREEITEM   SelectTreeItem(HWND tree, LocateType type, DWORD pId) const;
+    HWND        PointToTopWnd(POINT const& pos);
+    HWND        ValidateTopWnd(HWND hwnd, CString const& t, DWORD pId) const;
+    DWORD       QueryTargetName(HWND hwnd, CString & outName, DWORD pId) const;
 
 private:
     bool            m_load;

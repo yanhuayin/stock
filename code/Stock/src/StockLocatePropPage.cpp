@@ -25,6 +25,7 @@ BEGIN_MESSAGE_MAP(CStockLocatePropPage, CBCGPPropertyPage)
     ON_MESSAGE(ST_LOCATE_WND_MSG, OnTargetWnd)
     ON_BN_CLICKED(IDC_LOCATE_OP_COMBO, OnBOSChange)
     ON_EN_CHANGE(IDC_LOCATE_FILE_EDIT, OnFileChange)
+    ON_BN_CLICKED(IDC_LOC_CLEAR, OnClear)
 END_MESSAGE_MAP()
 
 CStockLocatePropPage::CStockLocatePropPage()
@@ -122,11 +123,13 @@ void CStockLocatePropPage::OnOK()
         CStockAppData &app = theApp.AppData();
         CStockLocateData &data = app.LocateData();
 
+        data.SetTarget(m_target, m_tID);
+
         for (int i = 0; i < LT_Num; ++i)
         {
-            if (_ctrls[i].hwnd)
+            if (_ctrls[i].hwnd) // if wnd valid then item will be null or valid depends on the type
             {
-                data.SetInfo((LocateType)i, _ctrls[i].pos, _ctrls[i].hwnd);
+                data.SetInfo((LocateType)i, _ctrls[i].pos, _ctrls[i].hwnd, _ctrls[i].hitem);
             }
         }
 
@@ -158,11 +161,23 @@ void CStockLocatePropPage::InitCtrls()
         _ctrls[i].h = this->FindEditCtrl((LocateType)i);
         CLocateInfo const& info = data.LocInfo((LocateType)i);
         _ctrls[i].hwnd = info.hwnd;
+        _ctrls[i].hitem = info.hitem;
         if (info.hwnd)
         {
             _ctrls[i].pos = info.pos;
         }
+
+        if (i > LT_SellOrder) // buy/sell text will be set in switchBOS
+            this->SetCtrlText((LocateType)i);
     }
+
+    // both value could be null
+    // target can be value loaded from config file or determined by the first loaded control if any
+    // if target is loaded from file, then m_tID still can be 0 if there is no match control found.
+    // but we can make sure that if target is empty, then all ctrls have null hwnd and hitem
+    // then the target will be determined by the first valid drop, id will be set at the same time.
+    // user can click clear button to reset all ctrls and their target
+    m_tID = data.Target(m_target);
     
     _locateFile.SetWindowText(theApp.AppData().LocFile());
 }
@@ -473,26 +488,34 @@ void CStockLocatePropPage::OnFileChange()
     m_dirty = true;
 }
 
+void CStockLocatePropPage::OnClear()
+{
+    m_target.Empty();
+    m_tID = 0;
+
+    for (int i = 0; i < LT_Num; ++i)
+    {
+        _ctrls[i].hwnd = nullptr;
+        _ctrls[i].hitem = nullptr;
+        this->SetCtrlText((LocateType)i);
+    }
+}
+
 LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 {
     HWND hwnd = m_pic.TargetHWnd();
 
-    if (::IsWindow(hwnd))
-    {
-        LocateType type = this->GetCtrlFocus();
+    LocateType type = this->GetCtrlFocus();
 
-        if (type < LT_Num)
+    if (type < LT_Num)
+    {
+        CStockLocateData & data = theApp.AppData().LocateData();
+        if (data.ValidateHwnd(hwnd, type, m_target, m_tID, &(_ctrls[type].hitem)))
         {
             _ctrls[type].hwnd = hwnd;
             _ctrls[type].pos = m_pic.TargetPos();
 
-            CString posTxt;
-            posTxt.Format(ST_LOCATE_POS_FORMAT_STR, _ctrls[type].pos.x, _ctrls[type].pos.y);
-            _ctrls[type].p->SetWindowText(posTxt);
-
-            CString hwndTxt;
-            hwndTxt.Format(_T("%x"), hwnd);
-            _ctrls[type].h->SetWindowText(hwndTxt);
+            this->SetCtrlText(type);
 
             this->SetModified(TRUE);
             m_dirty = true;
@@ -501,9 +524,11 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 
             this->SetCtrlFocus();
         }
+        else
+        {
+            // TODO:
+        }
     }
-
-
 
     return 0;
 }
