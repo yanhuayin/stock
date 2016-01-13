@@ -81,6 +81,9 @@
     <ClInclude Include="..\..\code\Stock\include\StockSplash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\Stock\include\TradeOrder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\Stock\src\Stock.cpp">
@@ -132,6 +135,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\Stock\src\StockSplash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\Stock\src\TradeOrder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

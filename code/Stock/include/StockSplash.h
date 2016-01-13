@@ -6,6 +6,8 @@
 #endif
 
 #include <functional>
+#include "resource.h"
+
 
 class CStockSplash : public CDialog
 {

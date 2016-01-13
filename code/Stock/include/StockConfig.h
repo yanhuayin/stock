@@ -53,6 +53,7 @@ enum LocateType
     LT_SellOrder,
 
     LT_Cancel,
+    LT_CancelBtn,
     LT_CancelList,
 
     LT_Delegate,

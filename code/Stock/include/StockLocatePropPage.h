@@ -81,11 +81,13 @@ private:
     CBCGPEdit               m_hbosOrder;
 
     CBCGPMaskEdit           m_cancel;
+    CBCGPMaskEdit           m_cancelBtn;
     CBCGPMaskEdit           m_cancelList;
     CBCGPMaskEdit           m_delegate;
     CBCGPMaskEdit           m_delegateList;
 
     CBCGPEdit               m_hcancel;
+    CBCGPEdit               m_hcancelBtn;
     CBCGPEdit               m_hcancelList;
     CBCGPEdit               m_hdelegate;
     CBCGPEdit               m_hdelegateList;

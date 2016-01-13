@@ -30,7 +30,7 @@ public:
 
     bool    RequestInfo(TradeViewHandle h, CString const& code);
     
-    void    RefreshViews(TradeModelHandle h); // used by multi thread request only
+    void    RefreshViewsInfo(TradeModelHandle h); // used by multi thread request only
 
     void    Update(); // used by immediate request type only
 
@@ -43,16 +43,22 @@ public:
 private:
     typedef std::list<TradeViewHandle>  ViewList;
     typedef std::shared_ptr<ViewList>   ViewListPtr;
+    typedef std::list<int>              OrderList;
+    typedef std::shared_ptr<OrderList>  OrderListPtr;
     typedef std::unordered_map<TradeModelHandle, ViewListPtr>       ModelViewMap;
     typedef std::unordered_map<TradeViewHandle, TradeModelHandle>   ViewModelMap;
+    typedef std::unordered_map<TradeViewHandle, OrderListPtr>       ViewOrderMap;
+    typedef std::unordered_map<int, TradeViewHandle>                OrderViewMap;
 
 private:
     bool    Watch(TradeViewHandle v, TradeModelHandle m);
-    void    RefreshViews(TradeModelHandle h, ViewListPtr vls);
-    void    RefreshView(TradeModelHandle m, TradeViewHandle v);
+    void    RefreshViewsInfo(TradeModelHandle h, ViewListPtr vls);
+    void    RefreshViewInfo(TradeModelHandle m, TradeViewHandle v);
 
     ModelViewMap        m_modelView;
     ViewModelMap        m_viewModel;
+    OrderViewMap        m_orderView;
+    ViewOrderMap        m_viewOrder;
     CStockMainFrame    *m_mainWnd;
     bool                m_init;
 };

@@ -228,6 +228,7 @@
     <ClInclude Include="..\..\code\Stock\include\TargetLocationPic.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeControl.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeModel.h" />
+    <ClInclude Include="..\..\code\Stock\include\TradeOrder.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeSettings.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeSettingsData.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeView.h" />
@@ -251,6 +252,7 @@
     <ClCompile Include="..\..\code\Stock\src\TargetLocationPic.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeControl.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeModel.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\TradeOrder.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeSettings.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeSettingsData.cpp" />
     <ClCompile Include="..\..\code\Stock\src\TradeView.cpp" />

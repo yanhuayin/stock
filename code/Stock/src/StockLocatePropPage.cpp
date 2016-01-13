@@ -64,11 +64,13 @@ void CStockLocatePropPage::DoDataExchange(CDataExchange * pDX)
     DDX_Control(pDX, IDC_LOCATE_SET_ORDER_LABEL,    m_bosOrderLab);
 
     DDX_Control(pDX, IDC_LOCATE_CANCEL_ORDER_EDIT,  m_cancel);
+    DDX_Control(pDX, IDC_LOCATE_CANCEL_BTN_EDIT,    m_cancelBtn);
     DDX_Control(pDX, IDC_LOCATE_CANCEL_LIST_EDIT,   m_cancelList);
     DDX_Control(pDX, IDC_LOCATE_DELEGATE_EDIT,      m_delegate);
     DDX_Control(pDX, IDC_LOCATE_DELEGATE_LIST_EDIT, m_delegateList);
 
     DDX_Control(pDX, IDC_LOCATE_CANCEL_ORDER_HANDLE,    m_hcancel);
+    DDX_Control(pDX, IDC_LOCATE_CANCEL_BTN_HANDLE,      m_hcancelBtn);
     DDX_Control(pDX, IDC_LOCATE_CANCEL_LIST_HANDLE,     m_hcancelList);
     DDX_Control(pDX, IDC_LOCATE_DELEGATE_HANDLE,        m_hdelegate);
     DDX_Control(pDX, IDC_LOCATE_DELEGATE_LIST_HANDLE,   m_hdelegateList);
@@ -125,13 +127,20 @@ void CStockLocatePropPage::OnOK()
 
         data.SetTarget(m_target, m_tID);
 
+        int count = 0;
         for (int i = 0; i < LT_Num; ++i)
         {
             if (_ctrls[i].hwnd) // if wnd valid then item will be null or valid depends on the type
             {
                 data.SetInfo((LocateType)i, _ctrls[i].pos, _ctrls[i].hwnd, _ctrls[i].hitem);
+                ++count;
             }
         }
+
+        if (count == LT_Num)
+            data.SetReady(true);
+        else
+            data.SetReady(false);
 
         CString locFile;
         _locateFile.GetWindowText(locFile);
@@ -208,6 +217,8 @@ CBCGPMaskEdit * CStockLocatePropPage::FindMaskCtrl(LocateType type)
         return &m_bosOrder;
     case LT_Cancel:
         return &m_cancel;
+    case LT_CancelBtn:
+        return &m_cancelBtn;
     case LT_CancelList:
         return &m_cancelList;
     case LT_Delegate:
@@ -248,6 +259,7 @@ CBCGPStatic * CStockLocatePropPage::FindLabelCtrl(LocateType type)
     case LT_SellOrder:
         return &m_bosOrderLab;
     case LT_Cancel:
+    case LT_CancelBtn:
     case LT_CancelList:
     case LT_Delegate:
     case LT_DelegateList:
@@ -287,6 +299,8 @@ CBCGPEdit * CStockLocatePropPage::FindEditCtrl(LocateType type)
         return &m_hbosOrder;
     case LT_Cancel:
         return &m_hcancel;
+    case LT_CancelBtn:
+        return &m_hcancelBtn;
     case LT_CancelList:
         return &m_hcancelList;
     case LT_Delegate:

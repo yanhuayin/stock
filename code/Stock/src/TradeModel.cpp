@@ -264,7 +264,7 @@ void CTradeModelManager::UpdateModel(ULONGLONG reqId, WindData const & wd)
 
             this->UpdateModel(h, wd);
 
-            CTradeControl::Instance().RefreshViews(it->second); // for multi thread safety, this should be changed
+            CTradeControl::Instance().RefreshViewsInfo(it->second); // for multi thread safety, this should be changed
         }
         else
         {

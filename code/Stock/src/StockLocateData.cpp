@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <Psapi.h>
 #include "resource.h"
+#include "StockGlobal.h"
 #include "Utils.h"
 #include "StockConfig.h"
 #include "StockLocateData.h"
@@ -377,6 +378,7 @@ bool CStockLocateData::LocateWnd()
                             ++count;
                     }
                     break;
+                case LT_CancelBtn:
                 case LT_CancelList:
                     if (m_info[LT_Cancel].hitem)
                     {
@@ -443,24 +445,19 @@ HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type, DWORD pId
     if (s_tree_ctrl_name != className)
         return nullptr;
 
-    HANDLE process = ::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, pId);
+    HandlePtr process = MakeHandlePtr(::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, pId));
 
     if (!process)
         return nullptr;
 
 
-    TVITEM tvi;
-    LPVOID ttvi = ::VirtualAllocEx(process, NULL, sizeof(tvi), MEM_COMMIT, PAGE_READWRITE);
+    VirtualPtr ttvi = MakeVirtualPtr(::VirtualAllocEx(process.get(), NULL, sizeof(TVITEM), MEM_COMMIT, PAGE_READWRITE));
     if (!ttvi)
         return nullptr;
 
-    TCHAR txtBuf[512] = { 0 };
-    LPVOID ttxt = ::VirtualAllocEx(process, NULL, sizeof(txtBuf), MEM_COMMIT, PAGE_READWRITE);
+    VirtualPtr ttxt = MakeVirtualPtr(::VirtualAllocEx(process.get(), NULL, sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, MEM_COMMIT, PAGE_READWRITE));
     if (!ttxt)
-    {
-        ::VirtualFreeEx(process, ttvi, 0, MEM_RELEASE);
         return nullptr;
-    }
 
     CString target;
     CString parent;
@@ -486,27 +483,27 @@ HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type, DWORD pId
     HTREEITEM item = TreeView_GetRoot(tree);
     do
     {
-        ::ZeroMemory(&tvi, sizeof(tvi));
-        ::ZeroMemory(txtBuf, sizeof(txtBuf));
+        TCHAR txtBuf[ST_MAX_VIRTUAL_BUF] = { 0 };
 
+        TVITEM tvi = { 0 };
         tvi.mask = TVIF_TEXT | TVIF_HANDLE;
-        tvi.pszText = (LPTSTR)ttxt;
+        tvi.pszText = (LPTSTR)ttxt.get();
         tvi.cchTextMax = ST_ARRAY_SIZE(txtBuf);
         tvi.hItem = item;
 
-        if (!::WriteProcessMemory(process, ttvi, &tvi, sizeof(tvi), NULL))
+        if (!::WriteProcessMemory(process.get(), ttvi.get(), &tvi, sizeof(tvi), NULL))
         {
             item = nullptr;
             break;
         }
 
-        if (!::SendMessage(tree, TVM_GETITEM, 0, (LPARAM)ttvi))
+        if (!::SendMessage(tree, TVM_GETITEM, 0, (LPARAM)ttvi.get()))
         {
             item = nullptr;
             break;
         }
 
-        if (!::ReadProcessMemory(process, (LPCVOID)ttxt, txtBuf, sizeof(txtBuf), NULL))
+        if (!::ReadProcessMemory(process.get(), (LPCVOID)ttxt.get(), txtBuf, sizeof(txtBuf), NULL))
         {
             item = nullptr;
             break;
@@ -534,45 +531,11 @@ HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type, DWORD pId
 
     } while (item);
 
-    ::VirtualFreeEx(process, ttxt, 0, MEM_RELEASE);
-    ::VirtualFreeEx(process, ttvi, 0, MEM_RELEASE);
-
     if (item)
     {
-        TreeView_SelectItem(tree, item);
-
-        // fuck, we still need to send a click message to the tree ctrl
-        RECT rc;
-        ::ZeroMemory(&rc, sizeof(rc));
-        *(HTREEITEM*)&rc = item;
-
-        LPVOID _trc = ::VirtualAllocEx(process, NULL, sizeof(rc), MEM_COMMIT, PAGE_READWRITE);
-        // TODO : handle error
-        ::WriteProcessMemory(process, _trc, &rc, sizeof(rc), NULL);
-        // TODO : handle error
-        ::SendMessage(tree, TVM_GETITEMRECT, TRUE, (LPARAM)_trc);
-        // TODO : handle error
-        ::ReadProcessMemory(process, _trc, &rc, sizeof(rc), NULL);
-        // TODO : handle error
-
-        //::SendMessage(tree, WM_LBUTTONDBLCLK, 0, (LPARAM)MAKELONG(rc.left, rc.top));
-
-        ::VirtualFreeEx(process, _trc, 0, MEM_RELEASE);
-
-        POINT pt;
-        pt.x = rc.left;
-        pt.y = rc.top;
-
-        ::ClientToScreen(tree, &pt);
-
-        POINT cpt;
-        ::GetCursorPos(&cpt);
-
-        mouse_event(MOUSEEVENTF_MOVE, (pt.x - cpt.x), (pt.y - cpt.y), 0, 0);
-        mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+        if (!this->OpenTradePage(tree, item))
+            item = nullptr;
     }
-
-    ::CloseHandle(process);
 
     return item;
 }
@@ -677,7 +640,7 @@ HWND CStockLocateData::ValidateTopWnd(HWND hwnd, CString const& t, DWORD pId) co
 
 
 
-bool CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HTREEITEM * hitem)
+bool CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HTREEITEM * hitem) const
 {
     if (::IsWindow(hwnd))
     {
@@ -720,4 +683,55 @@ bool CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target,
 
     return false;
 
+}
+
+bool CStockLocateData::OpenTradePage(HWND tree, HTREEITEM item) const 
+{
+    return TreeView_SelectItem(tree, item) != FALSE;
+
+    // fuck, we still need to send a click message to the tree ctrl
+    //RECT rc;
+    //::ZeroMemory(&rc, sizeof(rc));
+    //*(HTREEITEM*)&rc = item;
+
+    //LPVOID _trc = ::VirtualAllocEx(process, NULL, sizeof(rc), MEM_COMMIT, PAGE_READWRITE);
+    //// TODO : handle error
+    //::WriteProcessMemory(process, _trc, &rc, sizeof(rc), NULL);
+    //// TODO : handle error
+    //::SendMessage(tree, TVM_GETITEMRECT, TRUE, (LPARAM)_trc);
+    //// TODO : handle error
+    //::ReadProcessMemory(process, _trc, &rc, sizeof(rc), NULL);
+    //// TODO : handle error
+
+    ////::SendMessage(tree, WM_LBUTTONDBLCLK, 0, (LPARAM)MAKELONG(rc.left, rc.top));
+
+    //::VirtualFreeEx(process, _trc, 0, MEM_RELEASE);
+
+    //POINT pt;
+    //pt.x = rc.left;
+    //pt.y = rc.top;
+
+    //::ClientToScreen(tree, &pt);
+
+    //POINT cpt;
+    //::GetCursorPos(&cpt);
+
+    //mouse_event(MOUSEEVENTF_MOVE, (pt.x - cpt.x), (pt.y - cpt.y), 0, 0);
+    //mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+
+    // try this, SendNotifyMessage to tree's parent (check with spy) with NM_CLICK
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/ms644953%28v=vs.85%29.aspx
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/bb773466%28v=vs.85%29.aspx
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/bb775583%28v=vs.85%29.aspx
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/bb775583%28v=vs.85%29.aspx
+    // looks like
+    //NMHDR nmhdr;
+    //
+    //memset(&nmhdr, 0, sizeof(NMHDR));
+    //nmhdr.hwndFrom = tree;
+    //nmhdr.idFrom = ::GetDlgCtrlId(tree);
+    //nmhdr.code = NM_CLICK;
+    //SendMessage(???, WM_NOTIFY, (WPARAM)::GetDlgCtrlId(tree), (LPARAM)&nmhdr);
+
+    //return false;
 }

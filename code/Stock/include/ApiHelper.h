@@ -5,6 +5,11 @@
 #pragma once
 #endif
 
+typedef std::shared_ptr<void>   HandlePtr;
+typedef std::shared_ptr<void>   VirtualPtr;
+
+#define MakeHandlePtr(handle)  std::shared_ptr<void>((handle), [](HANDLE p){ if(p) ::CloseHandle(p); })
+#define MakeVirtualPtr(vp)  std::shared_ptr<void>((vp), [&](LPVOID p){ if (p) ::VirtualFreeEx(process.get(), p, 0, MEM_RELEASE); })
 
 inline BOOL FileExists(LPCTSTR path)
 {

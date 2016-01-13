@@ -20,6 +20,8 @@ bool CTradeControl::Close()
 
     m_modelView.clear();
     m_viewModel.clear();
+    m_orderView.clear();
+    m_viewOrder.clear();
 
     m_mainWnd = nullptr;
 
@@ -35,25 +37,41 @@ void CTradeControl::ViewClosed(TradeViewHandle h)
 {
     if (m_init)
     {
-        auto it = m_viewModel.find(h);
-        if (it != m_viewModel.end())
         {
-            TradeModelHandle hM = it->second;
-
-            auto itM = m_modelView.find(hM);
-            if (itM != m_modelView.end())
+            auto it = m_viewModel.find(h);
+            if (it != m_viewModel.end())
             {
-                itM->second->remove(h);
-                if (itM->second->empty())
+                TradeModelHandle hM = it->second;
+
+                auto itM = m_modelView.find(hM);
+                if (itM != m_modelView.end())
                 {
-                    itM->second = nullptr;
-                    CTradeModelManager::Instance().FreeModel(itM->first);
+                    itM->second->remove(h);
+                    if (itM->second->empty())
+                    {
+                        itM->second = nullptr;
+                        CTradeModelManager::Instance().FreeModel(itM->first);
 
-                    m_modelView.erase(itM);
+                        m_modelView.erase(itM);
+                    }
                 }
-            }
 
-            m_viewModel.erase(it);
+                m_viewModel.erase(it);
+            }
+        }
+
+        {
+            auto it = m_viewOrder.find(h);
+            if (it != m_viewOrder.end())
+            {
+                auto &ols = *(it->second);
+                for (auto o : ols)
+                {
+                    m_orderView.erase(o);
+                }
+                it->second = nullptr;
+                m_viewOrder.erase(it);
+            }
         }
 
         m_mainWnd->RemoveView(h);
@@ -75,7 +93,7 @@ bool CTradeControl::RequestInfo(TradeViewHandle h, CString const& code)
         {
             if (this->Watch(h, hm)) // if refresh view
             {
-                this->RefreshView(hm, h);
+                this->RefreshViewInfo(hm, h);
             }
 
             return true;
@@ -96,7 +114,7 @@ bool CTradeControl::RequestInfo(TradeViewHandle h, CString const& code)
     return false;
 }
 
-void CTradeControl::RefreshViews(TradeModelHandle h)
+void CTradeControl::RefreshViewsInfo(TradeModelHandle h)
 {
 #ifdef DEBUG
     CTradeModelManager &cmm = CTradeModelManager::Instance();
@@ -109,7 +127,7 @@ void CTradeControl::RefreshViews(TradeModelHandle h)
 
         if (it != m_modelView.end())
         {
-            this->RefreshViews(h, it->second);
+            this->RefreshViewsInfo(h, it->second);
         }
     }
 }
@@ -126,7 +144,7 @@ void CTradeControl::Update()
         for (auto & i : m_modelView)
         {
             cmm.RequestModel(i.first, true);
-            this->RefreshViews(i.first, i.second);
+            this->RefreshViewsInfo(i.first, i.second);
         }
     }
 }
@@ -150,8 +168,7 @@ void CTradeControl::RefreshViewQuota(UINT quota) const
 
 int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op) const
 {
-    // TODO:
-    return 0;
+
 }
 
 bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
@@ -218,7 +235,7 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
     return true;
 }
 
-void CTradeControl::RefreshViews(TradeModelHandle h, ViewListPtr vls)
+void CTradeControl::RefreshViewsInfo(TradeModelHandle h, ViewListPtr vls)
 {
     for (auto & i : (*vls))
     {
@@ -229,7 +246,7 @@ void CTradeControl::RefreshViews(TradeModelHandle h, ViewListPtr vls)
     }
 }
 
-void CTradeControl::RefreshView(TradeModelHandle m, TradeViewHandle v)
+void CTradeControl::RefreshViewInfo(TradeModelHandle m, TradeViewHandle v)
 {
     v->SetName(m->Name().c_str());
     v->SetInfo(SIF_Price, m->NumInfo(SIF_Price));

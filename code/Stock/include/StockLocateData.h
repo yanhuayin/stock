@@ -16,7 +16,7 @@ struct CLocateInfo
     HTREEITEM   hitem;
 };
 
-class CStockLocateData
+class CStockLocateData // TODO : I think we'd better move all hwnd manipulate out of this class
 {
 public:
     CStockLocateData(): m_load(false), m_ready(false), m_tID(0) {}
@@ -33,7 +33,9 @@ public:
     DWORD       Target(CString & outTarget) const { outTarget = m_target; return m_tID; }
     void        SetInfo(LocateType type, POINT const& pos, HWND hwnd, HTREEITEM hitem);
     void        SetTarget(CString const& target, DWORD id) { m_target = target; m_tID = id; }
-    bool        ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HTREEITEM *hitem = nullptr);
+    void        SetReady(bool ready); // TODO : ready change should notify all views
+    bool        ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HTREEITEM *hitem = nullptr) const;
+    bool        OpenTradePage(HWND tree, HTREEITEM item) const;
 
 private:
     int         FindIdByName(CString const& name) const;

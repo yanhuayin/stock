@@ -22,5 +22,7 @@
 #define ST_INIT_DATABASE        2
 #define ST_LOAD_ST_FINISH       5
 
+#define ST_MAX_VIRTUAL_BUF      512
+
 
 #endif // !__STOCK_GLOBAL_H__
