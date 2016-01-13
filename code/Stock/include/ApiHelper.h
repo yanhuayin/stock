@@ -5,6 +5,8 @@
 #pragma once
 #endif
 
+#include <memory>
+
 typedef std::shared_ptr<void>   HandlePtr;
 typedef std::shared_ptr<void>   VirtualPtr;
 

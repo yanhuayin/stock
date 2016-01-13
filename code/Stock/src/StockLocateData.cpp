@@ -533,7 +533,7 @@ HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type, DWORD pId
 
     if (item)
     {
-        if (!this->OpenTradePage(tree, item))
+        if (!this->OpenTradePage(process, tree, item))
             item = nullptr;
     }
 
@@ -638,8 +638,6 @@ HWND CStockLocateData::ValidateTopWnd(HWND hwnd, CString const& t, DWORD pId) co
     return hwnd;
 }
 
-
-
 bool CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HTREEITEM * hitem) const
 {
     if (::IsWindow(hwnd))
@@ -685,27 +683,25 @@ bool CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target,
 
 }
 
-bool CStockLocateData::OpenTradePage(HWND tree, HTREEITEM item) const 
+bool CStockLocateData::OpenTradePage(HandlePtr process, HWND tree, HTREEITEM item) const 
 {
-    return TreeView_SelectItem(tree, item) != FALSE;
 
     // fuck, we still need to send a click message to the tree ctrl
     //RECT rc;
     //::ZeroMemory(&rc, sizeof(rc));
     //*(HTREEITEM*)&rc = item;
 
-    //LPVOID _trc = ::VirtualAllocEx(process, NULL, sizeof(rc), MEM_COMMIT, PAGE_READWRITE);
+    //VirtualPtr _trc = MakeVirtualPtr(::VirtualAllocEx(process.get(), NULL, sizeof(rc), MEM_COMMIT, PAGE_READWRITE));
     //// TODO : handle error
-    //::WriteProcessMemory(process, _trc, &rc, sizeof(rc), NULL);
+    //::WriteProcessMemory(process.get(), _trc.get(), &rc, sizeof(rc), NULL);
     //// TODO : handle error
-    //::SendMessage(tree, TVM_GETITEMRECT, TRUE, (LPARAM)_trc);
+    //::SendMessage(tree, TVM_GETITEMRECT, TRUE, (LPARAM)_trc.get());
     //// TODO : handle error
-    //::ReadProcessMemory(process, _trc, &rc, sizeof(rc), NULL);
+    //::ReadProcessMemory(process.get(), _trc.get(), &rc, sizeof(rc), NULL);
     //// TODO : handle error
 
-    ////::SendMessage(tree, WM_LBUTTONDBLCLK, 0, (LPARAM)MAKELONG(rc.left, rc.top));
-
-    //::VirtualFreeEx(process, _trc, 0, MEM_RELEASE);
+    //::PostMessage(tree, WM_LBUTTONDOWN, 0, MAKELPARAM(rc.left, rc.top));
+    //::PostMessage(tree, WM_LBUTTONUP, 0, MAKELPARAM(rc.left, rc.top));
 
     //POINT pt;
     //pt.x = rc.left;
@@ -734,4 +730,59 @@ bool CStockLocateData::OpenTradePage(HWND tree, HTREEITEM item) const
     //SendMessage(???, WM_NOTIFY, (WPARAM)::GetDlgCtrlId(tree), (LPARAM)&nmhdr);
 
     //return false;
+
+    //HWND target = ::GetParent(tree);
+    //if (!target)
+    //    return false;
+
+    //VirtualPtr pNMHDR = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(NMHDR), MEM_COMMIT, PAGE_READWRITE));
+
+    //if (!pNMHDR)
+    //    return false;
+
+    //NMHDR nmh = { 0 };
+    //nmh.code = NM_CLICK;
+    //nmh.idFrom = ::GetDlgCtrlID(tree);
+    //nmh.hwndFrom = tree;
+
+    //if (::WriteProcessMemory(process.get(), pNMHDR.get(), &nmh, sizeof(NMHDR), nullptr))
+    //{
+    //    ::SendMessage(target, WM_NOTIFY, nmh.idFrom, (LPARAM)(pNMHDR.get()));
+    //    return true;
+    //}
+
+    TreeView_SelectItem(tree, item);
+
+    //HWND t = (HWND)(0x10518);
+    HWND t = (HWND)(0x10512);
+    HWND t2 = (HWND)(0x10518);
+    if (::IsWindow(t))
+    {
+        //::SendMessage(t, WM_COMMAND, 10001, 0);
+
+        //::SendMessage(t, (WM_USER + 0), 0, 0);
+
+
+        //::SendMessage(t2, (WM_USER + 5101), 0, 0);
+        //::SendMessage(t2, (WM_USER + 5103), 0, 0);
+        ::SendMessage(t2, (WM_USER + 5104), 0, 0);
+
+        //::SendMessage(t, (WM_USER + 5103), 0, 0);
+
+
+        //::SendMessage(t, (WM_USER + 5101), 0, 0);
+        //DWORD err = ::GetLastError();
+        //TRACE1("%u", err);
+        
+        //::SendMessage(t, (WM_USER + 5103), 0, 0);
+
+
+        //TRACE1("%u", err);
+        
+        //::SendMessage(t, (WM_USER + 5104), 0, 0);
+        //TRACE1("%u", err);
+    }
+
+    
+    return true;
 }

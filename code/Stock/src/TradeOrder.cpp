@@ -57,13 +57,12 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
     CString target;
     DWORD id = loc.Target(target);
 
-    if (loc.OpenTradePage(tree, item))
+    HandlePtr process = MakeHandlePtr(::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, id));
+    if (!process)
+        return ST_TO_F;
+
+    if (loc.OpenTradePage(process, tree, item))
     {
-        HandlePtr process = MakeHandlePtr(::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, id));
-
-        if (!process)
-            return ST_TO_F;
-
         if (!this->SetText(process, hc, code))
             return ST_TO_F;
 
@@ -79,7 +78,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
         HTREEITEM dlitem = loc.LocInfo(LT_Delegate).hitem;
         HWND dlst = loc.LocInfo(LT_DelegateList).hwnd;
 
-        if (loc.OpenTradePage(tree, dlitem))
+        if (loc.OpenTradePage(process, tree, dlitem))
         {
             CString deleId(MAKEINTRESOURCE(IDS_DELE_ID));
 

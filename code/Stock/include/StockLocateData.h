@@ -35,7 +35,7 @@ public:
     void        SetTarget(CString const& target, DWORD id) { m_target = target; m_tID = id; }
     void        SetReady(bool ready); // TODO : ready change should notify all views
     bool        ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HTREEITEM *hitem = nullptr) const;
-    bool        OpenTradePage(HWND tree, HTREEITEM item) const;
+    bool        OpenTradePage(HandlePtr process, HWND tree, HTREEITEM item) const;
 
 private:
     int         FindIdByName(CString const& name) const;
