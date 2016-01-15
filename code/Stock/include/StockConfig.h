@@ -40,7 +40,9 @@ typedef rapidjson::Writer<RapidEncodeOutputStream, RapidUTF16, RapidUTF8>   Rapi
 
 enum LocateType
 {
-    LT_Buy = 0,
+    LT_Toolbar = 0,
+
+    LT_Buy,
     LT_BuyCode,
     LT_BuyPrice,
     LT_BuyQuant,

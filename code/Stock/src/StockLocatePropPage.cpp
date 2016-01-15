@@ -45,35 +45,42 @@ void CStockLocatePropPage::DoDataExchange(CDataExchange * pDX)
 
     DDX_Control(pDX, IDC_LOCATE_OP_COMBO, _tradeSelBtn);
     
-    DDX_Control(pDX, IDC_LOCATE_OP_BTN_EDIT,        m_buyOrSell);
+    //DDX_Control(pDX, IDC_LOCATE_OP_BTN_EDIT,        m_buyOrSell);
     DDX_Control(pDX, IDC_LOCATE_CODE_EDIT,          m_bosCode);
     DDX_Control(pDX, IDC_LOCATE_OP_PRICE_EDIT,      m_bosPrice);
     DDX_Control(pDX, IDC_LOCATE_QUANTITY_EDIT,      m_bosQuantity);
     DDX_Control(pDX, IDC_LOCATE_SET_ORDER_EDIT,     m_bosOrder);
 
-    DDX_Control(pDX, IDC_LOCATE_OP_BTN_HANDLE,      m_hbuyOrSell);
+    //DDX_Control(pDX, IDC_LOCATE_OP_BTN_HANDLE,      m_hbuyOrSell);
     DDX_Control(pDX, IDC_LOCATE_CODE_HANDLE,        m_hbosCode);
     DDX_Control(pDX, IDC_LOCATE_OP_PRICE_HANDLE,    m_hbosPrice);
     DDX_Control(pDX, IDC_LOCATE_QUANTITY_HANDLE,    m_hbosQuant);
     DDX_Control(pDX, IDC_LOCATE_SET_ORDER_HANDLE,   m_hbosOrder);
 
-    DDX_Control(pDX, IDC_LOCATE_OP_BTN_LABEL,       m_buyOrSellLab);
+    //DDX_Control(pDX, IDC_LOCATE_OP_BTN_LABEL,       m_buyOrSellLab);
     DDX_Control(pDX, IDC_LOCATE_CODE_LABEL,         m_bosCodeLab);
     DDX_Control(pDX, IDC_LOCATE_OP_PRICE_LABEL,     m_bosPriceLab);
     DDX_Control(pDX, IDC_LOCATE_QUANTITY_LABEL,     m_bosQuantityLab);
     DDX_Control(pDX, IDC_LOCATE_SET_ORDER_LABEL,    m_bosOrderLab);
 
-    DDX_Control(pDX, IDC_LOCATE_CANCEL_ORDER_EDIT,  m_cancel);
+    //DDX_Control(pDX, IDC_LOCATE_CANCEL_ORDER_EDIT,  m_cancel);
     DDX_Control(pDX, IDC_LOCATE_CANCEL_BTN_EDIT,    m_cancelBtn);
+    DDX_Control(pDX, IDC_LOCATE_TOOLBAR_EDIT,       m_toolbar);
+
     DDX_Control(pDX, IDC_LOCATE_CANCEL_LIST_EDIT,   m_cancelList);
-    DDX_Control(pDX, IDC_LOCATE_DELEGATE_EDIT,      m_delegate);
+    //DDX_Control(pDX, IDC_LOCATE_DELEGATE_EDIT,      m_delegate);
     DDX_Control(pDX, IDC_LOCATE_DELEGATE_LIST_EDIT, m_delegateList);
 
-    DDX_Control(pDX, IDC_LOCATE_CANCEL_ORDER_HANDLE,    m_hcancel);
+    //DDX_Control(pDX, IDC_LOCATE_CANCEL_ORDER_HANDLE,    m_hcancel);
     DDX_Control(pDX, IDC_LOCATE_CANCEL_BTN_HANDLE,      m_hcancelBtn);
+    DDX_Control(pDX, IDC_LOCATE_TOOLBAR_HANDLE,         m_htoolbar);
+
     DDX_Control(pDX, IDC_LOCATE_CANCEL_LIST_HANDLE,     m_hcancelList);
-    DDX_Control(pDX, IDC_LOCATE_DELEGATE_HANDLE,        m_hdelegate);
+    //DDX_Control(pDX, IDC_LOCATE_DELEGATE_HANDLE,        m_hdelegate);
     DDX_Control(pDX, IDC_LOCATE_DELEGATE_LIST_HANDLE,   m_hdelegateList);
+
+    DDX_Control(pDX, IDC_LOCATE_TREE_EDIT,              m_tree);
+    DDX_Control(pDX, IDC_LOCATE_TREE_HANDLE,            m_htree);
 
     DDX_Control(pDX, IDC_LOCATE_FILE_EDIT, _locateFile);
 }
@@ -95,11 +102,11 @@ BOOL CStockLocatePropPage::OnInitDialog()
     //m_bosPrice.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
     //m_bosQuantity.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
     //m_bosOrder.EnableMask(ST_LOCATE_MASK_STR, ST_LOCATE_TEMP_STR, ST_LOCATE_DEF_STR, ST_LOCATE_VALID_STR);
-    m_buyOrSell.DisableMask();
-    m_bosCode.DisableMask();
-    m_bosPrice.DisableMask();
-    m_bosQuantity.DisableMask();
-    m_bosOrder.DisableMask();
+    //m_buyOrSell.DisableMask();
+    //m_bosCode.DisableMask();
+    //m_bosPrice.DisableMask();
+    //m_bosQuantity.DisableMask();
+    //m_bosOrder.DisableMask();
 
     _locateFile.EnableFileBrowseButton(ST_CONFIG_FILE_EXT, ST_CONFIG_FILE_FILTER);
 
@@ -195,8 +202,10 @@ CBCGPMaskEdit * CStockLocatePropPage::FindMaskCtrl(LocateType type)
 {
     switch (type)
     {
+    case LT_Toolbar:
+        return &m_toolbar;
     case LT_Buy:
-        return &m_buyOrSell;
+        return &m_tree;
     case LT_BuyCode:
         return &m_bosCode;
     case LT_BuyPrice:
@@ -206,7 +215,7 @@ CBCGPMaskEdit * CStockLocatePropPage::FindMaskCtrl(LocateType type)
     case LT_BuyOrder:
         return &m_bosOrder;
     case LT_Sell:
-        return &m_buyOrSell;
+        return &m_tree;
     case LT_SellCode:
         return &m_bosCode;
     case LT_SellPrice:
@@ -216,13 +225,13 @@ CBCGPMaskEdit * CStockLocatePropPage::FindMaskCtrl(LocateType type)
     case LT_SellOrder:
         return &m_bosOrder;
     case LT_Cancel:
-        return &m_cancel;
+        return &m_tree;
     case LT_CancelBtn:
         return &m_cancelBtn;
     case LT_CancelList:
         return &m_cancelList;
     case LT_Delegate:
-        return &m_delegate;
+        return &m_tree;
     case LT_DelegateList:
         return &m_delegateList;
     case LT_Num:
@@ -238,8 +247,6 @@ CBCGPStatic * CStockLocatePropPage::FindLabelCtrl(LocateType type)
 {
     switch (type)
     {
-    case LT_Buy:
-        return &m_buyOrSellLab;
     case LT_BuyCode:
         return &m_bosCodeLab;
     case LT_BuyPrice:
@@ -248,8 +255,6 @@ CBCGPStatic * CStockLocatePropPage::FindLabelCtrl(LocateType type)
         return &m_bosQuantityLab;
     case LT_BuyOrder:
         return &m_bosOrderLab;
-    case LT_Sell:
-        return &m_buyOrSellLab;
     case LT_SellCode:
         return &m_bosCodeLab;
     case LT_SellPrice:
@@ -258,6 +263,9 @@ CBCGPStatic * CStockLocatePropPage::FindLabelCtrl(LocateType type)
         return &m_bosQuantityLab;
     case LT_SellOrder:
         return &m_bosOrderLab;
+    case LT_Toolbar:
+    case LT_Buy:
+    case LT_Sell:
     case LT_Cancel:
     case LT_CancelBtn:
     case LT_CancelList:
@@ -277,8 +285,10 @@ CBCGPEdit * CStockLocatePropPage::FindEditCtrl(LocateType type)
 {
     switch (type)
     {
+    case LT_Toolbar:
+        return &m_htoolbar;
     case LT_Buy:
-        return &m_hbuyOrSell;
+        return &m_htree;
     case LT_BuyCode:
         return &m_hbosCode;
     case LT_BuyPrice:
@@ -288,7 +298,7 @@ CBCGPEdit * CStockLocatePropPage::FindEditCtrl(LocateType type)
     case LT_BuyOrder:
         return &m_hbosOrder;
     case LT_Sell:
-        return &m_hbuyOrSell;
+        return &m_htree;
     case LT_SellCode:
         return &m_hbosCode;
     case LT_SellPrice:
@@ -298,13 +308,13 @@ CBCGPEdit * CStockLocatePropPage::FindEditCtrl(LocateType type)
     case LT_SellOrder:
         return &m_hbosOrder;
     case LT_Cancel:
-        return &m_hcancel;
+        return &m_htree;
     case LT_CancelBtn:
         return &m_hcancelBtn;
     case LT_CancelList:
         return &m_hcancelList;
     case LT_Delegate:
-        return &m_hdelegate;
+        return &m_htree;
     case LT_DelegateList:
         return &m_hdelegateList;
     case LT_Num:
@@ -372,31 +382,13 @@ void CStockLocatePropPage::SetCtrlText(LocateType type)
 
 void CStockLocatePropPage::SetCtrlFocus()
 {
-    if (m_bosId == ID_LOCATE_OP_BUY)
+    for (int i = 0; i < LT_Num; ++i)
     {
-        for (int i = LT_Buy; i < LT_Sell; ++i)
-        {
-            if (_ctrls[i].hwnd == nullptr)
-            {
-                _ctrls[i].p->SetFocus();
-                return;
-            }
-        }
-    }
-    else
-    {
-        for (int i = LT_Sell; i < LT_Cancel; ++i)
-        {
-            if (_ctrls[i].hwnd == nullptr)
-            {
-                _ctrls[i].p->SetFocus();
-                return;
-            }
-        }
-    }
+        if (m_bosId == ID_LOCATE_OP_BUY && (i > LT_Sell && i <= LT_SellOrder))
+            continue;
+        if (m_bosId == ID_LOCATE_OP_SELL && (i > LT_Buy && i <= LT_BuyOrder))
+            continue;
 
-    for (int i = LT_Cancel; i < LT_Num; ++i)
-    {
         if (_ctrls[i].hwnd == nullptr)
         {
             _ctrls[i].p->SetFocus();
@@ -411,31 +403,13 @@ LocateType CStockLocatePropPage::GetCtrlFocus()
 
     if (pWnd)
     {
-        if (m_bosId == ID_LOCATE_OP_BUY)
+        for (int i = 0; i < LT_Num; ++i)
         {
-            for (int i = LT_Buy; i < LT_Sell; ++i)
-            {
-                if (pWnd == _ctrls[i].p ||
-                    pWnd == _ctrls[i].h)
-                {
-                    return (LocateType)i;
-                }
-            }
-        }
-        else if (m_bosId == ID_LOCATE_OP_SELL)
-        {
-            for (int i = LT_Sell; i < LT_Cancel; ++i)
-            {
-                if (pWnd == _ctrls[i].p ||
-                    pWnd == _ctrls[i].h)
-                {
-                    return (LocateType)i;
-                }
-            }
-        }
+            if (m_bosId == ID_LOCATE_OP_BUY && (i > LT_Sell && i <= LT_SellOrder))
+                continue;
+            if (m_bosId == ID_LOCATE_OP_SELL && (i > LT_Buy && i <= LT_BuyOrder))
+                continue;
 
-        for (int i = LT_Cancel; i < LT_Num; ++i)
-        {
             if (pWnd == _ctrls[i].p ||
                 pWnd == _ctrls[i].h)
             {
@@ -518,6 +492,7 @@ void CStockLocatePropPage::OnClear()
 LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 {
     HWND hwnd = m_pic.TargetHWnd();
+    POINT const& pos = m_pic.TargetPos();
 
     LocateType type = this->GetCtrlFocus();
 
@@ -526,8 +501,57 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
         CStockLocateData & data = theApp.AppData().LocateData();
         if (data.ValidateHwnd(hwnd, type, m_target, m_tID, &(_ctrls[type].hitem)))
         {
+            LocateType t1, t2, t3;
+
+            bool share = true;
+            switch (type)
+            {
+            case LT_Buy:
+                t1 = LT_Sell;
+                t2 = LT_Cancel;
+                t3 = LT_Delegate;
+                break;
+            case LT_Sell:
+                t1 = LT_Buy;
+                t2 = LT_Cancel;
+                t3 = LT_Delegate;
+                break;
+            case LT_Cancel:
+                t1 = LT_Sell;
+                t2 = LT_Buy;
+                t3 = LT_Delegate;
+                break;
+            case LT_Delegate:
+                t1 = LT_Sell;
+                t2 = LT_Cancel;
+                t3 = LT_Buy;
+                break;
+            default:
+                share = false;
+                break;
+            }
+
+            if (share)
+            {
+                if (data.ValidateHwnd(hwnd, t1, m_target, m_tID, &(_ctrls[t1].hitem)) &&
+                    data.ValidateHwnd(hwnd, t2, m_target, m_tID, &(_ctrls[t2].hitem)) &&
+                    data.ValidateHwnd(hwnd, t3, m_target, m_tID, &(_ctrls[t3].hitem)))
+                {
+                    _ctrls[t1].hwnd = hwnd;
+                    _ctrls[t1].pos = pos;
+
+                    _ctrls[t2].hwnd = hwnd;
+                    _ctrls[t2].pos = pos;
+
+                    _ctrls[t3].hwnd = hwnd;
+                    _ctrls[t3].pos = pos;
+                }
+                else
+                    return 0;
+            }
+
             _ctrls[type].hwnd = hwnd;
-            _ctrls[type].pos = m_pic.TargetPos();
+            _ctrls[type].pos = pos;
 
             this->SetCtrlText(type);
 
@@ -537,6 +561,7 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
             this->UpdateData(FALSE);
 
             this->SetCtrlFocus();
+
         }
         else
         {

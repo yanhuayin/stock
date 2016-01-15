@@ -8,6 +8,8 @@
 
 const TCHAR*    s_locate_names [] =
 {
+    _T("toolbar"),
+
     _T("buy"),
     _T("buyCode"),
     _T("buyPrice"),
@@ -21,6 +23,7 @@ const TCHAR*    s_locate_names [] =
     _T("sellOrder"),
 
     _T("cancel"),
+    _T("cancelBtn"),
     _T("cancelList"),
 
     _T("delegate"),
@@ -43,6 +46,30 @@ namespace
 {
     static CString s_list_ctrl_name(ST_LOC_LIST_CTRL_NAME);
     static CString s_tree_ctrl_name(ST_LOC_TREE_CTRL_NAME);
+
+    // TODO : remove these hard code
+    static int s_tb_buy_cmd = 1001;
+    static int s_tb_sell_cmd = 1002;
+    static int s_tb_cancel_cmd = 1003;
+
+    static CToolbarBtn s_tbs[] =
+    {
+        {
+            CString(MAKEINTRESOURCE(IDS_BUY)),
+            LT_Buy,
+            s_tb_buy_cmd
+        },
+        {
+            CString(MAKEINTRESOURCE(IDS_SELL)),
+            LT_Sell,
+            s_tb_sell_cmd
+        },
+        {
+            CString(MAKEINTRESOURCE(IDS_CANCLE)),
+            LT_Cancel,
+            s_tb_cancel_cmd
+        }
+    };
 }
 
 bool CStockLocateData::Load(CString const & file)
@@ -54,6 +81,7 @@ bool CStockLocateData::Load(CString const & file)
     {
         m_info[i].hwnd = nullptr;
         m_info[i].hitem = nullptr;
+        m_info[i].cmd = 1;
     }
 
     if (exists)
@@ -342,6 +370,23 @@ bool CStockLocateData::LocateWnd()
             {
                 switch ((LocateType)i) // TODO : check the window type and process
                 {
+                case LT_Toolbar:
+                    m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
+                    if (m_info[i].hwnd)
+                    {
+                        size_t size = ST_ARRAY_SIZE(s_tbs);
+                        this->GetToolbarBtn(m_info[i].hwnd, m_tID, m_target, s_tbs, size);
+                        for (int i = 0; i < size; ++i)
+                        {
+                            if (s_tbs[i].cmd != -1)
+                            {
+                                m_info[s_tbs[i].cId].cmd = s_tbs[i].cmd;
+                            }
+                        }
+
+                        ++count;
+                    }
+                    break;
                 case LT_Buy:
                 case LT_Sell:
                 case LT_Cancel:
@@ -435,7 +480,7 @@ int CStockLocateData::FindIdByName(CString const & name) const
     return LT_Num;
 }
 
-HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type, DWORD pId) const
+HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type, DWORD pId, bool open) const
 {
     //process id must be a valid value
 
@@ -531,9 +576,9 @@ HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type, DWORD pId
 
     } while (item);
 
-    if (item)
+    if (item && open)
     {
-        if (!this->OpenTradePage(process, tree, item))
+        if (!this->OpenTradePage(process, tree, item, m_info[type].cmd))
             item = nullptr;
     }
 
@@ -599,6 +644,65 @@ DWORD CStockLocateData::QueryTargetName(HWND hwnd, CString & outName, DWORD pId)
     }
 
     return id;
+}
+
+int CStockLocateData::GetToolbarBtn(HWND hwnd, DWORD pId, CString const& pTarget, CToolbarBtn * info, size_t cnt) const
+{
+    HandlePtr process = MakeHandlePtr(::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, pId));
+    if (!process)
+        return 0;
+
+    HMODULE hModule = ::GetModuleHandle(pTarget);
+    if (!hModule)
+        return 0;
+
+    VirtualPtr pName = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, MEM_COMMIT, PAGE_READWRITE));
+    VirtualPtr pBtn = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TBBUTTON), MEM_COMMIT, PAGE_READWRITE));
+
+    if (!pName || !pBtn)
+        return 0;
+
+    int count = 0;
+    size_t num = ::SendMessage(hwnd, TB_BUTTONCOUNT, 0, 0);
+    for (size_t i = 0; i < num; ++i)
+    {
+        TCHAR txtBuf[ST_MAX_VIRTUAL_BUF] = { 0 };
+        TBBUTTON btn = { 0 };
+        if (!::WriteProcessMemory(process.get(), pBtn.get(), &btn, sizeof(TBBUTTON), nullptr))
+            continue;
+        if (::SendMessage(hwnd, TB_GETBUTTON, i, (LPARAM)(pBtn.get()) == FALSE))
+            continue;
+        if (!::ReadProcessMemory(process.get(), pBtn.get(), &btn, sizeof(TBBUTTON), nullptr))
+            continue;
+
+        if (IS_INTRESOURCE(btn.iString))
+        {
+            if (::LoadString(hModule, btn.iString, (LPTSTR)pName.get(), ST_MAX_VIRTUAL_BUF))
+            {
+                if (!::ReadProcessMemory(process.get(), pName.get(), txtBuf, sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, nullptr))
+                    continue;
+            }
+            else
+                continue;
+        }
+        else
+        {
+            if (!::ReadProcessMemory(process.get(), (LPVOID)btn.iString, txtBuf, sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, nullptr))
+                continue;
+        }
+
+        for (int j = 0; j < cnt; ++j)
+        {
+            if (info[j].name == txtBuf)
+            {
+                info[j].cmd = btn.idCommand;
+                ++count;
+                break;
+            }
+        }
+    }
+
+    return count;
 }
 
 HWND CStockLocateData::ValidateTopWnd(HWND hwnd, CString const& t, DWORD pId) const
@@ -669,7 +773,7 @@ bool CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target,
         case LT_Sell:
         case LT_Cancel:
         case LT_Delegate:
-            *hitem = this->SelectTreeItem(hwnd, type, pId);
+            *hitem = this->SelectTreeItem(hwnd, type, pId, false);
             if (*hitem) //though it's in valid top wnd but may not a tree ctrl
                 return true;
             if (isTSet)
@@ -683,8 +787,10 @@ bool CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target,
 
 }
 
-bool CStockLocateData::OpenTradePage(HandlePtr process, HWND tree, HTREEITEM item) const 
+bool CStockLocateData::OpenTradePage(HandlePtr process, HWND tree, HTREEITEM item, int cmd) const 
 {
+
+    // TreeView_SelectItem(tree, item);
 
     // fuck, we still need to send a click message to the tree ctrl
     //RECT rc;
@@ -751,13 +857,12 @@ bool CStockLocateData::OpenTradePage(HandlePtr process, HWND tree, HTREEITEM ite
     //    return true;
     //}
 
-    TreeView_SelectItem(tree, item);
 
     //HWND t = (HWND)(0x10518);
-    HWND t = (HWND)(0x10512);
-    HWND t2 = (HWND)(0x10518);
-    if (::IsWindow(t))
-    {
+    //HWND t = (HWND)(0x10512);
+    //HWND t2 = (HWND)(0x10518);
+    //if (::IsWindow(t))
+    //{
         //::SendMessage(t, WM_COMMAND, 10001, 0);
 
         //::SendMessage(t, (WM_USER + 0), 0, 0);
@@ -765,7 +870,7 @@ bool CStockLocateData::OpenTradePage(HandlePtr process, HWND tree, HTREEITEM ite
 
         //::SendMessage(t2, (WM_USER + 5101), 0, 0);
         //::SendMessage(t2, (WM_USER + 5103), 0, 0);
-        ::SendMessage(t2, (WM_USER + 5104), 0, 0);
+        //::SendMessage(t2, (WM_USER + 5104), 0, 0);
 
         //::SendMessage(t, (WM_USER + 5103), 0, 0);
 
@@ -781,8 +886,19 @@ bool CStockLocateData::OpenTradePage(HandlePtr process, HWND tree, HTREEITEM ite
         
         //::SendMessage(t, (WM_USER + 5104), 0, 0);
         //TRACE1("%u", err);
+    //}
+
+    if (m_info[LT_Toolbar].hwnd && cmd != -1)
+    {
+        // TODO : could we just send to toolbar?
+        HWND p1 = ::GetParent(m_info[LT_Toolbar].hwnd);
+        HWND p2 = ::GetParent(p1);
+
+        ::SendMessage(p2, WM_COMMAND, cmd, 0);
+
+        return true;
     }
 
     
-    return true;
+    return false;
 }

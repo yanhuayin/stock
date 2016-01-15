@@ -62,35 +62,42 @@ private:
     LocateType      GetCtrlFocus();
 
 private:
-    CBCGPMaskEdit           m_buyOrSell;
+    //CBCGPMaskEdit           m_buyOrSell;
     CBCGPMaskEdit           m_bosCode;
     CBCGPMaskEdit           m_bosPrice;
     CBCGPMaskEdit           m_bosQuantity;
     CBCGPMaskEdit           m_bosOrder;
 
-    CBCGPStatic             m_buyOrSellLab;
+    //CBCGPStatic             m_buyOrSellLab;
     CBCGPStatic             m_bosCodeLab;
     CBCGPStatic             m_bosPriceLab;
     CBCGPStatic             m_bosQuantityLab;
     CBCGPStatic             m_bosOrderLab;
 
-    CBCGPEdit               m_hbuyOrSell;
+    //CBCGPEdit               m_hbuyOrSell;
     CBCGPEdit               m_hbosCode;
     CBCGPEdit               m_hbosPrice;
     CBCGPEdit               m_hbosQuant;
     CBCGPEdit               m_hbosOrder;
 
-    CBCGPMaskEdit           m_cancel;
+    //CBCGPMaskEdit           m_cancel;
     CBCGPMaskEdit           m_cancelBtn;
+    CBCGPMaskEdit           m_toolbar;
+
     CBCGPMaskEdit           m_cancelList;
-    CBCGPMaskEdit           m_delegate;
+    //CBCGPMaskEdit           m_delegate;
     CBCGPMaskEdit           m_delegateList;
 
-    CBCGPEdit               m_hcancel;
+    //CBCGPEdit               m_hcancel;
     CBCGPEdit               m_hcancelBtn;
+    CBCGPEdit               m_htoolbar;
+
     CBCGPEdit               m_hcancelList;
-    CBCGPEdit               m_hdelegate;
+    //CBCGPEdit               m_hdelegate;
     CBCGPEdit               m_hdelegateList;
+
+    CBCGPMaskEdit           m_tree;
+    CBCGPEdit               m_htree;
 
     CTargetLocationPic      m_pic;
     CMenu                   m_menu;

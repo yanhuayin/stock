@@ -10,10 +10,18 @@
 
 struct CLocateInfo
 {
-    POINT       pos;
-    CString     name;
-    HWND        hwnd;
-    HTREEITEM   hitem;
+    POINT               pos;
+    CString             name;
+    HWND                hwnd;
+    HTREEITEM           hitem;
+    int                 cmd;
+};
+
+struct CToolbarBtn
+{
+    CString name;
+    int     cId;
+    int     cmd;
 };
 
 class CStockLocateData // TODO : I think we'd better move all hwnd manipulate out of this class
@@ -35,14 +43,16 @@ public:
     void        SetTarget(CString const& target, DWORD id) { m_target = target; m_tID = id; }
     void        SetReady(bool ready); // TODO : ready change should notify all views
     bool        ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HTREEITEM *hitem = nullptr) const;
-    bool        OpenTradePage(HandlePtr process, HWND tree, HTREEITEM item) const;
+    bool        OpenTradePage(HandlePtr process, HWND tree, HTREEITEM item, int cmd = -1) const;
 
 private:
     int         FindIdByName(CString const& name) const;
-    HTREEITEM   SelectTreeItem(HWND tree, LocateType type, DWORD pId) const;
+    HTREEITEM   SelectTreeItem(HWND tree, LocateType type, DWORD pId, bool open = true) const; // TODO : use process handle instead id
     HWND        PointToTopWnd(POINT const& pos);
-    HWND        ValidateTopWnd(HWND hwnd, CString const& t, DWORD pId) const;
-    DWORD       QueryTargetName(HWND hwnd, CString & outName, DWORD pId) const;
+    HWND        ValidateTopWnd(HWND hwnd, CString const& t, DWORD pId) const; // TODO : use process handle instead id
+    DWORD       QueryTargetName(HWND hwnd, CString & outName, DWORD pId) const; // TODO : use process handle instead id
+    int         GetToolbarBtn(HWND hwnd, DWORD pId, CString const& pTarget, CToolbarBtn *info, size_t cnt) const; // TODO : use process handle instead id
+
 
 private:
     bool            m_load;
