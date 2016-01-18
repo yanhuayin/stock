@@ -112,6 +112,25 @@ void CTradeView::SetQuota(CString const & quota)
     m_tradeWnd._quota.SetWindowText(quota);
 }
 
+void CTradeView::GetCode(CString & outCode) const
+{
+    m_tradeWnd._code.GetWindowText(outCode);
+}
+
+void CTradeView::GetQuant(CString & outQuant) const
+{
+    m_tradeWnd._quantity.GetWindowText(outQuant);
+}
+
+void CTradeView::GetPrice(StockInfoType info, CString & outPrice) const
+{
+    CBCGPGridRow *pRow = m_tradeWnd._info.GetRow(info);
+    if (pRow)
+    {
+        outPrice = pRow->GetItem(SIF_Price)->GetValue();
+    }
+}
+
 void CTradeView::OnOK()
 {
     // request stock info

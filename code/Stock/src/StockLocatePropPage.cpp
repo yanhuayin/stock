@@ -358,12 +358,12 @@ void CStockLocatePropPage::SwitchBOS()
 {
     if (m_bosId == ID_LOCATE_OP_BUY)
     {
-        _ctrls[LT_Buy].label->SetWindowText(CString(MAKEINTRESOURCE(IDS_BUY)));
+        //_ctrls[LT_Buy].label->SetWindowText(CString(MAKEINTRESOURCE(IDS_BUY)));
         _ctrls[LT_BuyPrice].label->SetWindowText(CString(MAKEINTRESOURCE(IDS_BUY_PRICE)));
         _ctrls[LT_BuyQuant].label->SetWindowText(CString(MAKEINTRESOURCE(IDS_BUY_QUANTITY)));
         _ctrls[LT_BuyOrder].label->SetWindowText(CString(MAKEINTRESOURCE(IDS_BUY_ORDER)));
 
-        this->SetCtrlText(LT_Buy);
+        //this->SetCtrlText(LT_Buy);
         this->SetCtrlText(LT_BuyCode);
         this->SetCtrlText(LT_BuyPrice);
         this->SetCtrlText(LT_BuyQuant);
@@ -371,12 +371,12 @@ void CStockLocatePropPage::SwitchBOS()
     }
     else if (m_bosId == ID_LOCATE_OP_SELL)
     {
-        _ctrls[LT_Sell].label->SetWindowText(CString(MAKEINTRESOURCE(IDS_SELL)));
+        //_ctrls[LT_Sell].label->SetWindowText(CString(MAKEINTRESOURCE(IDS_SELL)));
         _ctrls[LT_SellPrice].label->SetWindowText(CString(MAKEINTRESOURCE(IDS_SELL_PRICE)));
         _ctrls[LT_SellQuant].label->SetWindowText(CString(MAKEINTRESOURCE(IDS_SELL_QUANTITY)));
         _ctrls[LT_SellOrder].label->SetWindowText(CString(MAKEINTRESOURCE(IDS_SELL_ORDER)));
 
-        this->SetCtrlText(LT_Sell);
+        //this->SetCtrlText(LT_Sell);
         this->SetCtrlText(LT_SellCode);
         this->SetCtrlText(LT_SellPrice);
         this->SetCtrlText(LT_SellQuant);
