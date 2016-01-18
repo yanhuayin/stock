@@ -34,7 +34,7 @@ public:
 
     void    Update(); // used by immediate request type only
 
-    int     Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op) const;
+    int     Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op);
 
     UINT    Quota() const;
 

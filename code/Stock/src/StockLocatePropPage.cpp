@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "resource.h"
+#include "Utils.h"
 #include "ApiHelper.h"
 #include "StockGlobal.h"
 #include "Stock.h"
@@ -45,31 +46,31 @@ void CStockLocatePropPage::DoDataExchange(CDataExchange * pDX)
 
     DDX_Control(pDX, IDC_LOCATE_OP_COMBO, _tradeSelBtn);
     
-    //DDX_Control(pDX, IDC_LOCATE_OP_BTN_EDIT,        m_buyOrSell);
-    DDX_Control(pDX, IDC_LOCATE_CODE_EDIT,          m_bosCode);
-    DDX_Control(pDX, IDC_LOCATE_OP_PRICE_EDIT,      m_bosPrice);
-    DDX_Control(pDX, IDC_LOCATE_QUANTITY_EDIT,      m_bosQuantity);
-    DDX_Control(pDX, IDC_LOCATE_SET_ORDER_EDIT,     m_bosOrder);
+    //DDX_Control(pDX, IDC_LOCATE_OP_BTN_EDIT,          m_buyOrSell);
+    DDX_Control(pDX, IDC_LOCATE_CODE_EDIT,              m_bosCode);
+    DDX_Control(pDX, IDC_LOCATE_OP_PRICE_EDIT,          m_bosPrice);
+    DDX_Control(pDX, IDC_LOCATE_QUANTITY_EDIT,          m_bosQuantity);
+    DDX_Control(pDX, IDC_LOCATE_SET_ORDER_EDIT,         m_bosOrder);
 
-    //DDX_Control(pDX, IDC_LOCATE_OP_BTN_HANDLE,      m_hbuyOrSell);
-    DDX_Control(pDX, IDC_LOCATE_CODE_HANDLE,        m_hbosCode);
-    DDX_Control(pDX, IDC_LOCATE_OP_PRICE_HANDLE,    m_hbosPrice);
-    DDX_Control(pDX, IDC_LOCATE_QUANTITY_HANDLE,    m_hbosQuant);
-    DDX_Control(pDX, IDC_LOCATE_SET_ORDER_HANDLE,   m_hbosOrder);
+    //DDX_Control(pDX, IDC_LOCATE_OP_BTN_HANDLE,        m_hbuyOrSell);
+    DDX_Control(pDX, IDC_LOCATE_CODE_HANDLE,            m_hbosCode);
+    DDX_Control(pDX, IDC_LOCATE_OP_PRICE_HANDLE,        m_hbosPrice);
+    DDX_Control(pDX, IDC_LOCATE_QUANTITY_HANDLE,        m_hbosQuant);
+    DDX_Control(pDX, IDC_LOCATE_SET_ORDER_HANDLE,       m_hbosOrder);
 
-    //DDX_Control(pDX, IDC_LOCATE_OP_BTN_LABEL,       m_buyOrSellLab);
-    DDX_Control(pDX, IDC_LOCATE_CODE_LABEL,         m_bosCodeLab);
-    DDX_Control(pDX, IDC_LOCATE_OP_PRICE_LABEL,     m_bosPriceLab);
-    DDX_Control(pDX, IDC_LOCATE_QUANTITY_LABEL,     m_bosQuantityLab);
-    DDX_Control(pDX, IDC_LOCATE_SET_ORDER_LABEL,    m_bosOrderLab);
+    //DDX_Control(pDX, IDC_LOCATE_OP_BTN_LABEL,         m_buyOrSellLab);
+    DDX_Control(pDX, IDC_LOCATE_CODE_LABEL,             m_bosCodeLab);
+    DDX_Control(pDX, IDC_LOCATE_OP_PRICE_LABEL,         m_bosPriceLab);
+    DDX_Control(pDX, IDC_LOCATE_QUANTITY_LABEL,         m_bosQuantityLab);
+    DDX_Control(pDX, IDC_LOCATE_SET_ORDER_LABEL,        m_bosOrderLab);
 
-    //DDX_Control(pDX, IDC_LOCATE_CANCEL_ORDER_EDIT,  m_cancel);
-    DDX_Control(pDX, IDC_LOCATE_CANCEL_BTN_EDIT,    m_cancelBtn);
-    DDX_Control(pDX, IDC_LOCATE_TOOLBAR_EDIT,       m_toolbar);
+    //DDX_Control(pDX, IDC_LOCATE_CANCEL_ORDER_EDIT,    m_cancel);
+    DDX_Control(pDX, IDC_LOCATE_CANCEL_BTN_EDIT,        m_cancelBtn);
+    DDX_Control(pDX, IDC_LOCATE_TOOLBAR_EDIT,           m_toolbar);
 
-    DDX_Control(pDX, IDC_LOCATE_CANCEL_LIST_EDIT,   m_cancelList);
-    //DDX_Control(pDX, IDC_LOCATE_DELEGATE_EDIT,      m_delegate);
-    DDX_Control(pDX, IDC_LOCATE_DELEGATE_LIST_EDIT, m_delegateList);
+    DDX_Control(pDX, IDC_LOCATE_CANCEL_LIST_EDIT,       m_cancelList);
+    //DDX_Control(pDX, IDC_LOCATE_DELEGATE_EDIT,        m_delegate);
+    DDX_Control(pDX, IDC_LOCATE_DELEGATE_LIST_EDIT,     m_delegateList);
 
     //DDX_Control(pDX, IDC_LOCATE_CANCEL_ORDER_HANDLE,    m_hcancel);
     DDX_Control(pDX, IDC_LOCATE_CANCEL_BTN_HANDLE,      m_hcancelBtn);
@@ -82,7 +83,10 @@ void CStockLocatePropPage::DoDataExchange(CDataExchange * pDX)
     DDX_Control(pDX, IDC_LOCATE_TREE_EDIT,              m_tree);
     DDX_Control(pDX, IDC_LOCATE_TREE_HANDLE,            m_htree);
 
-    DDX_Control(pDX, IDC_LOCATE_FILE_EDIT, _locateFile);
+    DDX_Control(pDX, IDC_LOCATE_APP_EDIT,               m_app);
+    DDX_Control(pDX, IDC_LOCATE_APP_HANDLE,             m_happ);
+
+    DDX_Control(pDX, IDC_LOCATE_FILE_EDIT,              _locateFile);
 }
 
 BOOL CStockLocatePropPage::OnInitDialog()
@@ -139,7 +143,15 @@ void CStockLocatePropPage::OnOK()
         {
             if (_ctrls[i].hwnd) // if wnd valid then item will be null or valid depends on the type
             {
-                data.SetInfo((LocateType)i, _ctrls[i].pos, _ctrls[i].hwnd, _ctrls[i].hitem);
+                data.SetInfo((LocateType)i, _ctrls[i].pos, _ctrls[i].hwnd, _ctrls[i].hitem, _ctrls[i].cmd);
+                if (i == LT_CancelList)
+                {
+                    for (int j = 0; j < SOF_Num; ++j)
+                    {
+                        data.SetListCol((LocateType)i, (StockOrderField)j, _cancleList[j]);
+                    }
+                }
+
                 ++count;
             }
         }
@@ -170,6 +182,8 @@ void CStockLocatePropPage::InitCtrls()
     // TODO : access locate data directly, may change this later
     CStockLocateData &data = theApp.AppData().LocateData();
 
+    data.ResetListCol(_cancleList, SOF_Num);
+
     for (int i = 0; i < LT_Num; ++i)
     {
         _ctrls[i].label = this->FindLabelCtrl((LocateType)i);
@@ -178,12 +192,21 @@ void CStockLocatePropPage::InitCtrls()
         CLocateInfo const& info = data.LocInfo((LocateType)i);
         _ctrls[i].hwnd = info.hwnd;
         _ctrls[i].hitem = info.hitem;
+        _ctrls[i].cmd = info.cmd;
         if (info.hwnd)
         {
             _ctrls[i].pos = info.pos;
+
+            if (i == LT_CancelList)
+            {
+                for (int j = 0; j < SOF_Num; ++j)
+                {
+                    _cancleList[j] = data.ListCol((LocateType)i, (StockOrderField)j);
+                }
+            }
         }
 
-        if (i > LT_SellOrder) // buy/sell text will be set in switchBOS
+        if (i > LT_SellOrder || i == LT_App || i == LT_Toolbar) // buy/sell text will be set in switchBOS
             this->SetCtrlText((LocateType)i);
     }
 
@@ -202,6 +225,8 @@ CBCGPMaskEdit * CStockLocatePropPage::FindMaskCtrl(LocateType type)
 {
     switch (type)
     {
+    case LT_App:
+        return &m_app;
     case LT_Toolbar:
         return &m_toolbar;
     case LT_Buy:
@@ -263,6 +288,7 @@ CBCGPStatic * CStockLocatePropPage::FindLabelCtrl(LocateType type)
         return &m_bosQuantityLab;
     case LT_SellOrder:
         return &m_bosOrderLab;
+    case LT_App:
     case LT_Toolbar:
     case LT_Buy:
     case LT_Sell:
@@ -285,6 +311,8 @@ CBCGPEdit * CStockLocatePropPage::FindEditCtrl(LocateType type)
 {
     switch (type)
     {
+    case LT_App:
+        return &m_happ;
     case LT_Toolbar:
         return &m_htoolbar;
     case LT_Buy:
@@ -489,6 +517,28 @@ void CStockLocatePropPage::OnClear()
     }
 }
 
+namespace
+{
+    CToolbarBtn s_btns[] =
+    {
+        {
+            MAKEINTRESOURCE(IDS_BUY),
+            LT_Buy,
+        -1
+        },
+        {
+            MAKEINTRESOURCE(IDS_SELL),
+            LT_Sell,
+        -1
+        },
+        {
+            MAKEINTRESOURCE(IDS_CANCLE),
+            LT_Cancel,
+        -1
+        }
+    };
+}
+
 LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 {
     HWND hwnd = m_pic.TargetHWnd();
@@ -526,6 +576,42 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
                 t2 = LT_Cancel;
                 t3 = LT_Buy;
                 break;
+            case LT_Toolbar:
+            {
+                size_t size = ST_ARRAY_SIZE(s_btns);
+                if (data.GetToolbarBtn(hwnd, m_tID, m_target, s_btns, size) == size)
+                {
+                    for (int i = 0; i < size; ++i)
+                    {
+                        if (s_btns[i].cmd != -1)
+                        {
+                            _ctrls[s_btns[i].cId].cmd = s_btns[i].cmd;
+                        }
+                    }
+                }
+                else
+                    return 0;
+            }
+            case LT_CancelList:
+            {
+                if (_cancleList[0].name.IsEmpty())
+                {
+                    for (int i = 0; i < SOF_Num; ++i)
+                    {
+                        _cancleList[i].name = data.ListColName((StockOrderField)i);
+                    }
+                }
+
+                HandlePtr process = MakeHandlePtr(::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, m_tID));
+                if (!process)
+                    return 0;
+
+                if (data.GetListCol(process, hwnd, _cancleList, SOF_Num) != SOF_Num)
+                {
+                    data.ResetListCol(_cancleList, SOF_Num);
+                    return 0;
+                }
+            }
             default:
                 share = false;
                 break;
@@ -533,20 +619,9 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 
             if (share)
             {
-                if (data.ValidateHwnd(hwnd, t1, m_target, m_tID, &(_ctrls[t1].hitem)) &&
-                    data.ValidateHwnd(hwnd, t2, m_target, m_tID, &(_ctrls[t2].hitem)) &&
-                    data.ValidateHwnd(hwnd, t3, m_target, m_tID, &(_ctrls[t3].hitem)))
-                {
-                    _ctrls[t1].hwnd = hwnd;
-                    _ctrls[t1].pos = pos;
-
-                    _ctrls[t2].hwnd = hwnd;
-                    _ctrls[t2].pos = pos;
-
-                    _ctrls[t3].hwnd = hwnd;
-                    _ctrls[t3].pos = pos;
-                }
-                else
+                if (!data.ValidateHwnd(hwnd, t1, m_target, m_tID, &(_ctrls[t1].hitem)) ||
+                    !data.ValidateHwnd(hwnd, t2, m_target, m_tID, &(_ctrls[t2].hitem)) ||
+                    !data.ValidateHwnd(hwnd, t3, m_target, m_tID, &(_ctrls[t3].hitem)))
                     return 0;
             }
 

@@ -6,6 +6,7 @@
 
 #define ST_TO_F     -1
 
+#define ST_TO_TIME_FORMAT_STR     _T("%Y-%m-%d")
 
 // LVM_GETITEMCOUNT
 // https://msdn.microsoft.com/en-us/library/windows/desktop/bb761044%28v=vs.85%29.aspx
@@ -31,12 +32,16 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
     HWND hc = nullptr;
     HWND hq = nullptr;
     HWND ho = nullptr;
+    int key = -1;
+    int cmd = -1;
 
     switch (op)
     {
     case STO_Buy:
         tree = loc.LocInfo(LT_Buy).hwnd;
         item = loc.LocInfo(LT_Buy).hitem;
+        key = loc.LocInfo(LT_Buy).key;
+        cmd = loc.LocInfo(LT_Buy).cmd;
         hp = loc.LocInfo(LT_BuyPrice).hwnd;
         hc = loc.LocInfo(LT_BuyCode).hwnd;
         hq = loc.LocInfo(LT_BuyQuant).hwnd;
@@ -45,6 +50,8 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
     case STO_Sell:
         tree = loc.LocInfo(LT_Sell).hwnd;
         item = loc.LocInfo(LT_Sell).hitem;
+        key = loc.LocInfo(LT_Sell).key;
+        cmd = loc.LocInfo(LT_Sell).cmd;
         hp = loc.LocInfo(LT_SellPrice).hwnd;
         hc = loc.LocInfo(LT_SellCode).hwnd;
         hq = loc.LocInfo(LT_SellQuant).hwnd;
@@ -61,7 +68,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
     if (!process)
         return ST_TO_F;
 
-    if (loc.OpenTradePage(process, tree, item))
+    if (loc.OpenTradePage(process, tree, item, key, cmd))
     {
         if (!this->SetText(process, hc, code))
             return ST_TO_F;
@@ -74,11 +81,41 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
 
         ::SendMessage(ho, BM_CLICK, 0, 0);
 
+        int id = ++m_id;
+
+        CTradeOrder &order = m_orders[id];
+        order.code = code;
+        order.price = price;
+        order.quant = quant;
+        order.date = CTime::GetCurrentTime().Format(ST_TO_TIME_FORMAT_STR);
+
+        return id;
+
+        HTREEITEM clitem = loc.LocInfo(LT_Cancel).hitem;
+        int ckey = loc.LocInfo(LT_Cancel).key;
+        int ccmd = loc.LocInfo(LT_Cancel).cmd;
+        HWND clist = loc.LocInfo(LT_CancelList).hwnd;
+        if (loc.OpenTradePage(process, tree, clitem, ckey, ccmd)) // open cancel order opage
+        {
+            // get code/price/quant column index
+            int ccode = loc.ListCol(LT_CancelList, SOF_Code).col;
+            int cprice = loc.ListCol(LT_CancelList, SOF_Price).col;
+            int cquant = loc.ListCol(LT_CancelList, SOF_Quant).col;
+
+            int row = (int)(HWND)::SendMessage(clist, LVM_GETITEMCOUNT, 0, 0);
+            if (row > 0)
+            {
+
+            }
+        }
+
         // find the order info in delegate list ctrl
         HTREEITEM dlitem = loc.LocInfo(LT_Delegate).hitem;
+        int dlkey = loc.LocInfo(LT_Delegate).key;
+        int dlcmd = loc.LocInfo(LT_Delegate).cmd;
         HWND dlst = loc.LocInfo(LT_DelegateList).hwnd;
 
-        if (loc.OpenTradePage(process, tree, dlitem))
+        if (loc.OpenTradePage(process, tree, dlitem, dlkey, dlcmd))
         {
             CString deleId(MAKEINTRESOURCE(IDS_DELE_ID));
 

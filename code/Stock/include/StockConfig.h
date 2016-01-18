@@ -40,7 +40,8 @@ typedef rapidjson::Writer<RapidEncodeOutputStream, RapidUTF16, RapidUTF8>   Rapi
 
 enum LocateType
 {
-    LT_Toolbar = 0,
+    LT_App = 0,
+    LT_Toolbar,
 
     LT_Buy,
     LT_BuyCode,
@@ -97,6 +98,17 @@ enum StockInfoField
     SIF_Quant,
 
     SIF_Num
+};
+
+enum StockOrderField
+{
+    SOF_Name = 0,
+    SOF_Code,
+    SOF_Id,
+    SOF_Price,
+    SOF_Quant,
+
+    SOF_Num
 };
 
 enum StockTradeOp

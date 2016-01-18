@@ -14,14 +14,21 @@ struct CLocateInfo
     CString             name;
     HWND                hwnd;
     HTREEITEM           hitem;
-    int                 cmd;
+    int                 cmd; // for toolbar
+    int                 key;
 };
 
 struct CToolbarBtn
 {
-    CString name;
+    LPTSTR  name;
     int     cId;
     int     cmd;
+};
+
+struct CListCol
+{
+    CString name;
+    int     col;
 };
 
 class CStockLocateData // TODO : I think we'd better move all hwnd manipulate out of this class
@@ -39,11 +46,18 @@ public:
 
     CLocateInfo const& LocInfo(LocateType type) const { return m_info[type]; }
     DWORD       Target(CString & outTarget) const { outTarget = m_target; return m_tID; }
-    void        SetInfo(LocateType type, POINT const& pos, HWND hwnd, HTREEITEM hitem);
+    CListCol const& ListCol(LocateType listType, StockOrderField col) const;
+    const LPTSTR    ListColName(StockOrderField col) const;
+    void        SetListCol(LocateType listType, StockOrderField col, CListCol const& c);
+    void        SetInfo(LocateType type, POINT const& pos, HWND hwnd, HTREEITEM hitem, int cmd);
     void        SetTarget(CString const& target, DWORD id) { m_target = target; m_tID = id; }
     void        SetReady(bool ready); // TODO : ready change should notify all views
     bool        ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HTREEITEM *hitem = nullptr) const;
-    bool        OpenTradePage(HandlePtr process, HWND tree, HTREEITEM item, int cmd = -1) const;
+    bool        OpenTradePage(HandlePtr process, HWND tree, HTREEITEM item, int key = -1, int cmd = -1) const;
+    int         GetToolbarBtn(HWND hwnd, DWORD pId, CString const& pTarget, CToolbarBtn *info, size_t cnt) const; // TODO : use process handle instead id
+    int         GetListCol(HandlePtr process, HWND list, CListCol *info, size_t cnt) const;
+    void        ResetListCol(CListCol *cols, size_t size) const;
+    void        ResetLocateInfo(CLocateInfo *info, size_t size) const;
 
 private:
     int         FindIdByName(CString const& name) const;
@@ -51,7 +65,6 @@ private:
     HWND        PointToTopWnd(POINT const& pos);
     HWND        ValidateTopWnd(HWND hwnd, CString const& t, DWORD pId) const; // TODO : use process handle instead id
     DWORD       QueryTargetName(HWND hwnd, CString & outName, DWORD pId) const; // TODO : use process handle instead id
-    int         GetToolbarBtn(HWND hwnd, DWORD pId, CString const& pTarget, CToolbarBtn *info, size_t cnt) const; // TODO : use process handle instead id
 
 
 private:
@@ -61,6 +74,9 @@ private:
 
     CString         m_target;
     CLocateInfo     m_info[LT_Num];
+
+    CListCol        m_cancel[SOF_Num];
+    CListCol        m_delegate[SOF_Num];
 };
 
 

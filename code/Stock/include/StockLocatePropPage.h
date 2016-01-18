@@ -16,6 +16,7 @@ struct CLocateControl
     POINT           pos;
     HWND            hwnd;
     HTREEITEM       hitem;
+    int             cmd;
 };
 
 class CStockLocatePropPage : public CBCGPPropertyPage
@@ -35,6 +36,8 @@ public:
     CBCGPMenuButton         _tradeSelBtn;
 
     CLocateControl          _ctrls[LT_Num];
+
+    CListCol                _cancleList[SOF_Num];
 
     CBCGPEdit               _locateFile;
 
@@ -98,6 +101,9 @@ private:
 
     CBCGPMaskEdit           m_tree;
     CBCGPEdit               m_htree;
+
+    CBCGPMaskEdit           m_app;
+    CBCGPEdit               m_happ;
 
     CTargetLocationPic      m_pic;
     CMenu                   m_menu;

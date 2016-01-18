@@ -27,6 +27,9 @@ public:
     void    SetInfo(StockInfoField field, InfoNumArrayPtr info);
     void    SetQuota(CString const& quota);
     void    Flush() { m_tradeWnd.UpdateData(FALSE); }
+    void    GetCode(CString &outCode) const;
+    void    GetQuant(CString &outQuant) const;
+    void    GetPrice(StockInfoType info, CString &outPrice) const;
 
 public:
     void    OnOK();

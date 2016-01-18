@@ -6,29 +6,41 @@
 #include "StockConfig.h"
 #include "StockLocateData.h"
 
-const TCHAR*    s_locate_names [] =
+namespace
 {
-    _T("toolbar"),
+    const TCHAR*    s_locate_names[] =
+    {
+        _T("toolbar"),
 
-    _T("buy"),
-    _T("buyCode"),
-    _T("buyPrice"),
-    _T("buyQuant"),
-    _T("buyOrder"),
+        _T("buy"),
+        _T("buyCode"),
+        _T("buyPrice"),
+        _T("buyQuant"),
+        _T("buyOrder"),
 
-    _T("sell"),
-    _T("sellCode"),
-    _T("sellPrice"),
-    _T("sellQuant"),
-    _T("sellOrder"),
+        _T("sell"),
+        _T("sellCode"),
+        _T("sellPrice"),
+        _T("sellQuant"),
+        _T("sellOrder"),
 
-    _T("cancel"),
-    _T("cancelBtn"),
-    _T("cancelList"),
+        _T("cancel"),
+        _T("cancelBtn"),
+        _T("cancelList"),
 
-    _T("delegate"),
-    _T("delegateList")
-};
+        _T("delegate"),
+        _T("delegateList")
+    };
+
+    const LPTSTR    s_locate_order_col_names[] =
+    {
+        MAKEINTRESOURCE(IDS_LOCATE_ORDER_NAME),
+        MAKEINTRESOURCE(IDS_LOCATE_ORDER_CODE),
+        MAKEINTRESOURCE(IDS_LOCATE_ORDER_ID),
+        MAKEINTRESOURCE(IDS_LOCATE_ORDER_PRICE),
+        MAKEINTRESOURCE(IDS_LOCATE_ORDER_QUANT)
+    };
+}
 
 #define ST_LOC_TARGET_NAME      _T("target")
 #define ST_LOC_COMPONENT_NAME   _T("component")
@@ -55,17 +67,17 @@ namespace
     static CToolbarBtn s_tbs[] =
     {
         {
-            CString(MAKEINTRESOURCE(IDS_BUY)),
+            MAKEINTRESOURCE(IDS_BUY),
             LT_Buy,
             s_tb_buy_cmd
         },
         {
-            CString(MAKEINTRESOURCE(IDS_SELL)),
+            MAKEINTRESOURCE(IDS_SELL),
             LT_Sell,
             s_tb_sell_cmd
         },
         {
-            CString(MAKEINTRESOURCE(IDS_CANCLE)),
+            MAKEINTRESOURCE(IDS_CANCLE),
             LT_Cancel,
             s_tb_cancel_cmd
         }
@@ -77,12 +89,8 @@ bool CStockLocateData::Load(CString const & file)
     BOOL exists = FileExists(file);
 
     // clear info data everytime when loading
-    for (int i = 0; i < LT_Num; ++i)
-    {
-        m_info[i].hwnd = nullptr;
-        m_info[i].hitem = nullptr;
-        m_info[i].cmd = 1;
-    }
+    this->ResetLocateInfo(m_info, LT_Num);
+    this->ResetListCol(m_cancel, SOF_Num);
 
     if (exists)
     {
@@ -370,6 +378,11 @@ bool CStockLocateData::LocateWnd()
             {
                 switch ((LocateType)i) // TODO : check the window type and process
                 {
+                case LT_App:
+                    m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
+                    if (m_info[i].hwnd)
+                        ++count;
+                    break;
                 case LT_Toolbar:
                     m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
                     if (m_info[i].hwnd)
@@ -429,14 +442,31 @@ bool CStockLocateData::LocateWnd()
                     {
                         m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
                         if (m_info[i].hwnd)
-                            ++count;
+                        {
+                            for (int i = 0; i < SOF_Num; ++i)
+                            {
+                                m_cancel[i].name = this->ListColName((StockOrderField)i);
+                            }
+
+                            HandlePtr process = MakeHandlePtr(::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, m_tID));
+                            if (process)
+                            {
+                                if (this->GetListCol(process, m_info[i].hwnd, m_cancel, SOF_Num) == SOF_Num)
+                                    ++count;
+                                else
+                                    m_info[i].hwnd = nullptr;
+                            }
+                            else
+                                m_info[i].hwnd = nullptr;
+                        }
                     }
                     break;
                 case LT_DelegateList:
                     if (m_info[LT_Delegate].hitem)
                     {
-                        m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
-                        if (m_info[i].hwnd)
+                        // ignore delegate list here, because we have no way to open the delegate page
+                        //m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
+                        //if (m_info[i].hwnd)
                             ++count;
                     }
                     break;
@@ -455,12 +485,45 @@ bool CStockLocateData::LocateWnd()
     return false;
 }
 
-void CStockLocateData::SetInfo(LocateType type, POINT const& pos, HWND hwnd, HTREEITEM hitem)
+CListCol const & CStockLocateData::ListCol(LocateType listType, StockOrderField col) const
+{
+    ASSERT(listType == LT_CancelList || listType == LT_DelegateList);
+
+    if (listType == LT_CancelList)
+    {
+        return m_cancel[col];
+    }
+    else
+    {
+        return m_delegate[col];
+    }
+}
+
+const LPTSTR CStockLocateData::ListColName(StockOrderField col) const
+{
+    return s_locate_order_col_names[col];
+}
+
+void CStockLocateData::SetListCol(LocateType listType, StockOrderField col, CListCol const & c)
+{
+    ASSERT(listType == LT_CancelList || listType == LT_DelegateList);
+    if (listType == LT_CancelList)
+    {
+        m_cancel[col] = c;
+    }
+    else
+    {
+        m_delegate[col] = c;
+    }
+}
+
+void CStockLocateData::SetInfo(LocateType type, POINT const& pos, HWND hwnd, HTREEITEM hitem, int cmd)
 {
     // Note: you must call ValidateWnd before you set info
     m_info[type].pos = pos;
     m_info[type].hwnd = hwnd;
     m_info[type].hitem = hitem;
+    m_info[type].cmd = cmd;
 
     if (m_info[type].name.IsEmpty())
     {
@@ -578,7 +641,7 @@ HTREEITEM CStockLocateData::SelectTreeItem(HWND tree, LocateType type, DWORD pId
 
     if (item && open)
     {
-        if (!this->OpenTradePage(process, tree, item, m_info[type].cmd))
+        if (!this->OpenTradePage(process, tree, item, m_info[type].key, m_info[type].cmd))
             item = nullptr;
     }
 
@@ -693,7 +756,7 @@ int CStockLocateData::GetToolbarBtn(HWND hwnd, DWORD pId, CString const& pTarget
 
         for (int j = 0; j < cnt; ++j)
         {
-            if (info[j].name == txtBuf)
+            if (CString(info[j].name) == txtBuf)
             {
                 info[j].cmd = btn.idCommand;
                 ++count;
@@ -703,6 +766,88 @@ int CStockLocateData::GetToolbarBtn(HWND hwnd, DWORD pId, CString const& pTarget
     }
 
     return count;
+}
+
+int CStockLocateData::GetListCol(HandlePtr process, HWND list, CListCol *info, size_t cnt) const
+{
+    int count = 0;
+
+    HWND header = (HWND)::SendMessage(list, LVM_GETHEADER, 0, 0);
+
+    int col = (int)::SendMessage(header, HDM_GETITEMCOUNT, 0, 0);
+    if (col > 0)
+    {
+        VirtualPtr pColItem = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(LVCOLUMN), MEM_COMMIT, PAGE_READWRITE));
+        VirtualPtr pColText = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, MEM_COMMIT, PAGE_READWRITE));
+        if (!pColItem || !pColText)
+            return 0;
+
+        for (int i = 0; i < cnt; ++i)
+        {
+            for (int c = 0; c < col; ++c)
+            {
+                TCHAR ctext[ST_MAX_VIRTUAL_BUF] = { 0 };
+
+                LVCOLUMN lvcItem = { 0 };
+                lvcItem.mask = LVCF_TEXT;
+                lvcItem.iSubItem = 0;
+                lvcItem.iOrder = c;
+                lvcItem.pszText = (LPTSTR)pColText.get();
+                lvcItem.cchTextMax = sizeof(ctext);
+
+                if (::WriteProcessMemory(process.get(), pColItem.get(), &lvcItem, sizeof(LVCOLUMN), nullptr))
+                {
+                    if (::SendMessage(list, LVM_GETCOLUMN, c, (LPARAM)(pColItem.get())))
+                    {
+                        if (::ReadProcessMemory(process.get(), pColText.get(), &ctext[0], sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, nullptr))
+                        {
+                            if (info[i].name == ctext)
+                            {
+                                info[i].col = c;
+                                ++count;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return count;
+}
+
+void CStockLocateData::ResetListCol(CListCol *col, size_t size) const
+{
+    for (size_t i = 0; i < size; ++i)
+    {
+        col[i].col = -1;
+    }
+}
+
+void CStockLocateData::ResetLocateInfo(CLocateInfo * info, size_t size) const
+{
+    for (int i = 0; i < LT_Num; ++i)
+    {
+        info[i].hwnd = nullptr;
+        info[i].hitem = nullptr;
+        info[i].cmd = -1;
+        switch (i)
+        {
+        case LT_Buy:
+            info[i].key = VK_F1; // hard code here, I don't think there is any common way to do this
+            break;
+        case LT_Sell:
+            info[i].key = VK_F2;
+            break;
+        case LT_Cancel:
+            info[i].key = VK_F3;
+            break;
+        default:
+            info[i].key = -1;
+            break;
+        }
+    }
 }
 
 HWND CStockLocateData::ValidateTopWnd(HWND hwnd, CString const& t, DWORD pId) const
@@ -787,7 +932,12 @@ bool CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target,
 
 }
 
-bool CStockLocateData::OpenTradePage(HandlePtr process, HWND tree, HTREEITEM item, int cmd) const 
+// all these are fucking bullshit. At first they said use the tree to open the trade page
+// but turn out we cannot send the notify message cross the process
+// then try to use the toolbar instead of the tree to open the page
+// finally they choose to use a different version of the software which support F1/F2/F3 as the shotcut to open the tade page
+// I dont have time to clean up these fucking code 
+bool CStockLocateData::OpenTradePage(HandlePtr process, HWND tree, HTREEITEM item, int key, int cmd) const 
 {
 
     // TreeView_SelectItem(tree, item);
@@ -888,7 +1038,11 @@ bool CStockLocateData::OpenTradePage(HandlePtr process, HWND tree, HTREEITEM ite
         //TRACE1("%u", err);
     //}
 
-    if (m_info[LT_Toolbar].hwnd && cmd != -1)
+    if (m_info[LT_App].hwnd && key != -1)
+    {
+        ::SendMessage(m_info[LT_App].hwnd, WM_KEYDOWN, key, 0);
+    }
+    else if (m_info[LT_Toolbar].hwnd && cmd != -1)
     {
         // TODO : could we just send to toolbar?
         HWND p1 = ::GetParent(m_info[LT_Toolbar].hwnd);

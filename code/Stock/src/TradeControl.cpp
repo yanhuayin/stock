@@ -6,6 +6,7 @@
 #include "TradeView.h"
 #include "StockMainFrm.h"
 #include "Stock.h"
+#include "TradeOrder.h"
 
 bool CTradeControl::Init(CStockMainFrame * pMainWnd)
 {
@@ -166,9 +167,33 @@ void CTradeControl::RefreshViewQuota(UINT quota) const
     }
 }
 
-int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op) const
+int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
 {
-    //return -1;
+    CString code, price, quant;
+    h->GetCode(code);
+    h->GetQuant(quant);
+    h->GetPrice(info, price);
+
+    int res = CTradeOrderManager::Instance().Trade(op, code, quant, price);
+
+    if (res > 0)
+    {
+        m_orderView.insert(std::make_pair(res, h));
+
+        auto it = m_viewOrder.find(h);
+        if (it != m_viewOrder.end())
+        {
+            it->second->push_back(res);
+        }
+        else
+        {
+            OrderListPtr ls = OrderListPtr(new OrderList);
+            ls->push_back(res);
+            m_viewOrder.insert(std::make_pair(h, ls));
+        }
+    }
+
+    return res;
 }
 
 bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
