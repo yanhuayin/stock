@@ -35,6 +35,8 @@ public:
 
     static bool         SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item);
 
+    static bool         CacTreeItemCenter(HandlePtr process, HWND tree, HTREEITEM item, POINT &pos);
+
     static HandlePtr    QueryTargetName(HWND hwnd, CString &outName, DWORD &outId);
 
 private:

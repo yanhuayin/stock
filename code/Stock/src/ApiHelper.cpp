@@ -157,10 +157,15 @@ bool WinApi::SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item)
     return WinApi::NotifyTreeParent(process, tree, NM_CLICK);
 }
 
+bool WinApi::CacTreeItemCenter(HandlePtr process, HWND tree, HTREEITEM item, POINT & pos)
+{
+    
+}
+
 bool WinApi::NotifyTreeParent(HandlePtr process, HWND tree, UINT message)
 {
     VirtualPtr pRemote = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(RemoteData), MEM_COMMIT, PAGE_READWRITE));
-    if (pRemote)
+    if (!pRemote)
         return false;
 
     RemoteData remote;
@@ -174,8 +179,7 @@ bool WinApi::NotifyTreeParent(HandlePtr process, HWND tree, UINT message)
         return false;
 
     const SIZE_T codeSize = ((LPBYTE)s_after_thread_fuc - (LPBYTE)s_thread_fuc);
-    // TODO : check the size
-    s_thread_fuc(&remote);
+    ASSERT(codeSize == 48);
 
     VirtualPtr pThread = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, codeSize, MEM_COMMIT, PAGE_READWRITE));
     if (!pThread)
