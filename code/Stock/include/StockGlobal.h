@@ -24,5 +24,7 @@
 
 #define ST_MAX_VIRTUAL_BUF      512
 
+#define ST_MAX_THREAD_TIME      5000
+
 
 #endif // !__STOCK_GLOBAL_H__

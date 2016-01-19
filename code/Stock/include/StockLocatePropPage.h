@@ -7,16 +7,14 @@
 
 #include "StockConfig.h"
 #include "TargetLocationPic.h"
+#include "ApiHelper.h"
 
 struct CLocateControl
 {
     CBCGPStatic    *label;
     CBCGPMaskEdit  *p;
     CBCGPEdit      *h;
-    POINT           pos;
-    HWND            hwnd;
-    HTREEITEM       hitem;
-    int             cmd;
+    LocateInfo      i;
 };
 
 class CStockLocatePropPage : public CBCGPPropertyPage
@@ -37,7 +35,8 @@ public:
 
     CLocateControl          _ctrls[LT_Num];
 
-    CListCol                _cancleList[SOF_Num];
+    ListViewColumn          _cancleList[SOF_Num];
+    ListViewColumn          _delegateList[SOF_Num];
 
     CBCGPEdit               _locateFile;
 
@@ -63,6 +62,23 @@ private:
     void            SetCtrlText(LocateType type);
     void            SetCtrlFocus();
     LocateType      GetCtrlFocus();
+    ListViewColumn* GetListViewColumns(LocateType type) 
+    { 
+        ASSERT(type == LT_CancelList || type == LT_DelegateList);
+        if (type == LT_CancelList) 
+            return &(_cancleList[0]); 
+        return &(_delegateList[0]);
+    }
+    void            Withdraw(bool tSet, bool pSet)
+    {
+        if (tSet)
+            m_target.Empty();
+        if (pSet)
+        {
+            m_tID = 0;
+            m_process = nullptr;
+        }
+    }
 
 private:
     //CBCGPMaskEdit           m_buyOrSell;
@@ -85,17 +101,15 @@ private:
 
     //CBCGPMaskEdit           m_cancel;
     CBCGPMaskEdit           m_cancelBtn;
-    CBCGPMaskEdit           m_toolbar;
-
     CBCGPMaskEdit           m_cancelList;
+
     //CBCGPMaskEdit           m_delegate;
     CBCGPMaskEdit           m_delegateList;
 
     //CBCGPEdit               m_hcancel;
     CBCGPEdit               m_hcancelBtn;
-    CBCGPEdit               m_htoolbar;
-
     CBCGPEdit               m_hcancelList;
+
     //CBCGPEdit               m_hdelegate;
     CBCGPEdit               m_hdelegateList;
 
@@ -111,6 +125,7 @@ private:
 
     CString                 m_target;
     DWORD                   m_tID;
+    HandlePtr               m_process;
 
     bool                    m_dirty;
 };

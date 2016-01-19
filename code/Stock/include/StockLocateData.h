@@ -8,33 +8,18 @@
 #include "StockConfig.h"
 #include "ApiHelper.h"
 
-struct CLocateInfo
+struct LocateInfo
 {
     POINT               pos;
     CString             name;
     HWND                hwnd;
     HTREEITEM           hitem;
-    int                 cmd; // for toolbar
-    int                 key;
-};
-
-struct CToolbarBtn
-{
-    LPTSTR  name;
-    int     cId;
-    int     cmd;
-};
-
-struct CListCol
-{
-    CString name;
-    int     col;
 };
 
 class CStockLocateData // TODO : I think we'd better move all hwnd manipulate out of this class
 {
 public:
-    CStockLocateData(): m_load(false), m_ready(false), m_tID(0) {}
+    CStockLocateData(): m_load(false), m_ready(false), m_tID(0), m_process(nullptr), m_tSet(false), m_pSet(false) {}
 
 public:
     bool    Load(CString const& file);
@@ -44,39 +29,44 @@ public:
     bool    IsLoaded() const { return m_load; }
     bool    IsReady() const { return m_ready; }
 
-    CLocateInfo const& LocInfo(LocateType type) const { return m_info[type]; }
-    DWORD       Target(CString & outTarget) const { outTarget = m_target; return m_tID; }
-    CListCol const& ListCol(LocateType listType, StockOrderField col) const;
-    const LPTSTR    ListColName(StockOrderField col) const;
-    void        SetListCol(LocateType listType, StockOrderField col, CListCol const& c);
-    void        SetInfo(LocateType type, POINT const& pos, HWND hwnd, HTREEITEM hitem, int cmd);
-    void        SetTarget(CString const& target, DWORD id) { m_target = target; m_tID = id; }
+    LocateInfo const& LocInfo(LocateType type) const { return m_info[type]; }
+    ListViewColumn const& ListCol(LocateType listType, StockOrderField col) const;
+
+    CString const&  TargetString() const { return m_target; }
+    DWORD       TargetId() const { return m_tID; }
+    HandlePtr   TargetProcess() const { return m_process; }
+
+    void        SetListCol(LocateType listType, StockOrderField col, ListViewColumn const& c);
+    void        SetInfo(LocateType type, LocateInfo const& i);
+    void        SetTarget(CString const& target, DWORD id, HandlePtr process) { m_target = target; m_tID = id; m_process = process; }
     void        SetReady(bool ready); // TODO : ready change should notify all views
-    bool        ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HTREEITEM *hitem = nullptr) const;
-    bool        OpenTradePage(HandlePtr process, HWND tree, HTREEITEM item, int key = -1, int cmd = -1) const;
-    int         GetToolbarBtn(HWND hwnd, DWORD pId, CString const& pTarget, CToolbarBtn *info, size_t cnt) const; // TODO : use process handle instead id
-    int         GetListCol(HandlePtr process, HWND list, CListCol *info, size_t cnt) const;
-    void        ResetListCol(CListCol *cols, size_t size) const;
-    void        ResetLocateInfo(CLocateInfo *info, size_t size) const;
+
+    void        ResetListCol(ListViewColumn &col, StockOrderField field) const;
+    void        ResetLocateInfo(LocateInfo &info, LocateType type) const;
+
+    HWND        ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HandlePtr &process, HTREEITEM *hitem = nullptr) const;
+    int         GetListCol(HandlePtr process, HWND list, ListViewColumn *info, size_t cnt) const;
 
 private:
     int         FindIdByName(CString const& name) const;
-    HTREEITEM   SelectTreeItem(HWND tree, LocateType type, DWORD pId, bool open = true) const; // TODO : use process handle instead id
+    HTREEITEM   SelectTreeItem(HandlePtr process, HWND tree, LocateType type, bool open = true) const;
     HWND        PointToTopWnd(POINT const& pos);
-    HWND        ValidateTopWnd(HWND hwnd, CString const& t, DWORD pId) const; // TODO : use process handle instead id
-    DWORD       QueryTargetName(HWND hwnd, CString & outName, DWORD pId) const; // TODO : use process handle instead id
-
+    HWND        ValidateTopWnd(HWND hwnd);
+    void        Withdraw();
 
 private:
     bool            m_load;
     bool            m_ready;
     DWORD           m_tID;
-
+    HandlePtr       m_process;
     CString         m_target;
-    CLocateInfo     m_info[LT_Num];
+    bool            m_tSet;
+    bool            m_pSet;
 
-    CListCol        m_cancel[SOF_Num];
-    CListCol        m_delegate[SOF_Num];
+    LocateInfo      m_info[LT_Num];
+
+    ListViewColumn  m_cancel[SOF_Num];
+    ListViewColumn  m_delegate[SOF_Num];
 };
 
 

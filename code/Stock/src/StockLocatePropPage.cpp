@@ -66,7 +66,6 @@ void CStockLocatePropPage::DoDataExchange(CDataExchange * pDX)
 
     //DDX_Control(pDX, IDC_LOCATE_CANCEL_ORDER_EDIT,    m_cancel);
     DDX_Control(pDX, IDC_LOCATE_CANCEL_BTN_EDIT,        m_cancelBtn);
-    DDX_Control(pDX, IDC_LOCATE_TOOLBAR_EDIT,           m_toolbar);
 
     DDX_Control(pDX, IDC_LOCATE_CANCEL_LIST_EDIT,       m_cancelList);
     //DDX_Control(pDX, IDC_LOCATE_DELEGATE_EDIT,        m_delegate);
@@ -74,7 +73,6 @@ void CStockLocatePropPage::DoDataExchange(CDataExchange * pDX)
 
     //DDX_Control(pDX, IDC_LOCATE_CANCEL_ORDER_HANDLE,    m_hcancel);
     DDX_Control(pDX, IDC_LOCATE_CANCEL_BTN_HANDLE,      m_hcancelBtn);
-    DDX_Control(pDX, IDC_LOCATE_TOOLBAR_HANDLE,         m_htoolbar);
 
     DDX_Control(pDX, IDC_LOCATE_CANCEL_LIST_HANDLE,     m_hcancelList);
     //DDX_Control(pDX, IDC_LOCATE_DELEGATE_HANDLE,        m_hdelegate);
@@ -136,24 +134,23 @@ void CStockLocatePropPage::OnOK()
         CStockAppData &app = theApp.AppData();
         CStockLocateData &data = app.LocateData();
 
-        data.SetTarget(m_target, m_tID);
+        data.SetTarget(m_target, m_tID, m_process);
 
         int count = 0;
-        for (int i = 0; i < LT_Num; ++i)
+        for (int i = 0; i < LT_Num; ++i) // overwrite the old value no matter the ctrl is valid or not
         {
-            if (_ctrls[i].hwnd) // if wnd valid then item will be null or valid depends on the type
+            data.SetInfo((LocateType)i, _ctrls[i].i);
+            if (i == LT_CancelList || i == LT_DelegateList)
             {
-                data.SetInfo((LocateType)i, _ctrls[i].pos, _ctrls[i].hwnd, _ctrls[i].hitem, _ctrls[i].cmd);
-                if (i == LT_CancelList)
+                ListViewColumn *p = this->GetListViewColumns((LocateType)i);
+                for (int j = 0; j < SOF_Num; ++j)
                 {
-                    for (int j = 0; j < SOF_Num; ++j)
-                    {
-                        data.SetListCol((LocateType)i, (StockOrderField)j, _cancleList[j]);
-                    }
+                    data.SetListCol((LocateType)i, (StockOrderField)j, p[j]);
                 }
-
-                ++count;
             }
+
+            if (_ctrls[i].i.hwnd)
+                ++count;
         }
 
         if (count == LT_Num)
@@ -182,41 +179,42 @@ void CStockLocatePropPage::InitCtrls()
     // TODO : access locate data directly, may change this later
     CStockLocateData &data = theApp.AppData().LocateData();
 
-    data.ResetListCol(_cancleList, SOF_Num);
+    for (int i = 0; i < SOF_Num; ++i)
+    {
+        data.ResetListCol(_cancleList[i], (StockOrderField)i);
+        data.ResetListCol(_delegateList[i], (StockOrderField)i);
+    }
 
     for (int i = 0; i < LT_Num; ++i)
     {
-        _ctrls[i].label = this->FindLabelCtrl((LocateType)i);
-        _ctrls[i].p = this->FindMaskCtrl((LocateType)i);
-        _ctrls[i].h = this->FindEditCtrl((LocateType)i);
-        CLocateInfo const& info = data.LocInfo((LocateType)i);
-        _ctrls[i].hwnd = info.hwnd;
-        _ctrls[i].hitem = info.hitem;
-        _ctrls[i].cmd = info.cmd;
+        LocateType type = (LocateType)i;
+
+        _ctrls[i].label = this->FindLabelCtrl(type);
+        _ctrls[i].p = this->FindMaskCtrl(type);
+        _ctrls[i].h = this->FindEditCtrl(type);
+
+        LocateInfo const& info = data.LocInfo(type);
+
+        _ctrls[i].i = info;
         if (info.hwnd)
         {
-            _ctrls[i].pos = info.pos;
-
-            if (i == LT_CancelList)
+            if (i == LT_CancelList || i == LT_DelegateList)
             {
+                ListViewColumn *p = this->GetListViewColumns(type);
                 for (int j = 0; j < SOF_Num; ++j)
                 {
-                    _cancleList[j] = data.ListCol((LocateType)i, (StockOrderField)j);
+                    p[j].col = data.ListCol((LocateType)i, (StockOrderField)j).col;
                 }
             }
         }
 
-        if (i > LT_SellOrder || i == LT_App || i == LT_Toolbar) // buy/sell text will be set in switchBOS
+        if (i > LT_SellOrder || i == LT_App) // buy/sell text will be set in switchBOS
             this->SetCtrlText((LocateType)i);
     }
 
-    // both value could be null
-    // target can be value loaded from config file or determined by the first loaded control if any
-    // if target is loaded from file, then m_tID still can be 0 if there is no match control found.
-    // but we can make sure that if target is empty, then all ctrls have null hwnd and hitem
-    // then the target will be determined by the first valid drop, id will be set at the same time.
-    // user can click clear button to reset all ctrls and their target
-    m_tID = data.Target(m_target);
+    m_target = data.TargetString();
+    m_tID = data.TargetId();
+    m_process = data.TargetProcess();
     
     _locateFile.SetWindowText(theApp.AppData().LocFile());
 }
@@ -227,8 +225,6 @@ CBCGPMaskEdit * CStockLocatePropPage::FindMaskCtrl(LocateType type)
     {
     case LT_App:
         return &m_app;
-    case LT_Toolbar:
-        return &m_toolbar;
     case LT_Buy:
         return &m_tree;
     case LT_BuyCode:
@@ -289,7 +285,6 @@ CBCGPStatic * CStockLocatePropPage::FindLabelCtrl(LocateType type)
     case LT_SellOrder:
         return &m_bosOrderLab;
     case LT_App:
-    case LT_Toolbar:
     case LT_Buy:
     case LT_Sell:
     case LT_Cancel:
@@ -313,8 +308,6 @@ CBCGPEdit * CStockLocatePropPage::FindEditCtrl(LocateType type)
     {
     case LT_App:
         return &m_happ;
-    case LT_Toolbar:
-        return &m_htoolbar;
     case LT_Buy:
         return &m_htree;
     case LT_BuyCode:
@@ -390,14 +383,14 @@ void CStockLocatePropPage::SwitchBOS()
 
 void CStockLocatePropPage::SetCtrlText(LocateType type)
 {
-    if (_ctrls[type].hwnd)
+    if (_ctrls[type].i.hwnd)
     {
         CString pos;
-        pos.Format(ST_LOCATE_POS_FORMAT_STR, _ctrls[type].pos.x, _ctrls[type].pos.y);
+        pos.Format(ST_LOCATE_POS_FORMAT_STR, _ctrls[type].i.pos.x, _ctrls[type].i.pos.y);
         _ctrls[type].p->SetWindowText(pos);
 
         CString hwnd;
-        hwnd.Format(_T("%x"), _ctrls[type].hwnd);
+        hwnd.Format(_T("%x"), _ctrls[type].i.hwnd);
         _ctrls[type].h->SetWindowText(hwnd);
     }
     else
@@ -417,7 +410,7 @@ void CStockLocatePropPage::SetCtrlFocus()
         if (m_bosId == ID_LOCATE_OP_SELL && (i > LT_Buy && i <= LT_BuyOrder))
             continue;
 
-        if (_ctrls[i].hwnd == nullptr)
+        if (_ctrls[i].i.hwnd == nullptr)
         {
             _ctrls[i].p->SetFocus();
             return;
@@ -460,7 +453,7 @@ void CStockLocatePropPage::OnTimer(UINT nIDEvent)
     int oldRop2 = SetROP2(deskDC, 10);
     ::GetCursorPos(&pnt);
 
-    HWND unHwnd = TopWndFromPoint(pnt);
+    HWND unHwnd = WinApi::TopWndFromPoint(pnt);
 
     ::GetWindowRect(unHwnd, &rc);
     if (rc.top < 0) rc.top = 0;
@@ -506,37 +499,16 @@ void CStockLocatePropPage::OnFileChange()
 
 void CStockLocatePropPage::OnClear()
 {
+    m_process = nullptr;
     m_target.Empty();
     m_tID = 0;
 
     for (int i = 0; i < LT_Num; ++i)
     {
-        _ctrls[i].hwnd = nullptr;
-        _ctrls[i].hitem = nullptr;
+        _ctrls[i].i.hwnd = nullptr;
+        _ctrls[i].i.hitem = nullptr;
         this->SetCtrlText((LocateType)i);
     }
-}
-
-namespace
-{
-    CToolbarBtn s_btns[] =
-    {
-        {
-            MAKEINTRESOURCE(IDS_BUY),
-            LT_Buy,
-        -1
-        },
-        {
-            MAKEINTRESOURCE(IDS_SELL),
-            LT_Sell,
-        -1
-        },
-        {
-            MAKEINTRESOURCE(IDS_CANCLE),
-            LT_Cancel,
-        -1
-        }
-    };
 }
 
 LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
@@ -548,8 +520,12 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 
     if (type < LT_Num)
     {
+        bool tSet = m_target.IsEmpty();
+        bool pSet = (m_tID == 0);
+
         CStockLocateData & data = theApp.AppData().LocateData();
-        if (data.ValidateHwnd(hwnd, type, m_target, m_tID, &(_ctrls[type].hitem)))
+        hwnd = data.ValidateHwnd(hwnd, type, m_target, m_tID, m_process, &(_ctrls[type].i.hitem));
+        if (hwnd)
         {
             LocateType t1, t2, t3;
 
@@ -576,41 +552,16 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
                 t2 = LT_Cancel;
                 t3 = LT_Buy;
                 break;
-            case LT_Toolbar:
-            {
-                size_t size = ST_ARRAY_SIZE(s_btns);
-                if (data.GetToolbarBtn(hwnd, m_tID, m_target, s_btns, size) == size)
-                {
-                    for (int i = 0; i < size; ++i)
-                    {
-                        if (s_btns[i].cmd != -1)
-                        {
-                            _ctrls[s_btns[i].cId].cmd = s_btns[i].cmd;
-                        }
-                    }
-                }
-                else
-                    return 0;
-            }
             case LT_CancelList:
+            case LT_DelegateList:
             {
-                if (_cancleList[0].name.IsEmpty())
+                ListViewColumn *p = this->GetListViewColumns(type);
+                if (data.GetListCol(m_process, hwnd, p, SOF_Num) != SOF_Num)
                 {
-                    for (int i = 0; i < SOF_Num; ++i)
-                    {
-                        _cancleList[i].name = data.ListColName((StockOrderField)i);
-                    }
-                }
-
-                HandlePtr process = MakeHandlePtr(::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, m_tID));
-                if (!process)
-                    return 0;
-
-                if (data.GetListCol(process, hwnd, _cancleList, SOF_Num) != SOF_Num)
-                {
-                    data.ResetListCol(_cancleList, SOF_Num);
+                    this->Withdraw(tSet, pSet);
                     return 0;
                 }
+
             }
             default:
                 share = false;
@@ -619,14 +570,26 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 
             if (share)
             {
-                if (!data.ValidateHwnd(hwnd, t1, m_target, m_tID, &(_ctrls[t1].hitem)) ||
-                    !data.ValidateHwnd(hwnd, t2, m_target, m_tID, &(_ctrls[t2].hitem)) ||
-                    !data.ValidateHwnd(hwnd, t3, m_target, m_tID, &(_ctrls[t3].hitem)))
+                if (!data.ValidateHwnd(hwnd, t1, m_target, m_tID, m_process, &(_ctrls[t1].i.hitem)) ||
+                    !data.ValidateHwnd(hwnd, t2, m_target, m_tID, m_process, &(_ctrls[t2].i.hitem)) ||
+                    !data.ValidateHwnd(hwnd, t3, m_target, m_tID, m_process, &(_ctrls[t3].i.hitem)))
+                {
+                    _ctrls[type].i.hitem = _ctrls[t1].i.hitem = _ctrls[t2].i.hitem = _ctrls[t3].i.hitem = nullptr;
+
+                    this->Withdraw(tSet, pSet);
+
                     return 0;
+                }
+                else
+                {
+                    // tree ctrl is valid
+                    _ctrls[t1].i.hwnd = _ctrls[t2].i.hwnd = _ctrls[t3].i.hwnd = hwnd;
+                    _ctrls[t1].i.pos = _ctrls[t2].i.pos = _ctrls[t3].i.pos = pos;
+                }
             }
 
-            _ctrls[type].hwnd = hwnd;
-            _ctrls[type].pos = pos;
+            _ctrls[type].i.hwnd = hwnd;
+            _ctrls[type].i.pos = pos;
 
             this->SetCtrlText(type);
 
