@@ -238,7 +238,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\Stock\include\StockAppData.cpp" />
-    <ClCompile Include="..\..\code\Stock\src\ApiHelper.cpp" />
+    <ClCompile Include="..\..\code\Stock\src\ApiHelper.cpp">
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\code\Stock\src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>

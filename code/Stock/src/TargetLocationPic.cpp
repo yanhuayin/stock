@@ -36,7 +36,7 @@ void CTargetLocationPic::OnLButtonUp(UINT nFlags, CPoint point)
     this->ShowWindow(SW_SHOW);
 
     ::GetCursorPos(&m_pos);
-    m_tHWnd = TopWndFromPoint(m_pos);
+    m_tHWnd = WinApi::TopWndFromPoint(m_pos);
 
     this->GetParent()->PostMessage(ST_LOCATE_WND_MSG, 0, 0);
 

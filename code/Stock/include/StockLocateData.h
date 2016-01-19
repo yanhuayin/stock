@@ -29,6 +29,8 @@ public:
     bool    IsLoaded() const { return m_load; }
     bool    IsReady() const { return m_ready; }
 
+    void    Clean() { m_process = nullptr; }
+
     LocateInfo const& LocInfo(LocateType type) const { return m_info[type]; }
     ListViewColumn const& ListCol(LocateType listType, StockOrderField col) const;
 
@@ -49,7 +51,7 @@ public:
 
 private:
     int         FindIdByName(CString const& name) const;
-    HTREEITEM   SelectTreeItem(HandlePtr process, HWND tree, LocateType type, bool open = true) const;
+    HTREEITEM   SearchTreeItem(HandlePtr process, HWND tree, LocateType type, bool open = true) const;
     HWND        PointToTopWnd(POINT const& pos);
     HWND        ValidateTopWnd(HWND hwnd);
     void        Withdraw();

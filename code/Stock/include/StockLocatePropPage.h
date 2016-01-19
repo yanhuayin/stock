@@ -8,6 +8,7 @@
 #include "StockConfig.h"
 #include "TargetLocationPic.h"
 #include "ApiHelper.h"
+#include "StockLocateData.h"
 
 struct CLocateControl
 {

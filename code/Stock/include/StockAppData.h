@@ -19,6 +19,7 @@ public:
     bool    Save();
     bool    IsRead() const { return m_load; }
     bool    IsLoaded() const { return m_load; }
+    void    Clean() { m_locate.Clean(); m_tSettings.Clean(); }
 
     CString const&  LocFile() const { return m_locFile; }
     void            LocFile(CString const& file) { m_locFile = file; }

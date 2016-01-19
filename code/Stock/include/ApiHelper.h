@@ -31,9 +31,15 @@ public:
 
     static HWND         TopWndFromPoint(POINT pt);
 
-    static HTREEITEM    SelectTreeItem(HandlePtr process, HWND tree, bool click, CString const& target, CString const& parent);
+    static HTREEITEM    SearchTreeItem(HandlePtr process, HWND tree, bool click, CString const& target, CString const& parent);
+
+    static bool         SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item);
 
     static HandlePtr    QueryTargetName(HWND hwnd, CString &outName, DWORD &outId);
+
+private:
+    static bool         NotifyTreeParent(HandlePtr process, HWND tree, UINT message);
+
 };
 
 

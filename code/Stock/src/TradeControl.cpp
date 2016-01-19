@@ -26,6 +26,8 @@ bool CTradeControl::Close()
 
     m_mainWnd = nullptr;
 
+    theApp.AppData().Clean();
+
     return CTradeModelManager::Instance().Shutdown();
 }
 
@@ -165,6 +167,10 @@ void CTradeControl::RefreshViewQuota(UINT quota) const
         i.first->SetQuota(quotaStr);
         i.first->Flush();
     }
+}
+
+void CTradeControl::RefreshViewsTrade()
+{
 }
 
 int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)

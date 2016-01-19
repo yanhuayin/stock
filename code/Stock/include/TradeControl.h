@@ -40,6 +40,8 @@ public:
 
     void    RefreshViewQuota(UINT quota) const;
 
+    void    RefreshViewsTrade();
+
 private:
     typedef std::list<TradeViewHandle>  ViewList;
     typedef std::shared_ptr<ViewList>   ViewListPtr;

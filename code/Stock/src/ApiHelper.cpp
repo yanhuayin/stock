@@ -3,6 +3,9 @@
 #include "Utils.h"
 #include "ApiHelper.h"
 
+#define ST_LIST_CTRL_NAME   _T("SysListView32")
+#define ST_TREE_CTRL_NAME   _T("SysTreeView32")
+
 #define ST_MAX_CLASS_NAME   256
 
 typedef LRESULT(WINAPI *SendMessageFunc)(HWND, UINT, WPARAM, LPARAM);
@@ -19,7 +22,9 @@ static void s_after_thread_fuc(void);
 
 namespace
 {
-    static CString s_tree_ctrl_name(ST_LOC_TREE_CTRL_NAME);
+    static CString s_tree_ctrl_name(ST_TREE_CTRL_NAME);
+    static CString s_list_ctrl_name(ST_LIST_CTRL_NAME);
+
 
     static SendMessageFunc sLoadSendMessageFunc()
     {
@@ -65,7 +70,7 @@ HWND WinApi::TopWndFromPoint(POINT pt)
     return unHwnd;
 }
 
-HTREEITEM WinApi::SelectTreeItem(HandlePtr process, HWND tree, bool click, CString const & target, CString const & parent)
+HTREEITEM WinApi::SearchTreeItem(HandlePtr process, HWND tree, bool click, CString const & target, CString const & parent)
 {
     ASSERT(process);
 
@@ -138,36 +143,52 @@ HTREEITEM WinApi::SelectTreeItem(HandlePtr process, HWND tree, bool click, CStri
 
     if (item && click)
     {
-        VirtualPtr pRemote = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(RemoteData), MEM_COMMIT, PAGE_READWRITE));
-        if (pRemote)
-            return nullptr;
-
-        RemoteData remote;
-        remote.hwnd = ::GetParent(tree);
-        remote.pfn = sLoadSendMessageFunc();
-        remote.nmh.code = NM_CLICK;
-        remote.nmh.idFrom = ::GetDlgCtrlID(tree);
-        remote.nmh.hwndFrom = tree;
-
-        if (!::WriteProcessMemory(process.get(), pRemote.get(), &remote, sizeof(RemoteData), nullptr))
-            return nullptr;
-
-        const SIZE_T codeSize = ((LPBYTE)s_after_thread_fuc - (LPBYTE)s_thread_fuc);
-        // TODO : check the size
-
-        VirtualPtr pThread = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, codeSize, MEM_COMMIT, PAGE_READWRITE));
-        if (!pThread)
-            return nullptr;
-
-        if (!::WriteProcessMemory(process.get(), pThread.get(), s_thread_fuc, codeSize, nullptr))
-            return nullptr;
-
-        HANDLE hThread = ::CreateRemoteThread(process.get(), nullptr, 0, (LPTHREAD_START_ROUTINE)(pThread.get()), pRemote.get(), 0, nullptr);
-        if (::WaitForSingleObject(hThread, ST_MAX_THREAD_TIME) != WAIT_OBJECT_0)
+        if (!WinApi::SelectTreeItem(process, tree, item))
             return nullptr;
     }
 
     return item;
+}
+
+bool WinApi::SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item)
+{
+    TreeView_SelectItem(tree, item); // TODO : backup current selection
+
+    return WinApi::NotifyTreeParent(process, tree, NM_CLICK);
+}
+
+bool WinApi::NotifyTreeParent(HandlePtr process, HWND tree, UINT message)
+{
+    VirtualPtr pRemote = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(RemoteData), MEM_COMMIT, PAGE_READWRITE));
+    if (pRemote)
+        return false;
+
+    RemoteData remote;
+    remote.hwnd = ::GetParent(tree);
+    remote.pfn = sLoadSendMessageFunc();
+    remote.nmh.code = message;
+    remote.nmh.idFrom = ::GetDlgCtrlID(tree);
+    remote.nmh.hwndFrom = tree;
+
+    if (!::WriteProcessMemory(process.get(), pRemote.get(), &remote, sizeof(RemoteData), nullptr))
+        return false;
+
+    const SIZE_T codeSize = ((LPBYTE)s_after_thread_fuc - (LPBYTE)s_thread_fuc);
+    // TODO : check the size
+    s_thread_fuc(&remote);
+
+    VirtualPtr pThread = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, codeSize, MEM_COMMIT, PAGE_READWRITE));
+    if (!pThread)
+        return false;
+
+    if (!::WriteProcessMemory(process.get(), pThread.get(), s_thread_fuc, codeSize, nullptr))
+        return false;
+
+    HANDLE hThread = ::CreateRemoteThread(process.get(), nullptr, 0, (LPTHREAD_START_ROUTINE)(pThread.get()), pRemote.get(), 0, nullptr);
+    if (::WaitForSingleObject(hThread, ST_MAX_THREAD_TIME) != WAIT_OBJECT_0)
+        return false;
+
+    return true;
 }
 
 HandlePtr WinApi::QueryTargetName(HWND hwnd, CString & outName, DWORD & outId)

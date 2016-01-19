@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include "StockConfig.h"
 #include "StockLocateData.h"
+#include "TradeControl.h"
 
 namespace
 {
@@ -49,14 +50,7 @@ namespace
 #define ST_LOC_X_NAME           _T("x")
 #define ST_LOC_Y_NAME           _T("y")
 
-#define ST_LOC_LIST_CTRL_NAME   _T("SysListView32")
-#define ST_LOC_TREE_CTRL_NAME   _T("SysTreeView32")
 #define ST_LOC_MAX_CLASS_NAME   256
-
-namespace
-{
-    static CString s_list_ctrl_name(ST_LOC_LIST_CTRL_NAME);
-}
 
 bool CStockLocateData::Load(CString const & file)
 {
@@ -365,7 +359,7 @@ bool CStockLocateData::LocateWnd()
                     m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
                     if (m_info[i].hwnd)
                     {
-                        m_info[i].hitem = this->SelectTreeItem(m_process, m_info[i].hwnd, (LocateType)i);
+                        m_info[i].hitem = this->SearchTreeItem(m_process, m_info[i].hwnd, (LocateType)i);
                         if (m_info[i].hitem)
                             ++count;
                         else
@@ -484,6 +478,13 @@ void CStockLocateData::SetInfo(LocateType type, LocateInfo const& i)
     m_info[type].hitem = i.hitem;
 }
 
+void CStockLocateData::SetReady(bool ready)
+{
+    m_ready = ready;
+
+    CTradeControl::Instance().RefreshViewsTrade();
+}
+
 int CStockLocateData::FindIdByName(CString const & name) const
 {
     int i = 0;
@@ -496,7 +497,7 @@ int CStockLocateData::FindIdByName(CString const & name) const
     return LT_Num;
 }
 
-HTREEITEM CStockLocateData::SelectTreeItem(HandlePtr process, HWND tree, LocateType type, bool open) const
+HTREEITEM CStockLocateData::SearchTreeItem(HandlePtr process, HWND tree, LocateType type, bool open) const
 {
 
     CString target;
@@ -505,12 +506,15 @@ HTREEITEM CStockLocateData::SelectTreeItem(HandlePtr process, HWND tree, LocateT
     {
     case LT_Buy:
         target.LoadString(IDS_BUY);
+        target.Append(_T("[F1]")); // TODO 
         break;
     case LT_Sell:
         target.LoadString(IDS_SELL);
+        target.Append(_T("[F2]"));
         break;
     case LT_Cancel:
         target.LoadString(IDS_CANCLE);
+        target.Append(_T("[F3]"));
         break;
     case LT_Delegate:
         parent.LoadString(IDS_QUERY);
@@ -520,7 +524,7 @@ HTREEITEM CStockLocateData::SelectTreeItem(HandlePtr process, HWND tree, LocateT
         break;
     }
 
-    return WinApi::SelectTreeItem(process, tree, open, target, parent);
+    return WinApi::SearchTreeItem(process, tree, open, target, parent);
 }
 
 HWND CStockLocateData::PointToTopWnd(POINT const & pos)
@@ -727,7 +731,7 @@ HWND CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target,
         case LT_Sell:
         case LT_Cancel:
         case LT_Delegate:
-            *hitem = this->SelectTreeItem(process, hwnd, type, false);
+            *hitem = this->SearchTreeItem(process, hwnd, type, false);
             if (*hitem) //though it's in valid top wnd but may not a tree ctrl
                 return hwnd;
             if (isTSet)
@@ -737,8 +741,9 @@ HWND CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target,
                 pId = 0;
                 process = nullptr;
             }
+            break;
         default:
-            return nullptr;
+            return hwnd;
         }
     }
 

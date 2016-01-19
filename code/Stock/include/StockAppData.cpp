@@ -189,7 +189,7 @@ bool CStockAppData::LoadConfig()
 
             if (::PathAppend(buffer, m_cfgFile) == TRUE)
             {
-                BOOL exists = FileExists(buffer);
+                BOOL exists = WinApi::FileExists(buffer);
 
                 if (exists)
                 {
