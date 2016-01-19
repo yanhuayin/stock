@@ -62,6 +62,7 @@ private:
     void            SetCtrlText(LocateType type);
     void            SetCtrlFocus();
     LocateType      GetCtrlFocus();
+
     ListViewColumn* GetListViewColumns(LocateType type) 
     { 
         ASSERT(type == LT_CancelList || type == LT_DelegateList);
@@ -69,6 +70,7 @@ private:
             return &(_cancleList[0]); 
         return &(_delegateList[0]);
     }
+
     void            Withdraw(bool tSet, bool pSet)
     {
         if (tSet)
