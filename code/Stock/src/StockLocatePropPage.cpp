@@ -576,10 +576,10 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
                     data.ValidateHwnd(hwnd, t3, m_target, m_tID, m_process, &(_ctrls[t3].i.hitem)))
                 {
                     POINT p1, p2, p3;
-                    if (WinApi::CacTreeItemCenter(hwnd, _ctrls[type].i.hitem, pos) &&
-                        WinApi::CacTreeItemCenter(hwnd, _ctrls[t1].i.hitem, p1) &&
-                        WinApi::CacTreeItemCenter(hwnd, _ctrls[t2].i.hitem, p2) &&
-                        WinApi::CacTreeItemCenter(hwnd, _ctrls[t3].i.hitem, p3))
+                    if (WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[type].i.hitem, pos) &&
+                        WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[t1].i.hitem, p1) &&
+                        WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[t2].i.hitem, p2) &&
+                        WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[t3].i.hitem, p3))
                     {
                         // tree ctrl is valid
                         _ctrls[t1].i.hwnd = _ctrls[t2].i.hwnd = _ctrls[t3].i.hwnd = hwnd;

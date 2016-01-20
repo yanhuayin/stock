@@ -177,41 +177,30 @@ bool WinApi::SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item, POINT 
     return res;
 }
 
-//bool WinApi::CacTreeItemCenter(HandlePtr process, HWND tree, HTREEITEM item, POINT & pos)
-bool WinApi::CacTreeItemCenter(HWND tree, HTREEITEM item, POINT & pos)
+bool WinApi::CacTreeItemCenter(HandlePtr process, HWND tree, HTREEITEM item, POINT & pos)
 {
-    // TODO : do we have to alloc memory on the specified process?
-    //VirtualPtr pRect = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(RECT), MEM_COMMIT, PAGE_READWRITE));
-    //if (!pRect)
-    //    return false;
-
-    //if (TreeView_GetItemRect(tree, item, pRect.get(), TRUE))
-    //{
-    //    RECT rect;
-    //    if (::ReadProcessMemory(process.get(), pRect.get(), &rect, sizeof(RECT), nullptr))
-    //    {
-    //        pos.x = (rect.left + rect.right) / 2;
-    //        pos.y = (rect.top + rect.bottom) / 2;
-
-    //        ::ClientToScreen(tree, &pos);
-
-    //        return true;
-    //    }
-    //}
+    VirtualPtr pRect = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(RECT), MEM_COMMIT, PAGE_READWRITE));
+    if (!pRect)
+        return false;
 
     RECT rect;
-    if (TreeView_GetItemRect(tree, item, &rect, TRUE))
-    {
-        pos.x = (rect.left + rect.right) / 2;
-        pos.y = (rect.top + rect.bottom) / 2;
+    ::ZeroMemory(&rect, sizeof(RECT));
+    *(HTREEITEM*)&rect = item;
 
-        if (::ClientToScreen(tree, &pos))
-        {
-            return true;
-        }
-    }
+    if (!::WriteProcessMemory(process.get(), pRect.get(), &rect, sizeof(RECT), nullptr))
+        return false;
 
-    return false;
+    ::SendMessage(tree, TVM_GETITEMRECT, TRUE, (LPARAM)(pRect.get()));
+
+    if (!::ReadProcessMemory(process.get(), pRect.get(), &rect, sizeof(RECT), nullptr))
+        return false;
+
+    pos.x = (rect.left + rect.right) / 2;
+    pos.y = (rect.top + rect.bottom) / 2;
+
+    ::ClientToScreen(tree, &pos);
+
+    return true;
 }
 
 bool WinApi::NotifyTreeParent(HandlePtr process, HWND tree, UINT message)

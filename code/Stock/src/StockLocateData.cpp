@@ -363,7 +363,7 @@ bool CStockLocateData::LocateWnd()
                         if (m_info[i].hitem)
                         {
                             POINT pos;
-                            if (WinApi::CacTreeItemCenter(m_info[i].hwnd, m_info[i].hitem, pos))
+                            if (WinApi::CacTreeItemCenter(m_process, m_info[i].hwnd, m_info[i].hitem, pos))
                             {
                                 if (WinApi::SelectTreeItem(m_process, m_info[i].hwnd, m_info[i].hitem, pos))
                                 {
