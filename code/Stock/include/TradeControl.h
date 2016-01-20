@@ -42,6 +42,8 @@ public:
 
     void    RefreshViewsTrade();
 
+    StockOrderResult    CancelOrder(TradeViewHandle h, int order);
+
 private:
     typedef std::list<TradeViewHandle>  ViewList;
     typedef std::shared_ptr<ViewList>   ViewListPtr;

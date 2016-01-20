@@ -171,6 +171,28 @@ void CTradeControl::RefreshViewQuota(UINT quota) const
 
 void CTradeControl::RefreshViewsTrade()
 {
+    // TODO :
+}
+
+StockOrderResult CTradeControl::CancelOrder(TradeViewHandle h, int order)
+{
+    ASSERT(order > 0);
+
+    StockOrderResult res = CTradeOrderManager::Instance().CancelOrder(order);
+
+    if (res == SOR_OK || res == SOR_Dealed)
+    {
+        auto it = m_viewOrder.find(h);
+        if (it != m_viewOrder.end())
+        {
+            auto &olst = *(it->second);
+            olst.remove(order);
+        }
+
+        m_orderView.erase(order);
+    }
+
+    return res;
 }
 
 int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
@@ -197,6 +219,17 @@ int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
             ls->push_back(res);
             m_viewOrder.insert(std::make_pair(h, ls));
         }
+
+        TradeOrder const& order = CTradeOrderManager::Instance().Order(res);
+
+        CTradeView::OrderStrArray o;
+        o[SOF_Code] = &(order.code);
+        o[SOF_Name] = nullptr;
+        o[SOF_Price] = &(order.price);
+        o[SOF_Quant] = &(order.quant);
+        o[SOF_Id] = &(order.id);
+
+        h->SetOrder(res, o);
     }
 
     return res;

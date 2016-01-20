@@ -23,8 +23,11 @@ public:
     typedef std::array<double, SIT_Num>     InfoNumArray;
     typedef std::shared_ptr<InfoNumArray>   InfoNumArrayPtr;
 
+    typedef std::array<CString const*, SOF_Num>   OrderStrArray;
+
     void    SetName(CString const& name);
     void    SetInfo(StockInfoField field, InfoNumArrayPtr info);
+    void    SetOrder(int order, OrderStrArray const& strs);
     void    SetQuota(CString const& quota);
     void    Flush() { m_tradeWnd.UpdateData(FALSE); }
     void    GetCode(CString &outCode) const;
@@ -34,6 +37,7 @@ public:
 public:
     void    OnOK();
     void    OnTrade(StockInfoType info, StockTradeOp op);
+    void    OnCancelOrder(CBCGPGridRow *pRow);
 
 protected:
     virtual void    PostNcDestroy();

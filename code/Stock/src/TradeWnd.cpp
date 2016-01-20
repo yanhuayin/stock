@@ -150,6 +150,23 @@ CTradeWnd::~CTradeWnd()
 {
 }
 
+CBCGPGridRow * CTradeWnd::AddOrderRow()
+{
+    CBCGPGridRow *pRow = _order.CreateRow(TOC_Num);
+    for (int i = 0; i < TOC_Num; ++i)
+        pRow->GetItem(i)->AllowEdit(FALSE);
+
+    pRow->ReplaceItem(TOC_Cancel, new CButtonItem(ST_SELL_BTN_TXT, IDC_CANCEL_ORDER_BTN));
+
+    CString name;
+    _name.GetWindowText(name);
+    pRow->GetItem(TOC_Name)->SetValue(name.GetString());
+
+    _order.AddRow(pRow, FALSE);
+    
+    return pRow;
+}
+
 void CTradeWnd::DoDataExchange(CDataExchange * pDx)
 {
     CBCGPDialog::DoDataExchange(pDx);
@@ -252,10 +269,11 @@ BOOL CTradeWnd::OnInitDialog()
     _order.SetSingleSel(TRUE);
 
     _order.InsertColumn(TOC_Cancel, _T(""), 20);
-    _order.InsertColumn(TOC_Code, CString(MAKEINTRESOURCE(IDS_ORDER_CODE_COL)), 40);
-    _order.InsertColumn(TOC_Name, CString(MAKEINTRESOURCE(IDS_ORDER_NAME_COL)), 40);
-    _order.InsertColumn(TOC_Price, CString(MAKEINTRESOURCE(IDS_ORDER_PRICE_COL)), 50);
-    _order.InsertColumn(TOC_Quant, CString(MAKEINTRESOURCE(IDS_ORDER_QUANT_COL)), 50);
+    _order.InsertColumn(TOC_Code, CString(MAKEINTRESOURCE(IDS_ORDER_CODE_COL)), 30);
+    _order.InsertColumn(TOC_Name, CString(MAKEINTRESOURCE(IDS_ORDER_NAME_COL)), 30);
+    _order.InsertColumn(TOC_Price, CString(MAKEINTRESOURCE(IDS_ORDER_PRICE_COL)), 40);
+    _order.InsertColumn(TOC_Quant, CString(MAKEINTRESOURCE(IDS_ORDER_QUANT_COL)), 40);
+    _order.InsertColumn(TOC_Id, CString(MAKEINTRESOURCE(IDS_ORDER_ID_COL)), 40);
 
 
     return TRUE;
@@ -316,6 +334,18 @@ void CTradeWnd::OnEnter()
     if (_enterOKEvent)
     {
         _enterOKEvent();
+    }
+}
+
+void CTradeWnd::OnCancelOrder()
+{
+    CBCGPGridRow *pRow = _order.GetCurSel();
+    if (pRow)
+    {
+        if (_cancelOrderEvent)
+        {
+            _cancelOrderEvent(pRow);
+        }
     }
 }
 
@@ -411,122 +441,272 @@ void CTradeWnd::OnSellSell1()
 
 void CTradeWnd::OnSellBuy1()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy1, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellBuy2()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy2, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellBuy3()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy3, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellBuy4()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy4, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellBuy5()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy5, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellBuy6()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy6, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellBuy7()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy7, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellBuy8()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy8, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellBuy9()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy9, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnSellBuy10()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy10, STO_Sell);
+    }
 }
 
 void CTradeWnd::OnBuySell10()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell10, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuySell9()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell9, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuySell8()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell8, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuySell7()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell7, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuySell6()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell6, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuySell5()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell5, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuySell4()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell4, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuySell3()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell10, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuySell2()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell2, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuySell1()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Sell1, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuyBuy1()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy1, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuyBuy2()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy2, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuyBuy3()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy3, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuyBuy4()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy4, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuyBuy5()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy5, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuyBuy6()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy6, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuyBuy7()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy7, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuyBuy8()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy8, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuyBuy9()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy9, STO_Buy);
+    }
 }
 
 void CTradeWnd::OnBuyBuy10()
 {
+    this->UpdateData();
+    if (_tradeEvent)
+    {
+        _tradeEvent(SIT_Buy10, STO_Buy);
+    }
 }
 
 LRESULT CTradeWnd::HandleInitDialog(WPARAM wPram, LPARAM lParam)

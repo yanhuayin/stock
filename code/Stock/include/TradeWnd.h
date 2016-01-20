@@ -60,6 +60,7 @@ public:
         TOC_Name,
         TOC_Price,
         TOC_Quant,
+        TOC_Id,
 
         TOC_Num
     };
@@ -83,17 +84,22 @@ public:
     CBCGPGridCtrl       _order;
 
 public:
+    CBCGPGridRow*       AddOrderRow();
+
+public:
     virtual void    DoDataExchange(CDataExchange *pDx);
 
 public:
     //typedef std::function<void()>   ButtonClickEvent;
     typedef std::function<void()>   OKEvent;
+    typedef std::function<void(CBCGPGridRow*)>    CancelOrderEvent;
     typedef std::function<void(StockInfoType, StockTradeOp)> TradeEvent;
     
     //ButtonClickEvent    _q1PlusClickEvent;
     //ButtonClickEvent    _q1MinusClickEvent;
     OKEvent             _enterOKEvent;
     TradeEvent          _tradeEvent;
+    CancelOrderEvent    _cancelOrderEvent;
 
 protected:
     virtual BOOL    OnInitDialog();
@@ -103,6 +109,7 @@ protected:
     afx_msg void    OnQ1MinusClicked();
     afx_msg void    OnDeltPosSpinCtrl(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void    OnEnter();
+    afx_msg void    OnCancelOrder();
     afx_msg void    OnSellSell10();
     afx_msg void    OnSellSell9();
     afx_msg void    OnSellSell8();

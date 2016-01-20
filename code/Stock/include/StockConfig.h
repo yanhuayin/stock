@@ -101,11 +101,11 @@ enum StockInfoField
 
 enum StockOrderField
 {
-    SOF_Name = 0,
-    SOF_Code,
-    SOF_Id,
+    SOF_Code = 0,
+    SOF_Name,
     SOF_Price,
     SOF_Quant,
+    SOF_Id,
 
     SOF_Num
 };
@@ -116,6 +116,13 @@ enum StockTradeOp
     STO_Sell,
 
     STO_Num
+};
+
+enum StockOrderResult
+{
+    SOR_OK = 0,
+    SOR_Dealed,
+    SOR_Error
 };
 
 //namespace std

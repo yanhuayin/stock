@@ -514,7 +514,7 @@ void CStockLocatePropPage::OnClear()
 LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 {
     HWND hwnd = m_pic.TargetHWnd();
-    POINT const& pos = m_pic.TargetPos();
+    POINT pos = m_pic.TargetPos();
 
     LocateType type = this->GetCtrlFocus();
 
@@ -570,21 +570,34 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 
             if (share)
             {
-                if (!data.ValidateHwnd(hwnd, t1, m_target, m_tID, m_process, &(_ctrls[t1].i.hitem)) ||
-                    !data.ValidateHwnd(hwnd, t2, m_target, m_tID, m_process, &(_ctrls[t2].i.hitem)) ||
-                    !data.ValidateHwnd(hwnd, t3, m_target, m_tID, m_process, &(_ctrls[t3].i.hitem)))
+                bool valid = false;
+                if (data.ValidateHwnd(hwnd, t1, m_target, m_tID, m_process, &(_ctrls[t1].i.hitem)) &&
+                    data.ValidateHwnd(hwnd, t2, m_target, m_tID, m_process, &(_ctrls[t2].i.hitem)) &&
+                    data.ValidateHwnd(hwnd, t3, m_target, m_tID, m_process, &(_ctrls[t3].i.hitem)))
+                {
+                    POINT p1, p2, p3;
+                    if (WinApi::CacTreeItemCenter(hwnd, _ctrls[type].i.hitem, pos) &&
+                        WinApi::CacTreeItemCenter(hwnd, _ctrls[t1].i.hitem, p1) &&
+                        WinApi::CacTreeItemCenter(hwnd, _ctrls[t2].i.hitem, p2) &&
+                        WinApi::CacTreeItemCenter(hwnd, _ctrls[t3].i.hitem, p3))
+                    {
+                        // tree ctrl is valid
+                        _ctrls[t1].i.hwnd = _ctrls[t2].i.hwnd = _ctrls[t3].i.hwnd = hwnd;
+                        _ctrls[t1].i.pos = p1;
+                        _ctrls[t2].i.pos = p2;
+                        _ctrls[t3].i.pos = p3;
+
+                        valid = true;
+                    }
+                }
+
+                if (!valid)
                 {
                     _ctrls[type].i.hitem = _ctrls[t1].i.hitem = _ctrls[t2].i.hitem = _ctrls[t3].i.hitem = nullptr;
 
                     this->Withdraw(tSet, pSet);
 
                     return 0;
-                }
-                else
-                {
-                    // tree ctrl is valid
-                    _ctrls[t1].i.hwnd = _ctrls[t2].i.hwnd = _ctrls[t3].i.hwnd = hwnd;
-                    _ctrls[t1].i.pos = _ctrls[t2].i.pos = _ctrls[t3].i.pos = pos;
                 }
             }
 

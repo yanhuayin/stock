@@ -31,11 +31,12 @@ public:
 
     static HWND         TopWndFromPoint(POINT pt);
 
-    static HTREEITEM    SearchTreeItem(HandlePtr process, HWND tree, bool click, CString const& target, CString const& parent);
+    static HTREEITEM    SearchTreeItem(HandlePtr process, HWND tree, CString const& target, CString const& parent);
 
-    static bool         SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item);
+    static bool         SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item, POINT const& center);
 
-    static bool         CacTreeItemCenter(HandlePtr process, HWND tree, HTREEITEM item, POINT &pos);
+    //static bool         CacTreeItemCenter(HandlePtr process, HWND tree, HTREEITEM item, POINT &pos);
+    static bool         CacTreeItemCenter(HWND tree, HTREEITEM item, POINT &pos);
 
     static HandlePtr    QueryTargetName(HWND hwnd, CString &outName, DWORD &outId);
 

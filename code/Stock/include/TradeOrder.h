@@ -10,7 +10,7 @@
 #include "ApiHelper.h"
 #include "Utils.h"
 
-struct CTradeOrder
+struct TradeOrder
 {
     CString     code;
     CString     price;
@@ -28,22 +28,15 @@ public:
 
 public:
     int     Trade(StockTradeOp op, CString const& code, CString const& price, CString const& quant);
-
-    enum CancelOrderResult
-    {
-        COR_OK = 0,
-        COR_NotFound,
-        COR_Dealed
-    };
-
-    CancelOrderResult   CancelOrder(int order);
+    StockOrderResult    CancelOrder(int order);
+    TradeOrder const&   Order(int order) const;
 
 private:
     bool    SetText(HandlePtr process, HWND hwnd, CString const& text) const; // TODO : move all hwnd manipulate out of this class
 
 
 private:
-    typedef std::unordered_map<int, CTradeOrder>    OrderMap;
+    typedef std::unordered_map<int, TradeOrder>    OrderMap;
     OrderMap        m_orders;
     int             m_id;
 };

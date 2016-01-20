@@ -70,7 +70,7 @@ HWND WinApi::TopWndFromPoint(POINT pt)
     return unHwnd;
 }
 
-HTREEITEM WinApi::SearchTreeItem(HandlePtr process, HWND tree, bool click, CString const & target, CString const & parent)
+HTREEITEM WinApi::SearchTreeItem(HandlePtr process, HWND tree, CString const & target, CString const & parent)
 {
     ASSERT(process);
 
@@ -141,25 +141,77 @@ HTREEITEM WinApi::SearchTreeItem(HandlePtr process, HWND tree, bool click, CStri
 
     } while (item);
 
-    if (item && click)
-    {
-        if (!WinApi::SelectTreeItem(process, tree, item))
-            return nullptr;
-    }
-
     return item;
 }
 
-bool WinApi::SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item)
+bool WinApi::SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item, POINT const& center)
 {
-    TreeView_SelectItem(tree, item); // TODO : backup current selection
+    POINT cursor;
+    if (!::GetCursorPos(&cursor))
+        return false;
 
-    return WinApi::NotifyTreeParent(process, tree, NM_CLICK);
+    if (!::SetCursorPos(center.x, center.y))
+        return false;
+
+    //::ShowCursor(FALSE);
+    ::BlockInput(TRUE);
+
+    //HTREEITEM curr = TreeView_GetSelection(tree);
+
+    //TreeView_SelectItem(tree, item);
+
+    bool res = WinApi::NotifyTreeParent(process, tree, NM_CLICK);
+
+    ::SetCursorPos(cursor.x, cursor.y);
+
+    //::ShowCursor(TRUE);
+    ::BlockInput(FALSE);
+
+    //if (!res)
+    //{
+    //    if (curr)
+    //        TreeView_SelectItem(tree, curr);
+    //}
+
+
+    return res;
 }
 
-bool WinApi::CacTreeItemCenter(HandlePtr process, HWND tree, HTREEITEM item, POINT & pos)
+//bool WinApi::CacTreeItemCenter(HandlePtr process, HWND tree, HTREEITEM item, POINT & pos)
+bool WinApi::CacTreeItemCenter(HWND tree, HTREEITEM item, POINT & pos)
 {
-    
+    // TODO : do we have to alloc memory on the specified process?
+    //VirtualPtr pRect = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(RECT), MEM_COMMIT, PAGE_READWRITE));
+    //if (!pRect)
+    //    return false;
+
+    //if (TreeView_GetItemRect(tree, item, pRect.get(), TRUE))
+    //{
+    //    RECT rect;
+    //    if (::ReadProcessMemory(process.get(), pRect.get(), &rect, sizeof(RECT), nullptr))
+    //    {
+    //        pos.x = (rect.left + rect.right) / 2;
+    //        pos.y = (rect.top + rect.bottom) / 2;
+
+    //        ::ClientToScreen(tree, &pos);
+
+    //        return true;
+    //    }
+    //}
+
+    RECT rect;
+    if (TreeView_GetItemRect(tree, item, &rect, TRUE))
+    {
+        pos.x = (rect.left + rect.right) / 2;
+        pos.y = (rect.top + rect.bottom) / 2;
+
+        if (::ClientToScreen(tree, &pos))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool WinApi::NotifyTreeParent(HandlePtr process, HWND tree, UINT message)

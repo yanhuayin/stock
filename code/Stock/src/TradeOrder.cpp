@@ -29,6 +29,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
 
     HWND tree = nullptr;
     HTREEITEM item = nullptr;
+    POINT pos;
     HWND hp = nullptr;
     HWND hc = nullptr;
     HWND hq = nullptr;
@@ -41,6 +42,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
     case STO_Buy:
         tree = loc.LocInfo(LT_Buy).hwnd;
         item = loc.LocInfo(LT_Buy).hitem;
+        pos = loc.LocInfo(LT_Buy).pos;
         hp = loc.LocInfo(LT_BuyPrice).hwnd;
         hc = loc.LocInfo(LT_BuyCode).hwnd;
         hq = loc.LocInfo(LT_BuyQuant).hwnd;
@@ -49,6 +51,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
     case STO_Sell:
         tree = loc.LocInfo(LT_Sell).hwnd;
         item = loc.LocInfo(LT_Sell).hitem;
+        pos = loc.LocInfo(LT_Sell).pos;
         hp = loc.LocInfo(LT_SellPrice).hwnd;
         hc = loc.LocInfo(LT_SellCode).hwnd;
         hq = loc.LocInfo(LT_SellQuant).hwnd;
@@ -63,7 +66,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
     if (!process)
         return ST_TO_F;
 
-    if (WinApi::SelectTreeItem(process, tree, item))
+    if (WinApi::SelectTreeItem(process, tree, item, pos))
     {
         if (!this->SetText(process, hc, code))
             return ST_TO_F;
@@ -76,118 +79,133 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
 
         ::SendMessage(ho, BM_CLICK, 0, 0);
 
-        int id = ++m_id;
+        // find the delegate id
+        if (WinApi::SelectTreeItem(process, tree, loc.LocInfo(LT_Delegate).hitem, loc.LocInfo(LT_Delegate).pos))
+        {
+            HWND dlst = loc.LocInfo(LT_DelegateList).hwnd;
+            int row = ::SendMessage(dlst, LVM_GETITEMCOUNT, 0, 0);
+            if (row > 0)
+            {
+                VirtualPtr pRowItem = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(LVITEM), MEM_COMMIT, PAGE_READWRITE));
+                VirtualPtr pRowText = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, MEM_COMMIT, PAGE_READWRITE));
 
-        CTradeOrder &order = m_orders[id];
-        order.code = code;
-        order.price = price;
-        order.quant = quant;
-        order.date = CTime::GetCurrentTime().Format(ST_TO_TIME_FORMAT_STR);
+                TCHAR rtext[ST_MAX_VIRTUAL_BUF] = { 0 };
 
-        return id;
+                LVITEM lvrItem = { 0 };
+                lvrItem.mask = LVIF_TEXT;
+                lvrItem.iSubItem = loc.ListCol(LT_DelegateList, SOF_Id).col;
+                lvrItem.pszText = (LPTSTR)pRowText.get();
+                lvrItem.cchTextMax = ST_MAX_VIRTUAL_BUF;
+                lvrItem.iItem = row - 1;
 
-    //    HTREEITEM clitem = loc.LocInfo(LT_Cancel).hitem;
-    //    int ckey = loc.LocInfo(LT_Cancel).key;
-    //    int ccmd = loc.LocInfo(LT_Cancel).cmd;
-    //    HWND clist = loc.LocInfo(LT_CancelList).hwnd;
-    //    if (loc.OpenTradePage(process, tree, clitem, ckey, ccmd)) // open cancel order opage
-    //    {
-    //        // get code/price/quant column index
-    //        int ccode = loc.ListCol(LT_CancelList, SOF_Code).col;
-    //        int cprice = loc.ListCol(LT_CancelList, SOF_Price).col;
-    //        int cquant = loc.ListCol(LT_CancelList, SOF_Quant).col;
+                if (::WriteProcessMemory(process.get(), pRowItem.get(), &lvrItem, sizeof(LVITEM), nullptr))
+                {
+                    int count = ::SendMessage(dlst, LVM_GETITEMTEXT, row - 1, (LPARAM)(pRowItem.get()));
+                    if (count > 0)
+                    {
+                        if (::ReadProcessMemory(process.get(), pRowText.get(), &rtext[0], sizeof(TCHAR)*count, nullptr))
+                        {
+                            int id = ++m_id;
 
-    //        int row = (int)(HWND)::SendMessage(clist, LVM_GETITEMCOUNT, 0, 0);
-    //        if (row > 0)
-    //        {
+                            TradeOrder &order = m_orders[id];
+                            order.id = rtext;
+                            order.code = code;
+                            order.price = price;
+                            order.quant = quant;
+                            order.date = CTime::GetCurrentTime().Format(ST_TO_TIME_FORMAT_STR);
 
-    //        }
-    //    }
-
-    //    // find the order info in delegate list ctrl
-    //    HTREEITEM dlitem = loc.LocInfo(LT_Delegate).hitem;
-    //    int dlkey = loc.LocInfo(LT_Delegate).key;
-    //    int dlcmd = loc.LocInfo(LT_Delegate).cmd;
-    //    HWND dlst = loc.LocInfo(LT_DelegateList).hwnd;
-
-    //    if (loc.OpenTradePage(process, tree, dlitem, dlkey, dlcmd))
-    //    {
-    //        CString deleId(MAKEINTRESOURCE(IDS_DELE_ID));
-
-    //        int row = (int)::SendMessage(dlst, LVM_GETITEMCOUNT, 0, 0);
-    //        if (row > 0)
-    //        {
-    //            HWND header = (HWND)::SendMessage(dlst, LVM_GETHEADER, 0, 0);
-
-    //            // TODO : move this to locate data, we don't have to find delegate id col every time
-    //            int col = (int)::SendMessage(header, HDM_GETITEMCOUNT, 0, 0);
-    //            if (col > 0)
-    //            {
-    //                VirtualPtr pColItem = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(LVCOLUMN), MEM_COMMIT, PAGE_READWRITE));
-    //                VirtualPtr pColText = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, MEM_COMMIT, PAGE_READWRITE));
-    //                if (!pColItem || !pColText)
-    //                    return ST_TO_F;
-
-    //                int c = 0;
-    //                for (; c < col; ++c)
-    //                {
-    //                    TCHAR ctext[ST_MAX_VIRTUAL_BUF] = { 0 };
-
-    //                    LVCOLUMN lvcItem = { 0 };
-    //                    lvcItem.mask = LVCF_TEXT;
-    //                    lvcItem.iSubItem = 0;
-    //                    lvcItem.iOrder = c;
-    //                    lvcItem.pszText = (LPTSTR)pColText.get();
-    //                    lvcItem.cchTextMax = sizeof(ctext);
-
-    //                    if (::WriteProcessMemory(process.get(), pColItem.get(), &lvcItem, sizeof(LVCOLUMN), nullptr))
-    //                    {
-    //                        if (::SendMessage(dlst, LVM_GETCOLUMN, c, (LPARAM)(pColItem.get())))
-    //                        {
-    //                            if (::ReadProcessMemory(process.get(), pColText.get(), &ctext[0], sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, nullptr))
-    //                            {
-    //                                if (deleId == ctext)
-    //                                    break;
-    //                            }
-    //                        }
-    //                    }
-    //                }
-
-    //                if (c < col) // find the col id
-    //                {
-    //                    VirtualPtr pRowItem = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(LVITEM), MEM_COMMIT, PAGE_READWRITE));
-    //                    VirtualPtr pRowText = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, MEM_COMMIT, PAGE_READWRITE));
-    //                    if (!pRowItem || !pRowText)
-    //                        return ST_TO_F;
-
-    //                    TCHAR rtext[ST_MAX_VIRTUAL_BUF] = { 0 };
-
-    //                    LVITEM lvrItem = { 0 };
-    //                    lvrItem.mask = LVIF_TEXT;
-    //                    lvrItem.iSubItem = c;
-    //                    lvrItem.pszText = (LPTSTR)pRowText.get();
-    //                    lvrItem.cchTextMax = ST_MAX_VIRTUAL_BUF;
-    //                    lvrItem.iItem = row - 1;
-
-    //                    if (::WriteProcessMemory(process.get(), pRowItem.get(), &lvrItem, sizeof(LVITEM), nullptr))
-    //                    {
-    //                        int count = ::SendMessage(dlst, LVM_GETITEMTEXT, row - 1, (LPARAM)(pRowItem.get()));
-    //                        if (count > 0)
-    //                        {
-    //                            if (::ReadProcessMemory(process.get(), pRowText.get(), &rtext[0], sizeof(TCHAR)*count, nullptr))
-    //                            {
-
-    //                            }
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-
+                            return id;
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    //return ST_TO_F;
+    return ST_TO_F;
+}
+
+StockOrderResult CTradeOrderManager::CancelOrder(int order)
+{
+    CStockLocateData &loc = theApp.AppData().LocateData();
+
+    HandlePtr process = loc.TargetProcess();
+
+    if (!process)
+        return SOR_Error;
+
+    HWND tree = loc.LocInfo(LT_Cancel).hwnd;
+    HTREEITEM item = loc.LocInfo(LT_Cancel).hitem;
+
+    if (WinApi::SelectTreeItem(process, tree, item, loc.LocInfo(LT_Cancel).pos))
+    {
+        auto it = m_orders.find(order);
+
+        if (it != m_orders.end())
+        {
+            TradeOrder const& to = it->second;
+
+            HWND clst = loc.LocInfo(LT_CancelList).hwnd;
+            int row = ::SendMessage(clst, LVM_GETITEMCOUNT, 0, 0);
+            if (row > 0)
+            {
+                VirtualPtr pRowItem = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(LVITEM), MEM_COMMIT, PAGE_READWRITE));
+                VirtualPtr pRowText = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, MEM_COMMIT, PAGE_READWRITE));
+
+                for (int i = 0; i < row; ++i)
+                {
+                    TCHAR rtext[ST_MAX_VIRTUAL_BUF] = { 0 };
+
+                    LVITEM lvrItem = { 0 };
+                    lvrItem.mask = LVIF_TEXT;
+                    lvrItem.iSubItem = loc.ListCol(LT_CancelList, SOF_Id).col;
+                    lvrItem.pszText = (LPTSTR)pRowText.get();
+                    lvrItem.cchTextMax = ST_MAX_VIRTUAL_BUF;
+                    lvrItem.iItem = i;
+
+                    if (::WriteProcessMemory(process.get(), pRowItem.get(), &lvrItem, sizeof(LVITEM), nullptr))
+                    {
+                        int count = ::SendMessage(clst, LVM_GETITEMTEXT, i, (LPARAM)(pRowItem.get()));
+                        if (count > 0)
+                        {
+                            if (::ReadProcessMemory(process.get(), pRowText.get(), &rtext[0], sizeof(TCHAR)*count, nullptr))
+                            {
+                                if (to.id == rtext)
+                                {
+                                    ListView_SetItemState(clst, i, LVIS_FOCUSED | LVIS_SELECTED, 0x000F);
+
+                                    ::SendMessage(loc.LocInfo(LT_CancelBtn).hwnd, BM_CLICK, 0, 0);
+
+                                    return SOR_OK;
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+            }
+
+            return SOR_Dealed;
+        }
+    }
+
+
+
+    return SOR_Error;
+}
+
+TradeOrder const & CTradeOrderManager::Order(int order) const
+{
+    auto it = m_orders.find(order);
+
+    if (it == m_orders.end())
+    {
+        static TradeOrder errOrder = { _T("Error"), _T("Error"), _T("Error"), _T("Error"), _T("Error") };
+        return errOrder;
+    }
+
+    return it->second;
 }
 
 bool CTradeOrderManager::SetText(HandlePtr process, HWND hwnd, CString const & text) const

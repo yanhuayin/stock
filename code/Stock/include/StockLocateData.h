@@ -51,7 +51,7 @@ public:
 
 private:
     int         FindIdByName(CString const& name) const;
-    HTREEITEM   SearchTreeItem(HandlePtr process, HWND tree, LocateType type, bool open = true) const;
+    HTREEITEM   SearchTreeItem(HandlePtr process, HWND tree, LocateType type) const;
     HWND        PointToTopWnd(POINT const& pos);
     HWND        ValidateTopWnd(HWND hwnd);
     void        Withdraw();

@@ -361,12 +361,22 @@ bool CStockLocateData::LocateWnd()
                     {
                         m_info[i].hitem = this->SearchTreeItem(m_process, m_info[i].hwnd, (LocateType)i);
                         if (m_info[i].hitem)
-                            ++count;
-                        else
                         {
-                            this->Withdraw();
-                            m_info[i].hwnd = nullptr;
+                            POINT pos;
+                            if (WinApi::CacTreeItemCenter(m_info[i].hwnd, m_info[i].hitem, pos))
+                            {
+                                if (WinApi::SelectTreeItem(m_process, m_info[i].hwnd, m_info[i].hitem, pos))
+                                {
+                                    m_info[i].pos = pos;
+                                    ++count;
+                                    break;
+                                }
+                            }
                         }
+
+                        this->Withdraw();
+                        m_info[i].hitem = nullptr;
+                        m_info[i].hwnd = nullptr;
                     }
                     break;
                 case LT_BuyCode:
@@ -497,7 +507,7 @@ int CStockLocateData::FindIdByName(CString const & name) const
     return LT_Num;
 }
 
-HTREEITEM CStockLocateData::SearchTreeItem(HandlePtr process, HWND tree, LocateType type, bool open) const
+HTREEITEM CStockLocateData::SearchTreeItem(HandlePtr process, HWND tree, LocateType type) const
 {
 
     CString target;
@@ -524,7 +534,7 @@ HTREEITEM CStockLocateData::SearchTreeItem(HandlePtr process, HWND tree, LocateT
         break;
     }
 
-    return WinApi::SearchTreeItem(process, tree, open, target, parent);
+    return WinApi::SearchTreeItem(process, tree, target, parent);
 }
 
 HWND CStockLocateData::PointToTopWnd(POINT const & pos)
@@ -731,7 +741,7 @@ HWND CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target,
         case LT_Sell:
         case LT_Cancel:
         case LT_Delegate:
-            *hitem = this->SearchTreeItem(process, hwnd, type, false);
+            *hitem = this->SearchTreeItem(process, hwnd, type);
             if (*hitem) //though it's in valid top wnd but may not a tree ctrl
                 return hwnd;
             if (isTSet)

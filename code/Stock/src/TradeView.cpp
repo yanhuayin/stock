@@ -34,6 +34,7 @@ int CTradeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
     //m_tradeWnd._q1MinusClickEvent = std::bind(&CTradeView::OnQ1MinusClicked, this);
     m_tradeWnd._enterOKEvent = std::bind(&CTradeView::OnOK, this);
     m_tradeWnd._tradeEvent = std::bind(&CTradeView::OnTrade, this, std::placeholders::_1, std::placeholders::_2);
+    m_tradeWnd._cancelOrderEvent = std::bind(&CTradeView::OnCancelOrder, this, std::placeholders::_1);
 
     UINT quota = CTradeControl::Instance().Quota();
     CString quotaStr;
@@ -107,6 +108,23 @@ void CTradeView::SetInfo(StockInfoField field, InfoNumArrayPtr info)
     }
 }
 
+void CTradeView::SetOrder(int order, OrderStrArray const & strs)
+{
+    CBCGPGridRow *pRow = m_tradeWnd.AddOrderRow();
+
+    for (size_t i = 0; i < strs.size(); ++i)
+    {
+        if (strs[i])
+        {
+            pRow->GetItem(i + 1)->SetValue(strs[i]->GetString());
+        }
+    }
+
+    pRow->SetData(order);
+
+    m_tradeWnd._order.UpdateData(FALSE);
+}
+
 void CTradeView::SetQuota(CString const & quota)
 {
     m_tradeWnd._quota.SetWindowText(quota);
@@ -144,7 +162,26 @@ void CTradeView::OnOK()
 
 void CTradeView::OnTrade(StockInfoType info, StockTradeOp op)
 {
+    // TODO : check available before trade
     CTradeControl::Instance().Trade(shared_from_this(), info, op);
+}
+
+void CTradeView::OnCancelOrder(CBCGPGridRow *pRow)
+{
+    StockOrderResult res = CTradeControl::Instance().CancelOrder(shared_from_this(), pRow->GetData());
+
+    if (res == SOR_OK || res == SOR_Dealed)
+    {
+        m_tradeWnd._order.RemoveRow(pRow->GetRowId());
+
+        if (res == SOR_Dealed)
+        {
+            AfxMessageBox(IDS_ORDER_DEALED);
+            return;
+        }
+    }
+
+    AfxMessageBox(IDS_ORDER_ERROR);
 }
 
 void CTradeView::PostNcDestroy()
