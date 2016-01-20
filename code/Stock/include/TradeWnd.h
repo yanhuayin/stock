@@ -85,6 +85,7 @@ public:
 
 public:
     CBCGPGridRow*       AddOrderRow();
+    void                GetPrice(StockInfoType info, CString & outPrice) const;
 
 public:
     virtual void    DoDataExchange(CDataExchange *pDx);

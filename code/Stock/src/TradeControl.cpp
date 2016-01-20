@@ -305,7 +305,7 @@ void CTradeControl::RefreshViewsInfo(TradeModelHandle h, ViewListPtr vls)
     {
         i->SetName(h->Name().c_str());
         i->SetInfo(SIF_Price, h->NumInfo(SIF_Price));
-        i->SetInfo(SIF_Price, h->NumInfo(SIF_Quant));
+        i->SetInfo(SIF_Quant, h->NumInfo(SIF_Quant));
         i->Flush();
     }
 }
@@ -314,7 +314,7 @@ void CTradeControl::RefreshViewInfo(TradeModelHandle m, TradeViewHandle v)
 {
     v->SetName(m->Name().c_str());
     v->SetInfo(SIF_Price, m->NumInfo(SIF_Price));
-    v->SetInfo(SIF_Price, m->NumInfo(SIF_Quant));
+    v->SetInfo(SIF_Quant, m->NumInfo(SIF_Quant));
     v->Flush();
 }
 

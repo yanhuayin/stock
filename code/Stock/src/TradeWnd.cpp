@@ -167,6 +167,15 @@ CBCGPGridRow * CTradeWnd::AddOrderRow()
     return pRow;
 }
 
+void CTradeWnd::GetPrice(StockInfoType info, CString & outPrice) const
+{
+    CBCGPGridRow *pRow = _info.GetRow(info);
+    if (pRow)
+    {
+        outPrice = pRow->GetItem(SIC_Price)->GetValue();
+    }
+}
+
 void CTradeWnd::DoDataExchange(CDataExchange * pDx)
 {
     CBCGPDialog::DoDataExchange(pDx);

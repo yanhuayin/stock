@@ -142,11 +142,7 @@ void CTradeView::GetQuant(CString & outQuant) const
 
 void CTradeView::GetPrice(StockInfoType info, CString & outPrice) const
 {
-    CBCGPGridRow *pRow = m_tradeWnd._info.GetRow(info);
-    if (pRow)
-    {
-        outPrice = pRow->GetItem(SIF_Price)->GetValue();
-    }
+    m_tradeWnd.GetPrice(info, outPrice);
 }
 
 void CTradeView::OnOK()
