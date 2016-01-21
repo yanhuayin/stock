@@ -32,7 +32,7 @@ public:
     TradeOrder const&   Order(int order) const;
 
 private:
-    bool    SetText(HandlePtr process, HWND hwnd, CString const& text) const; // TODO : move all hwnd manipulate out of this class
+    bool    SetText(HWND hwnd, CString const& text) const; // TODO : move all hwnd manipulate out of this class
 
 
 private:

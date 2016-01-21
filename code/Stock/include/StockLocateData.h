@@ -46,12 +46,12 @@ public:
     void        ResetListCol(ListViewColumn &col, StockOrderField field) const;
     void        ResetLocateInfo(LocateInfo &info, LocateType type) const;
 
-    HWND        ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HandlePtr &process, HTREEITEM *hitem = nullptr) const;
+    HWND        ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HandlePtr &process, HTREEITEM *hitem = nullptr, HTREEITEM parent = nullptr) const;
     int         GetListCol(HandlePtr process, HWND list, ListViewColumn *info, size_t cnt) const;
 
 private:
     int         FindIdByName(CString const& name) const;
-    HTREEITEM   SearchTreeItem(HandlePtr process, HWND tree, LocateType type) const;
+    HTREEITEM   SearchTreeItem(HandlePtr process, HWND tree, LocateType type, HTREEITEM parent = nullptr) const;
     HWND        PointToTopWnd(POINT const& pos);
     HWND        ValidateTopWnd(HWND hwnd);
     void        Withdraw();

@@ -251,6 +251,8 @@ CBCGPMaskEdit * CStockLocatePropPage::FindMaskCtrl(LocateType type)
         return &m_cancelBtn;
     case LT_CancelList:
         return &m_cancelList;
+    case LT_Query:
+        return &m_tree;
     case LT_Delegate:
         return &m_tree;
     case LT_DelegateList:
@@ -290,6 +292,7 @@ CBCGPStatic * CStockLocatePropPage::FindLabelCtrl(LocateType type)
     case LT_Cancel:
     case LT_CancelBtn:
     case LT_CancelList:
+    case LT_Query:
     case LT_Delegate:
     case LT_DelegateList:
         return nullptr;
@@ -334,6 +337,8 @@ CBCGPEdit * CStockLocatePropPage::FindEditCtrl(LocateType type)
         return &m_hcancelBtn;
     case LT_CancelList:
         return &m_hcancelList;
+    case LT_Query:
+        return &m_htree;
     case LT_Delegate:
         return &m_htree;
     case LT_DelegateList:
@@ -520,6 +525,9 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 
     if (type < LT_Num)
     {
+        if (type == LT_Delegate)
+            type = LT_Query;
+
         bool tSet = m_target.IsEmpty();
         bool pSet = (m_tID == 0);
 
@@ -535,22 +543,22 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
             case LT_Buy:
                 t1 = LT_Sell;
                 t2 = LT_Cancel;
-                t3 = LT_Delegate;
+                t3 = LT_Query;
                 break;
             case LT_Sell:
                 t1 = LT_Buy;
                 t2 = LT_Cancel;
-                t3 = LT_Delegate;
+                t3 = LT_Query;
                 break;
             case LT_Cancel:
                 t1 = LT_Sell;
                 t2 = LT_Buy;
-                t3 = LT_Delegate;
+                t3 = LT_Query;
                 break;
-            case LT_Delegate:
+            case LT_Query:
                 t1 = LT_Sell;
-                t2 = LT_Cancel;
-                t3 = LT_Buy;
+                t2 = LT_Buy;
+                t3 = LT_Cancel;
                 break;
             case LT_CancelList:
             case LT_DelegateList:
@@ -570,30 +578,50 @@ LRESULT CStockLocatePropPage::OnTargetWnd(WPARAM wParam, LPARAM lParam)
 
             if (share)
             {
+                if (!WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[type].i.hitem, pos))
+                {
+                    _ctrls[type].i.hitem = nullptr;
+                    return 0;
+                }
+
                 bool valid = false;
                 if (data.ValidateHwnd(hwnd, t1, m_target, m_tID, m_process, &(_ctrls[t1].i.hitem)) &&
                     data.ValidateHwnd(hwnd, t2, m_target, m_tID, m_process, &(_ctrls[t2].i.hitem)) &&
                     data.ValidateHwnd(hwnd, t3, m_target, m_tID, m_process, &(_ctrls[t3].i.hitem)))
                 {
-                    POINT p1, p2, p3;
-                    if (WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[type].i.hitem, pos) &&
-                        WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[t1].i.hitem, p1) &&
-                        WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[t2].i.hitem, p2) &&
-                        WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[t3].i.hitem, p3))
+                    if (data.ValidateHwnd(hwnd, LT_Delegate, m_target, m_tID, m_process, &(_ctrls[LT_Delegate].i.hitem), _ctrls[LT_Query].i.hitem))
                     {
-                        // tree ctrl is valid
-                        _ctrls[t1].i.hwnd = _ctrls[t2].i.hwnd = _ctrls[t3].i.hwnd = hwnd;
-                        _ctrls[t1].i.pos = p1;
-                        _ctrls[t2].i.pos = p2;
-                        _ctrls[t3].i.pos = p3;
+                        POINT p1, p2, p3;
+                        if (WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[t1].i.hitem, p1) &&
+                            WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[t2].i.hitem, p2) &&
+                            WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[t3].i.hitem, p3))
+                        {
+                            POINT p = pos;
+                            if (type != LT_Query)
+                                p = p3;
 
-                        valid = true;
+                            if (WinApi::IsTreeItemExpanded(hwnd, _ctrls[LT_Query].i.hitem) ||
+                                WinApi::SelectTreeItem(m_process, hwnd, _ctrls[LT_Query].i.hitem, p))
+                            {
+                                if (WinApi::CacTreeItemCenter(m_process, hwnd, _ctrls[LT_Delegate].i.hitem, p))
+                                {
+                                    // tree ctrl is valid
+                                    _ctrls[t1].i.hwnd = _ctrls[t2].i.hwnd = _ctrls[t3].i.hwnd = _ctrls[LT_Delegate].i.hwnd = hwnd;
+                                    _ctrls[t1].i.pos = p1;
+                                    _ctrls[t2].i.pos = p2;
+                                    _ctrls[t3].i.pos = p3;
+                                    _ctrls[LT_Delegate].i.pos = p;
+
+                                    valid = true;
+                                }
+                            }
+                        }
                     }
                 }
 
                 if (!valid)
                 {
-                    _ctrls[type].i.hitem = _ctrls[t1].i.hitem = _ctrls[t2].i.hitem = _ctrls[t3].i.hitem = nullptr;
+                    _ctrls[type].i.hitem = _ctrls[t1].i.hitem = _ctrls[t2].i.hitem = _ctrls[t3].i.hitem = _ctrls[LT_Delegate].i.hitem = nullptr;
 
                     this->Withdraw(tSet, pSet);
 

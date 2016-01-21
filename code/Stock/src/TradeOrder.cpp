@@ -68,14 +68,22 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
 
     if (WinApi::SelectTreeItem(process, tree, item, pos))
     {
-        if (!this->SetText(process, hc, code))
+        ::Sleep(ST_SLEEP_T);
+
+        if (!this->SetText(hc, code))
             return ST_TO_F;
 
-        if (!this->SetText(process, hp, price))
+        ::Sleep(ST_SLEEP_T);
+
+        if (!this->SetText(hp, price))
             return ST_TO_F;
 
-        if (!this->SetText(process, hq, quant))
+        ::Sleep(ST_SLEEP_T);
+
+        if (!this->SetText(hq, quant))
             return ST_TO_F;
+
+        ::Sleep(ST_SLEEP_T);
 
         ::SendMessage(ho, BM_CLICK, 0, 0);
 
@@ -208,25 +216,10 @@ TradeOrder const & CTradeOrderManager::Order(int order) const
     return it->second;
 }
 
-bool CTradeOrderManager::SetText(HandlePtr process, HWND hwnd, CString const & text) const
+bool CTradeOrderManager::SetText(HWND hwnd, CString const & text) const
 {
-    bool res = false;
+    if (::SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)(text.GetString())))
+        return true;
 
-    if (!process)
-        return res;
-
-    SIZE_T size = sizeof(TCHAR) * (text.GetLength() + 1);
-    VirtualPtr _t = MakeVirtualPtr(::VirtualAllocEx(process.get(), NULL, size, MEM_COMMIT, PAGE_READWRITE));
-    if (!_t)
-        return res;
-
-    if (::WriteProcessMemory(process.get(), _t.get(), text.GetString(), size, NULL))
-    {
-        if (::SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)(_t.get())) == TRUE)
-        {
-            res = true;
-        }
-    }
-
-    return res;
+    return false;
 }

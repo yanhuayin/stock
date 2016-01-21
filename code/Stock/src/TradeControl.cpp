@@ -33,7 +33,10 @@ bool CTradeControl::Close()
 
 bool CTradeControl::NeedTimer() const
 {
+    // =================== TEST ===============================
     return CTradeModelManager::Instance().Type() == CTradeModelManager::RT_Immediate;
+    //return false;
+    // =================== TEST ===============================
 }
 
 void CTradeControl::ViewClosed(TradeViewHandle h)
@@ -202,7 +205,7 @@ int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
     h->GetQuant(quant);
     h->GetPrice(info, price);
 
-    int res = CTradeOrderManager::Instance().Trade(op, code, quant, price);
+    int res = CTradeOrderManager::Instance().Trade(op, code, price, quant);
 
     if (res > 0)
     {

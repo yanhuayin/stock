@@ -58,6 +58,7 @@ enum LocateType
     LT_CancelBtn,
     LT_CancelList,
 
+    LT_Query,
     LT_Delegate,
     LT_DelegateList,
 

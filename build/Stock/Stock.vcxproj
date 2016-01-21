@@ -107,6 +107,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\..\bin\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>WAPIWrapperCpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SECTION:.rsrc,rw %(AdditionalOptions)</AdditionalOptions>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -167,6 +168,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\..\bin\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>WAPIWrapperCpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SECTION:.rsrc,rw %(AdditionalOptions)</AdditionalOptions>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>

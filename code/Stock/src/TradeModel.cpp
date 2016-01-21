@@ -152,6 +152,12 @@ bool CTradeModelManager::Init(RequestType type)
     }
 
     m_type = type;
+    // =================== TEST ===============================
+    //TradeModelHandle h(new CTradeModel);
+    //h->m_name = _T("Test");
+    //h->m_windCode = _T("000628.SZ");
+    //m_models[h->m_windCode] = h;
+    // =================== TEST ===============================
 
     m_init = true;
 
@@ -219,6 +225,28 @@ bool CTradeModelManager::RequestModel(TradeModelHandle h, bool force)
 
                 h->m_reqId = ST_REQ_ID_IMM;
                 this->UpdateModel(h, wd); // immediate request will update model at once
+
+                // =================== TEST ===============================
+                //if (!h->m_price)
+                //{
+                //    h->m_price = CTradeModel::InfoNumArrayPtr(new CTradeModel::InfoNumArray());
+                //}
+
+                //CTradeModel::InfoNumArray &pa = *(h->m_price);
+
+                //if (!h->m_quant)
+                //{
+                //    h->m_quant = CTradeModel::InfoNumArrayPtr(new CTradeModel::InfoNumArray());
+                //}
+
+                //CTradeModel::InfoNumArray &qa = *(h->m_quant);
+
+                //for (int i = 0; i < SIT_Num; ++i)
+                //{
+                //    pa[i] = 12.0;
+                //    qa[i] = 100.0;
+                //}
+                // =================== TEST ===============================
 
                 return true;
             }

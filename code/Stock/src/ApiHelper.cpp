@@ -70,7 +70,7 @@ HWND WinApi::TopWndFromPoint(POINT pt)
     return unHwnd;
 }
 
-HTREEITEM WinApi::SearchTreeItem(HandlePtr process, HWND tree, CString const & target, CString const & parent)
+HTREEITEM WinApi::SearchTreeItem(HandlePtr process, HWND tree, CString const & target, HTREEITEM parent)
 {
     ASSERT(process);
 
@@ -88,9 +88,13 @@ HTREEITEM WinApi::SearchTreeItem(HandlePtr process, HWND tree, CString const & t
     if (!ttxt)
         return nullptr;
 
-    bool serParent = !parent.IsEmpty();
-
     HTREEITEM item = TreeView_GetRoot(tree);
+    if (parent)
+        item = TreeView_GetChild(tree, parent);
+
+    if (!item)
+        return nullptr;
+
     do
     {
         TCHAR txtBuf[ST_MAX_VIRTUAL_BUF] = { 0 };
@@ -119,19 +123,6 @@ HTREEITEM WinApi::SearchTreeItem(HandlePtr process, HWND tree, CString const & t
             break;
         }
 
-        if (serParent)
-        {
-            if (parent == txtBuf) // find parent
-            {
-                item = TreeView_GetChild(tree, item);
-                serParent = false;
-                continue;
-            }
-
-            item = TreeView_GetNextSibling(tree, item);
-            continue;
-        }
-
         if (target == txtBuf) // find target
         {
             break;
@@ -146,15 +137,19 @@ HTREEITEM WinApi::SearchTreeItem(HandlePtr process, HWND tree, CString const & t
 
 bool WinApi::SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item, POINT const& center)
 {
+    ::Sleep(ST_SLEEP_T);
+
+    if (!::BlockInput(TRUE))
+        return false;
+
+    //::ShowCursor(FALSE);
+
     POINT cursor;
     if (!::GetCursorPos(&cursor))
         return false;
 
     if (!::SetCursorPos(center.x, center.y))
         return false;
-
-    //::ShowCursor(FALSE);
-    ::BlockInput(TRUE);
 
     //HTREEITEM curr = TreeView_GetSelection(tree);
 
@@ -165,6 +160,7 @@ bool WinApi::SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item, POINT 
     ::SetCursorPos(cursor.x, cursor.y);
 
     //::ShowCursor(TRUE);
+
     ::BlockInput(FALSE);
 
     //if (!res)
@@ -201,6 +197,14 @@ bool WinApi::CacTreeItemCenter(HandlePtr process, HWND tree, HTREEITEM item, POI
     ::ClientToScreen(tree, &pos);
 
     return true;
+}
+
+bool WinApi::IsTreeItemExpanded(HWND tree, HTREEITEM item)
+{
+    if (TreeView_GetItemState(tree, item, TVIS_EXPANDED) & TVIS_EXPANDED)
+        return true;
+
+    return false;
 }
 
 bool WinApi::NotifyTreeParent(HandlePtr process, HWND tree, UINT message)

@@ -69,7 +69,7 @@ void CStockLoadThread::OnLoad(WPARAM wParam, LPARAM lParam)
     m_wnd->PostMessage(ST_LOAD_MSG, (WPARAM)(ST_LOAD_ST_CONFIG));
     if (data.Load())
     {
-        if (data.LocateData().Load(data.LocFile()))
+        if (data.LocateData().Load(data.LocFile()) && data.LocateData().LocateWnd())
         {
             if (!data.TradeSettingsData().Load(data.SetFile()))
             {

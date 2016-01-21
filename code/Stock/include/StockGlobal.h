@@ -26,5 +26,7 @@
 
 #define ST_MAX_THREAD_TIME      5000
 
+#define ST_SLEEP_T              500
+
 
 #endif // !__STOCK_GLOBAL_H__

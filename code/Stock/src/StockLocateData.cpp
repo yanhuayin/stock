@@ -28,6 +28,7 @@ namespace
         _T("cancelBtn"),
         _T("cancelList"),
 
+        _T("query"),
         _T("delegate"),
         _T("delegateList")
     };
@@ -159,15 +160,15 @@ bool CStockLocateData::Load(CString const & file)
                                             x = xVal.GetInt();
                                             y = yVal.GetInt();
 
-                                            POINT pos;
-                                            pos.x = x;
-                                            pos.y = y;
+                                            //POINT pos;
+                                            //pos.x = x;
+                                            //pos.y = y;
 
                                             // we need switch the window then retrive the hwnd
                                             //hwnd = TopWndFromPoint(pos);
                                             //if (!::IsWindow(hwnd))
                                             //{
-                                                posErr = true;
+                                                //posErr = true;
                                                 //TRACE2("Warning: can not locate a window under the pos (x:%d,y%d)\n", x, y);
                                             //}
                                         }
@@ -355,7 +356,7 @@ bool CStockLocateData::LocateWnd()
                 case LT_Buy:
                 case LT_Sell:
                 case LT_Cancel:
-                case LT_Delegate:
+                case LT_Query:
                     m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
                     if (m_info[i].hwnd)
                     {
@@ -365,7 +366,8 @@ bool CStockLocateData::LocateWnd()
                             POINT pos;
                             if (WinApi::CacTreeItemCenter(m_process, m_info[i].hwnd, m_info[i].hitem, pos))
                             {
-                                if (WinApi::SelectTreeItem(m_process, m_info[i].hwnd, m_info[i].hitem, pos))
+                                if (WinApi::IsTreeItemExpanded(m_info[i].hwnd, m_info[i].hitem) ||
+                                    WinApi::SelectTreeItem(m_process, m_info[i].hwnd, m_info[i].hitem, pos))
                                 {
                                     m_info[i].pos = pos;
                                     ++count;
@@ -377,6 +379,33 @@ bool CStockLocateData::LocateWnd()
                         this->Withdraw();
                         m_info[i].hitem = nullptr;
                         m_info[i].hwnd = nullptr;
+                    }
+                    break;
+                case LT_Delegate:
+                    if (m_info[LT_Query].hitem)
+                    {
+                        m_info[i].hwnd = this->PointToTopWnd(m_info[i].pos);
+                        if (m_info[i].hwnd)
+                        {
+                            m_info[i].hitem = this->SearchTreeItem(m_process, m_info[i].hwnd, (LocateType)i, m_info[LT_Query].hitem);
+                            if (m_info[i].hitem)
+                            {
+                                POINT pos;
+                                if (WinApi::CacTreeItemCenter(m_process, m_info[i].hwnd, m_info[i].hitem, pos))
+                                {
+                                    if (WinApi::SelectTreeItem(m_process, m_info[i].hwnd, m_info[i].hitem, pos))
+                                    {
+                                        m_info[i].pos = pos;
+                                        ++count;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            this->Withdraw();
+                            m_info[i].hitem = nullptr;
+                            m_info[i].hwnd = nullptr;
+                        }
                     }
                     break;
                 case LT_BuyCode:
@@ -417,6 +446,10 @@ bool CStockLocateData::LocateWnd()
                                     this->Withdraw();
                                     m_info[i].hwnd = nullptr;
                                 }
+                            }
+                            else
+                            {
+                                ++count;
                             }
                         }
                     }
@@ -507,11 +540,10 @@ int CStockLocateData::FindIdByName(CString const & name) const
     return LT_Num;
 }
 
-HTREEITEM CStockLocateData::SearchTreeItem(HandlePtr process, HWND tree, LocateType type) const
+HTREEITEM CStockLocateData::SearchTreeItem(HandlePtr process, HWND tree, LocateType type, HTREEITEM parent) const
 {
 
     CString target;
-    CString parent;
     switch (type)
     {
     case LT_Buy:
@@ -526,8 +558,10 @@ HTREEITEM CStockLocateData::SearchTreeItem(HandlePtr process, HWND tree, LocateT
         target.LoadString(IDS_CANCLE);
         target.Append(_T("[F3]"));
         break;
+    case LT_Query:
+        target.LoadString(IDS_QUERY);
+        break;
     case LT_Delegate:
-        parent.LoadString(IDS_QUERY);
         target.LoadString(IDS_DELEGATE);
         break;
     default:
@@ -561,6 +595,8 @@ HWND CStockLocateData::PointToTopWnd(POINT const & pos)
         }
 
         hwnd = this->ValidateTopWnd(hwnd);
+
+        return hwnd;
     }
     
     return nullptr;
@@ -695,7 +731,7 @@ void CStockLocateData::Withdraw()
     }
 }
 
-HWND CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HandlePtr &process, HTREEITEM * hitem) const
+HWND CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target, DWORD &pId, HandlePtr &process, HTREEITEM * hitem, HTREEITEM parent) const
 {
     if (::IsWindow(hwnd))
     {
@@ -740,8 +776,9 @@ HWND CStockLocateData::ValidateHwnd(HWND hwnd, LocateType type, CString &target,
         case LT_Buy:
         case LT_Sell:
         case LT_Cancel:
+        case LT_Query:
         case LT_Delegate:
-            *hitem = this->SearchTreeItem(process, hwnd, type);
+            *hitem = this->SearchTreeItem(process, hwnd, type, parent);
             if (*hitem) //though it's in valid top wnd but may not a tree ctrl
                 return hwnd;
             if (isTSet)
