@@ -489,7 +489,12 @@ void CStockLocatePropPage::OnBOSChange()
         ::CheckMenuItem(_tradeSelBtn.m_hMenu, m_bosId, MF_UNCHECKED);
         m_bosId = _tradeSelBtn.m_nMenuResult;
         ::CheckMenuItem(_tradeSelBtn.m_hMenu, m_bosId, MF_CHECKED);
+
+        UINT text = IDS_BUY;
+        if (m_bosId == ID_LOCATE_OP_SELL)
+            text = IDS_SELL;
         
+        _tradeSelBtn.SetWindowText(CString(MAKEINTRESOURCE(text)));
 
         this->SwitchBOS();
     }

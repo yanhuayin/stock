@@ -34,8 +34,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
     HWND hc = nullptr;
     HWND hq = nullptr;
     HWND ho = nullptr;
-    int key = -1;
-    int cmd = -1;
+    UINT capId;
 
     switch (op)
     {
@@ -47,6 +46,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
         hc = loc.LocInfo(LT_BuyCode).hwnd;
         hq = loc.LocInfo(LT_BuyQuant).hwnd;
         ho = loc.LocInfo(LT_BuyOrder).hwnd;
+        capId = IDS_BUY_CONFIRM;
         break;
     case STO_Sell:
         tree = loc.LocInfo(LT_Sell).hwnd;
@@ -56,6 +56,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
         hc = loc.LocInfo(LT_SellCode).hwnd;
         hq = loc.LocInfo(LT_SellQuant).hwnd;
         ho = loc.LocInfo(LT_SellOrder).hwnd;
+        capId = IDS_SELL_CONFIRM;
         break;
     default:
         return ST_TO_F;
@@ -85,11 +86,32 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
 
         ::Sleep(ST_SLEEP_T);
 
-        ::SendMessage(ho, BM_CLICK, 0, 0);
+        ::PostMessage(ho, BM_CLICK, 0, 0); // Must use post
+
+        ::Sleep(ST_SLEEP_T);
+
+        HWND hconfirm = ::FindWindow(nullptr, CString(MAKEINTRESOURCE(capId)));
+
+        if (!hconfirm)
+            return ST_TO_F;
+
+        ::SendMessage(hconfirm, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
+
+        ::Sleep(ST_SLEEP_T);
+
+        HWND hhint = ::FindWindow(nullptr, CString(MAKEINTRESOURCE(IDS_HINT)));
+
+        if (hhint)
+        {
+            ::PostMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
+            return ST_TO_F;
+        }
 
         // find the delegate id
-        if (WinApi::SelectTreeItem(process, tree, loc.LocInfo(LT_Delegate).hitem, loc.LocInfo(LT_Delegate).pos))
+        //if (WinApi::SelectTreeItem(process, tree, loc.LocInfo(LT_Delegate).hitem, loc.LocInfo(LT_Delegate).pos))
         {
+            //::Sleep(ST_SLEEP_T);
+
             HWND dlst = loc.LocInfo(LT_DelegateList).hwnd;
             int row = ::SendMessage(dlst, LVM_GETITEMCOUNT, 0, 0);
             if (row > 0)
