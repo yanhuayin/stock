@@ -29,6 +29,10 @@ public:
     void    SetInfo(StockInfoField field, InfoNumArrayPtr info);
     void    SetOrder(int order, OrderStrArray const& strs);
     void    SetQuota(CString const& quota);
+    void    FlushInfo() { m_tradeWnd._info.UpdateData(FALSE); }
+    void    FlushOrder() { m_tradeWnd._order.UpdateData(FALSE); }
+    void    RedrawOrder();
+    void    FlushQuota() { m_tradeWnd._quota.UpdateData(FALSE); }
     void    Flush() { m_tradeWnd.UpdateData(FALSE); }
     void    GetCode(CString &outCode) const;
     void    GetQuant(CString &outQuant) const;

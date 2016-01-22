@@ -130,6 +130,12 @@ void CTradeView::SetQuota(CString const & quota)
     m_tradeWnd._quota.SetWindowText(quota);
 }
 
+void CTradeView::RedrawOrder()
+{
+    m_tradeWnd._order.Invalidate();
+    m_tradeWnd._order.UpdateWindow();
+}
+
 void CTradeView::GetCode(CString & outCode) const
 {
     m_tradeWnd._code.GetWindowText(outCode);
@@ -159,7 +165,10 @@ void CTradeView::OnOK()
 void CTradeView::OnTrade(StockInfoType info, StockTradeOp op)
 {
     // TODO : check available before trade
-    CTradeControl::Instance().Trade(shared_from_this(), info, op);
+    if (CTradeControl::Instance().Trade(shared_from_this(), info, op) < 0)
+    {
+        AfxMessageBox(IDS_TRADE_ERROR);
+    }
 }
 
 void CTradeView::OnCancelOrder(CBCGPGridRow *pRow)
@@ -175,6 +184,7 @@ void CTradeView::OnCancelOrder(CBCGPGridRow *pRow)
             AfxMessageBox(IDS_ORDER_DEALED);
             return;
         }
+        return;
     }
 
     AfxMessageBox(IDS_ORDER_ERROR);

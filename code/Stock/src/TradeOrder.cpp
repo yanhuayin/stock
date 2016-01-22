@@ -7,19 +7,11 @@
 
 #define ST_TO_F     -1
 
-#define ST_TO_TIME_FORMAT_STR     _T("%Y%m%d")
+#define ST_TO_TIME_FORMAT_STR       _T("%Y%m%d")
 
-// LVM_GETITEMCOUNT
-// https://msdn.microsoft.com/en-us/library/windows/desktop/bb761044%28v=vs.85%29.aspx
-// to get the row number in a listview
+#define ST_ORDER_COL_LEN            32
 
-// LVM_GETHEADER
-// https://msdn.microsoft.com/en-us/library/windows/desktop/bb774937%28v=vs.85%29.aspx
-// to get the handle of the header of a listview
-
-// HDM_GETITEMCOUNT
-// https://msdn.microsoft.com/en-us/library/windows/desktop/bb775337%28v=vs.85%29.aspx
-// to get the column number of a listviw
+#define ST_ORDER_DEL_NUM            3
 
 int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString const & price, CString const & quant)
 {
@@ -103,52 +95,78 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
 
         if (hhint)
         {
-            ::PostMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
-            return ST_TO_F;
+            ::SendMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
         }
 
         // find the delegate id
-        //if (WinApi::SelectTreeItem(process, tree, loc.LocInfo(LT_Delegate).hitem, loc.LocInfo(LT_Delegate).pos))
+        ::Sleep(ST_SLEEP_T);
+
+        LocateInfo const& query = loc.LocInfo(LT_Query);
+
+        if (!WinApi::IsTreeItemExpanded(tree, query.hitem))
         {
-            //::Sleep(ST_SLEEP_T);
+            if (!WinApi::SelectTreeItem(process, tree, query.hitem, query.pos))
+                return ST_TO_F;
+        }
+
+        LocateInfo const& del = loc.LocInfo(LT_Delegate);
+        if (WinApi::SelectTreeItem(process, tree, del.hitem, del.pos))
+        {
+            ::Sleep(ST_SLEEP_T * 2); // the delegate list seems will be refreshed only when it is opened
+
+            double dPrice = _tstof(price.GetString());
+            CString compPrice;
+            compPrice.Format(_T("%.3f"), dPrice); // delegate price only have 3 decimal precision
+
+            VirtualPtr pItem = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(LVITEM), MEM_COMMIT, PAGE_READWRITE));
+            VirtualPtr pText = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_ORDER_COL_LEN, MEM_COMMIT, PAGE_READWRITE));
+
+            int idCol = loc.ListCol(LT_DelegateList, SOF_Id).col;
+            int codeCol = loc.ListCol(LT_DelegateList, SOF_Code).col;
+            int priceCol = loc.ListCol(LT_DelegateList, SOF_Price).col;
+            int quantCol = loc.ListCol(LT_DelegateList, SOF_Quant).col;
 
             HWND dlst = loc.LocInfo(LT_DelegateList).hwnd;
-            int row = ::SendMessage(dlst, LVM_GETITEMCOUNT, 0, 0);
-            if (row > 0)
+
+            int count = 0;
+            do
             {
-                VirtualPtr pRowItem = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(LVITEM), MEM_COMMIT, PAGE_READWRITE));
-                VirtualPtr pRowText = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, MEM_COMMIT, PAGE_READWRITE));
-
-                TCHAR rtext[ST_MAX_VIRTUAL_BUF] = { 0 };
-
-                LVITEM lvrItem = { 0 };
-                lvrItem.mask = LVIF_TEXT;
-                lvrItem.iSubItem = loc.ListCol(LT_DelegateList, SOF_Id).col;
-                lvrItem.pszText = (LPTSTR)pRowText.get();
-                lvrItem.cchTextMax = ST_MAX_VIRTUAL_BUF;
-                lvrItem.iItem = row - 1;
-
-                if (::WriteProcessMemory(process.get(), pRowItem.get(), &lvrItem, sizeof(LVITEM), nullptr))
+                int row = ::SendMessage(dlst, LVM_GETITEMCOUNT, 0, 0);
+                if (row > 0)
                 {
-                    int count = ::SendMessage(dlst, LVM_GETITEMTEXT, row - 1, (LPARAM)(pRowItem.get()));
-                    if (count > 0)
+                    row -= 1;
+
+                    TCHAR idT[ST_ORDER_COL_LEN] = { 0 };
+                    TCHAR codeT[ST_ORDER_COL_LEN] = { 0 };
+                    TCHAR priceT[ST_ORDER_COL_LEN] = { 0 };
+                    TCHAR quantT[ST_ORDER_COL_LEN] = { 0 };
+
+                    if (WinApi::QueryListItemText(process, dlst, row, codeCol, &codeT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText) &&
+                        WinApi::QueryListItemText(process, dlst, row, priceCol, &priceT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText) &&
+                        WinApi::QueryListItemText(process, dlst, row, quantCol, &quantT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText) &&
+                        WinApi::QueryListItemText(process, dlst, row, idCol, &idT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText))
                     {
-                        if (::ReadProcessMemory(process.get(), pRowText.get(), &rtext[0], sizeof(TCHAR)*count, nullptr))
+                        if ((code == codeT) && (compPrice == priceT) && (quant == quantT))
                         {
                             int id = ++m_id;
 
                             TradeOrder &order = m_orders[id];
-                            order.id = rtext;
+                            order.id = idT;
                             order.code = code;
                             order.price = price;
                             order.quant = quant;
-                            order.date = CTime::GetCurrentTime().Format(ST_TO_TIME_FORMAT_STR);
 
                             return id;
                         }
                     }
                 }
-            }
+
+                ::Sleep(ST_SLEEP_T);
+
+                ++count;
+
+            } while (count < ST_ORDER_DEL_NUM);
+
         }
     }
 
@@ -173,6 +191,8 @@ StockOrderResult CTradeOrderManager::CancelOrder(int order)
 
         if (it != m_orders.end())
         {
+            ::Sleep(ST_SLEEP_T * 2);
+
             TradeOrder const& to = it->second;
 
             HWND clst = loc.LocInfo(LT_CancelList).hwnd;
@@ -182,37 +202,54 @@ StockOrderResult CTradeOrderManager::CancelOrder(int order)
                 VirtualPtr pRowItem = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(LVITEM), MEM_COMMIT, PAGE_READWRITE));
                 VirtualPtr pRowText = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, MEM_COMMIT, PAGE_READWRITE));
 
+                int col = loc.ListCol(LT_CancelList, SOF_Id).col;
                 for (int i = 0; i < row; ++i)
                 {
                     TCHAR rtext[ST_MAX_VIRTUAL_BUF] = { 0 };
 
-                    LVITEM lvrItem = { 0 };
-                    lvrItem.mask = LVIF_TEXT;
-                    lvrItem.iSubItem = loc.ListCol(LT_CancelList, SOF_Id).col;
-                    lvrItem.pszText = (LPTSTR)pRowText.get();
-                    lvrItem.cchTextMax = ST_MAX_VIRTUAL_BUF;
-                    lvrItem.iItem = i;
-
-                    if (::WriteProcessMemory(process.get(), pRowItem.get(), &lvrItem, sizeof(LVITEM), nullptr))
+                    if (WinApi::QueryListItemText(process, clst, i, col, &rtext[0], sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, pRowItem, pRowText))
                     {
-                        int count = ::SendMessage(clst, LVM_GETITEMTEXT, i, (LPARAM)(pRowItem.get()));
-                        if (count > 0)
+                        if (to.id == rtext)
                         {
-                            if (::ReadProcessMemory(process.get(), pRowText.get(), &rtext[0], sizeof(TCHAR)*count, nullptr))
+                            ListView_SetItemState(clst, i, LVIS_FOCUSED | LVIS_SELECTED, 0x000F);
+
+                            ::SendMessage(::GetParent(clst), (WM_USER + 20820), (WPARAM)i, 0);
+
+                            //POINT pos;
+                            //if (!WinApi::CacListItemCenter(process, clst, i, 0, LVIR_LABEL, pos))
+                            //    return SOR_Error;
+
+                            //if (!WinApi::SelectListItem(process, clst, i, 0, pos))
+                            //    return SOR_Error;
+
+                            //::Sleep(ST_SLEEP_T);
+
+                            ::PostMessage(loc.LocInfo(LT_CancelBtn).hwnd, BM_CLICK, 0, 0);
+
+                            ::Sleep(ST_SLEEP_T);
+
+                            CString cap(MAKEINTRESOURCE(IDS_HINT));
+
+                            HWND hhint = ::FindWindow(nullptr, cap);
+
+                            if (hhint)
                             {
-                                if (to.id == rtext)
+                                ::PostMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
+
+                                ::Sleep(ST_SLEEP_T);
+
+                                hhint = ::FindWindow(nullptr, cap);
+
+                                if (hhint)
                                 {
-                                    ListView_SetItemState(clst, i, LVIS_FOCUSED | LVIS_SELECTED, 0x000F);
-
-                                    ::SendMessage(loc.LocInfo(LT_CancelBtn).hwnd, BM_CLICK, 0, 0);
-
-                                    return SOR_OK;
+                                    ::PostMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
                                 }
                             }
+
+                            return SOR_OK;
                         }
                     }
                 }
-
 
             }
 

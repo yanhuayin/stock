@@ -168,7 +168,7 @@ void CTradeControl::RefreshViewQuota(UINT quota) const
     for (auto & i : m_viewModel)
     {
         i.first->SetQuota(quotaStr);
-        i.first->Flush();
+        i.first->FlushQuota();
     }
 }
 
@@ -233,6 +233,8 @@ int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
         o[SOF_Id] = &(order.id);
 
         h->SetOrder(res, o);
+        h->FlushOrder();
+        h->RedrawOrder();
     }
 
     return res;
@@ -309,7 +311,7 @@ void CTradeControl::RefreshViewsInfo(TradeModelHandle h, ViewListPtr vls)
         i->SetName(h->Name().c_str());
         i->SetInfo(SIF_Price, h->NumInfo(SIF_Price));
         i->SetInfo(SIF_Quant, h->NumInfo(SIF_Quant));
-        i->Flush();
+        i->FlushInfo();
     }
 }
 
@@ -318,7 +320,7 @@ void CTradeControl::RefreshViewInfo(TradeModelHandle m, TradeViewHandle v)
     v->SetName(m->Name().c_str());
     v->SetInfo(SIF_Price, m->NumInfo(SIF_Price));
     v->SetInfo(SIF_Quant, m->NumInfo(SIF_Quant));
-    v->Flush();
+    v->FlushInfo();
 }
 
 //InfoNumArrayPtr CTradeControl::RequestInfo(TradeViewHandle h, CandidatesList * c)

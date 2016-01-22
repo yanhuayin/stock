@@ -35,14 +35,21 @@ public:
 
     static bool         SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item, POINT const& center);
 
+    static bool         SelectListItem(HandlePtr process, HWND list, int item, int subItem, POINT const& pos);
+
     //static bool         CacTreeItemCenter(HandlePtr process, HWND tree, HTREEITEM item, POINT &pos);
     static bool         CacTreeItemCenter(HandlePtr process, HWND tree, HTREEITEM item, POINT &pos);
 
+    static bool         CacListItemCenter(HandlePtr process, HWND list, int item, int subItem, int flag, POINT &pos);
+
     static bool         IsTreeItemExpanded(HWND tree, HTREEITEM item);
+
+    static bool         QueryListItemText(HandlePtr process, HWND list, int item, int subItem, LPTSTR lpBuff, SIZE_T bufSize, VirtualPtr pItem = nullptr, VirtualPtr pText = nullptr);
 
     static HandlePtr    QueryTargetName(HWND hwnd, CString &outName, DWORD &outId);
 
 private:
+    static bool         NotifyListParent(HandlePtr process, HWND list, UINT message, int item, int subItem, POINT const& pos);
     static bool         NotifyTreeParent(HandlePtr process, HWND tree, UINT message);
 
 };
