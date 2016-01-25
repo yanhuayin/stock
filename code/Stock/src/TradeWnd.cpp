@@ -94,6 +94,10 @@ UINT s_buy_btn_ids[] =
 BEGIN_MESSAGE_MAP(CTradeWnd, CBCGPDialog)
     ON_BN_CLICKED(IDC_QTOP1_BTI, OnQ1PlusClicked)
     ON_BN_CLICKED(IDC_QTOP1_BTR, OnQ1MinusClicked)
+    ON_BN_CLICKED(IDC_QTOP2_BTI, OnQ2PlusClicked)
+    ON_BN_CLICKED(IDC_QTOP2_BTR, OnQ2MinusClicked)
+    ON_BN_CLICKED(IDC_DOUBLE_BTN, OnQDoubleClicked)
+    ON_BN_CLICKED(IDC_HALF_BTN, OnQHalfClicked)
     ON_NOTIFY(UDN_DELTAPOS, IDC_QUANTITY_SPIN, OnDeltPosSpinCtrl)
     ON_MESSAGE(WM_INITDIALOG, HandleInitDialog)
     ON_COMMAND(IDOK, OnEnter)
@@ -163,7 +167,7 @@ CBCGPGridRow * CTradeWnd::AddOrderRow()
     _name.GetWindowText(name);
     pRow->GetItem(TOC_Name)->SetValue(name.GetString());
 
-    _order.AddRow(pRow, FALSE);
+    _order.AddRow(pRow, TRUE);
     
     return pRow;
 }
@@ -291,18 +295,118 @@ BOOL CTradeWnd::OnInitDialog()
 
 void CTradeWnd::OnQ1PlusClicked()
 {
-    //if (_q1PlusClickEvent)
-    //{
-    //    _q1PlusClickEvent();
-    //}
+    CString q1Str;
+    _q1.GetWindowText(q1Str);
+    if (!q1Str.IsEmpty())
+    {
+        int q1 = _ttoi(q1Str);
+
+        CString quantityStr;
+        _quantity.GetWindowText(quantityStr);
+        int quantity = 0;
+        if (!quantityStr.IsEmpty())
+            quantity = _ttoi(quantityStr);
+
+        quantity = clamp(quantity + q1, ST_MIN_QUANTITY, ST_MAX_QUANTITY);
+
+        quantityStr.Format(_T("%d"), quantity);
+
+        _quantity.SetWindowText(quantityStr);
+    }
 }
 
 void CTradeWnd::OnQ1MinusClicked()
 {
-    //if (_q1MinusClickEvent)
-    //{
-    //    _q1MinusClickEvent();
-    //}
+    CString q1Str;
+    _q1.GetWindowText(q1Str);
+    if (!q1Str.IsEmpty())
+    {
+        int q1 = _ttoi(q1Str);
+
+        CString quantityStr;
+        _quantity.GetWindowText(quantityStr);
+        int quantity = 0;
+        if (!quantityStr.IsEmpty())
+            quantity = _ttoi(quantityStr);
+
+        quantity = clamp(quantity - q1, ST_MIN_QUANTITY, ST_MAX_QUANTITY);
+
+        quantityStr.Format(_T("%d"), quantity);
+
+        _quantity.SetWindowText(quantityStr);
+    }
+}
+
+void CTradeWnd::OnQ2PlusClicked()
+{
+    CString q2Str;
+    _q2.GetWindowText(q2Str);
+    if (!q2Str.IsEmpty())
+    {
+        int q2 = _ttoi(q2Str);
+
+        CString quantityStr;
+        _quantity.GetWindowText(quantityStr);
+        int quantity = 0;
+        if (!quantityStr.IsEmpty())
+            quantity = _ttoi(quantityStr);
+
+        quantity = clamp(quantity + q2, ST_MIN_QUANTITY, ST_MAX_QUANTITY);
+
+        quantityStr.Format(_T("%d"), quantity);
+
+        _quantity.SetWindowText(quantityStr);
+    }
+}
+
+void CTradeWnd::OnQ2MinusClicked()
+{
+    CString q2Str;
+    _q2.GetWindowText(q2Str);
+    if (!q2Str.IsEmpty())
+    {
+        int q2 = _ttoi(q2Str);
+
+        CString quantityStr;
+        _quantity.GetWindowText(quantityStr);
+        int quantity = 0;
+        if (!quantityStr.IsEmpty())
+            quantity = _ttoi(quantityStr);
+
+        quantity = clamp(quantity - q2, ST_MIN_QUANTITY, ST_MAX_QUANTITY);
+
+        quantityStr.Format(_T("%d"), quantity);
+
+        _quantity.SetWindowText(quantityStr);
+    }
+}
+
+void CTradeWnd::OnQDoubleClicked()
+{
+    CString quantityStr;
+    _quantity.GetWindowText(quantityStr);
+    if (!quantityStr.IsEmpty())
+    {
+        int quantity = _ttoi(quantityStr);
+        quantity = clamp(quantity * 2, ST_MIN_QUANTITY, ST_MAX_QUANTITY);
+        quantityStr.Format(_T("%d"), quantity);
+
+        _quantity.SetWindowText(quantityStr);
+    }
+}
+
+void CTradeWnd::OnQHalfClicked()
+{
+    CString quantityStr;
+    _quantity.GetWindowText(quantityStr);
+    if (!quantityStr.IsEmpty())
+    {
+        int quantity = _ttoi(quantityStr);
+        quantity = clamp(quantity / 2, ST_MIN_QUANTITY, ST_MAX_QUANTITY);
+        quantityStr.Format(_T("%d"), quantity);
+
+        _quantity.SetWindowText(quantityStr);
+    }
 }
 
 void CTradeWnd::OnDeltPosSpinCtrl(NMHDR * pNMHDR, LRESULT * pResult)
@@ -313,7 +417,9 @@ void CTradeWnd::OnDeltPosSpinCtrl(NMHDR * pNMHDR, LRESULT * pResult)
     {
         CString quantityStr;
         _quantity.GetWindowText(quantityStr);
-        int quantity = _ttoi(quantityStr);
+        int quantity = 0;
+        if (!quantityStr.IsEmpty())
+            quantity = _ttoi(quantityStr);
 
         quantity = clamp(quantity - ST_SPIN_ACELL, ST_MIN_QUANTITY, ST_MAX_QUANTITY);
 
@@ -325,7 +431,9 @@ void CTradeWnd::OnDeltPosSpinCtrl(NMHDR * pNMHDR, LRESULT * pResult)
     {
         CString quantityStr;
         _quantity.GetWindowText(quantityStr);
-        int quantity = _ttoi(quantityStr);
+        int quantity = 0;
+        if (!quantityStr.IsEmpty())
+            quantity = _ttoi(quantityStr);
 
         quantity = clamp(quantity + ST_SPIN_ACELL, ST_MIN_QUANTITY, ST_MAX_QUANTITY);
 

@@ -20,6 +20,8 @@ rt_bsize1,rt_bsize2,rt_bsize3,rt_bsize4,rt_bsize5,rt_bsize6,rt_bsize7,rt_bsize8,
 
 #define ST_REQ_ID_IMM               0xFFFF
 
+#define ST_WIND_CODE_DELIMITER      _T(".")
+
 namespace
 {
     void s_show_wind_err(LONG errCode)
@@ -148,7 +150,12 @@ bool CTradeModelManager::Init(RequestType type)
         wd.GetDataItem(0, i, cId, var);
         s_variant_to_cstring(&var, h->m_windCode);
 
-        m_models[h->m_windCode] = h;
+        CString str(h->m_windCode.c_str());
+        int pos = 0;
+        h->m_windCodeNum = str.Tokenize(ST_WIND_CODE_DELIMITER, pos);
+        h->m_windCodeSuffix = str.Tokenize(ST_WIND_CODE_DELIMITER, pos);
+
+        m_models[h->m_windCodeNum] = h;
     }
 
     m_type = type;
@@ -156,7 +163,9 @@ bool CTradeModelManager::Init(RequestType type)
     //TradeModelHandle h(new CTradeModel);
     //h->m_name = _T("Test");
     //h->m_windCode = _T("000628.SZ");
-    //m_models[h->m_windCode] = h;
+    //h->m_windCodeNum = _T("000628");
+    //h->m_windCodeSuffix = _T("SZ");
+    //m_models[h->m_windCodeNum] = h;
     // =================== TEST ===============================
 
     m_init = true;
@@ -201,8 +210,8 @@ void CTradeModelManager::FreeModel(TradeModelHandle h)
             h->m_reqId = 0;
         }
 
-        h->m_price = nullptr;
-        h->m_quant = nullptr;
+        //h->m_price = nullptr;
+        //h->m_quant = nullptr;
     }
 }
 
@@ -243,7 +252,7 @@ bool CTradeModelManager::RequestModel(TradeModelHandle h, bool force)
 
                 //for (int i = 0; i < SIT_Num; ++i)
                 //{
-                //    pa[i] = 12.0;
+                //    pa[i] = 10.9 + i * 0.001;
                 //    qa[i] = 100.0;
                 //}
                 // =================== TEST ===============================
@@ -308,12 +317,12 @@ TradeModelHandle CTradeModelManager::FindModel(String const & code, CandidatesLi
         size_t len = code.length();
         if (len == ST_CODE_NUM_LEN)
         {
-            CString fullCode;
-            fullCode.Format(_T("%s.%s"), code.c_str(), s_code_suffix(code));
+            //CString fullCode;
+            //fullCode.Format(_T("%s.%s"), code.c_str(), s_code_suffix(code));
 
-            String _tmpCode = fullCode.GetString();
+            //String _tmpCode = fullCode.GetString();
 
-            auto it = m_models.find(_tmpCode);
+            auto it = m_models.find(code);
             if (it != m_models.end())
             {
                 return it->second;
@@ -366,9 +375,6 @@ void CTradeModelManager::UpdateModel(TradeModelHandle h, WindData const & wd)
                 {
                 case VT_R8:
                     val = var.dblVal;
-                    break;
-                case VT_R4: // TODO : do we need this?
-                    val = var.fltVal;
                     break;
                 default:
                     break;

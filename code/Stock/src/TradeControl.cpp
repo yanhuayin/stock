@@ -55,10 +55,10 @@ void CTradeControl::ViewClosed(TradeViewHandle h)
                     itM->second->remove(h);
                     if (itM->second->empty())
                     {
-                        itM->second = nullptr;
+                        //itM->second = nullptr;
                         CTradeModelManager::Instance().FreeModel(itM->first);
 
-                        m_modelView.erase(itM);
+                        //m_modelView.erase(itM);
                     }
                 }
 
@@ -120,7 +120,7 @@ bool CTradeControl::RequestInfo(TradeViewHandle h, CString const& code)
     return false;
 }
 
-void CTradeControl::RefreshViewsInfo(TradeModelHandle h)
+void CTradeControl::RefreshViewsInfo(TradeModelHandle h) const
 {
 #ifdef DEBUG
     CTradeModelManager &cmm = CTradeModelManager::Instance();
@@ -160,7 +160,15 @@ UINT CTradeControl::Quota() const
     return theApp.AppData().TradeSettingsData().Quota();
 }
 
-void CTradeControl::RefreshViewQuota(UINT quota) const
+UINT CTradeControl::Left() const
+{
+    UINT trade = CTradeOrderManager::Instance().TotalTrade();
+    UINT quota = theApp.AppData().TradeSettingsData().Quota();
+
+    return quota >= trade ? (quota - trade) : 0;
+}
+
+void CTradeControl::RefreshViewsQuota(UINT quota) const
 {
     CString quotaStr;
     quotaStr.Format(_T("%u"), quota);
@@ -172,10 +180,70 @@ void CTradeControl::RefreshViewQuota(UINT quota) const
     }
 }
 
-void CTradeControl::RefreshViewsTrade()
+void CTradeControl::RefreshViewsLeft(UINT left) const
 {
-    // TODO :
+    CString l; 
+    l.Format(_T("%u"), left); 
+
+    for (auto &i : m_viewModel) 
+    {
+        this->RefreshViewLeft(i.first, l); 
+    }
 }
+
+TradeModelHandle CTradeControl::IsTradeAvailable(TradeViewHandle v, CString const& quant, bool showErr) const
+{
+    if (!theApp.AppData().LocateData().IsReady())
+    {
+        if (showErr)
+            AfxMessageBox(IDS_TRADE_NO_LOC_ERR);
+
+        return nullptr;
+    }
+
+    auto it = m_viewModel.find(v);
+    if (it == m_viewModel.end())
+    {
+        if (showErr)
+            AfxMessageBox(IDS_TRADE_NO_WATCH_ERR);
+
+        return nullptr;
+    }
+
+    if (quant.IsEmpty())
+    {
+        if (showErr)
+            AfxMessageBox(IDS_TRADE_NO_QUANT_ERR);
+
+        return nullptr;
+    }
+
+    UINT left = this->Left();
+    if (left == 0)
+    {
+        if (showErr)
+            AfxMessageBox(IDS_TRADE_OVER_QUOTA_ERR);
+
+        return nullptr;
+    }
+
+    int q = _ttoi(quant);
+
+    if (q > left)
+    {
+        if (showErr)
+            AfxMessageBox(IDS_TRADE_OVER_QUOTA_ERR);
+
+        return nullptr;
+    }
+
+    return it->second;
+}
+
+//void CTradeControl::RefreshViewsTrade()
+//{
+//    // TODO :
+//}
 
 StockOrderResult CTradeControl::CancelOrder(TradeViewHandle h, int order)
 {
@@ -200,12 +268,21 @@ StockOrderResult CTradeControl::CancelOrder(TradeViewHandle h, int order)
 
 int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
 {
-    CString code, price, quant;
-    h->GetCode(code);
+    CString quant;
     h->GetQuant(quant);
-    h->GetPrice(info, price);
 
-    int res = CTradeOrderManager::Instance().Trade(op, code, price, quant);
+    TradeModelHandle m = this->IsTradeAvailable(h, quant, true);
+    if (!m)
+        return -1;
+
+    CString code(m->Code().c_str());
+    
+    auto pInfo = m->NumInfo(SIF_Price);
+    CString price;
+    price.Format(_T("%.3f"), (*pInfo)[info]);
+
+    CTradeOrderManager &tom = CTradeOrderManager::Instance();
+    int res = tom.Trade(op, code, price, quant);
 
     if (res > 0)
     {
@@ -223,7 +300,7 @@ int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
             m_viewOrder.insert(std::make_pair(h, ls));
         }
 
-        TradeOrder const& order = CTradeOrderManager::Instance().Order(res);
+        TradeOrder const& order = tom.Order(res);
 
         CTradeView::OrderStrArray o;
         o[SOF_Code] = &(order.code);
@@ -234,7 +311,12 @@ int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
 
         h->SetOrder(res, o);
         h->FlushOrder();
-        h->RedrawOrder();
+
+        this->RefreshViewsLeft(this->Left());
+    }
+    else
+    {
+        AfxMessageBox(IDS_TRADE_ERROR);
     }
 
     return res;
@@ -263,10 +345,10 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
 
                     if (rvls.empty())
                     {
-                        irm->second = nullptr;
+                        //irm->second = nullptr;
                         cmm.FreeModel(rm);
 
-                        m_modelView.erase(irm);
+                        //m_modelView.erase(irm);
                     }
                 }
             }
@@ -298,13 +380,20 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
     }
     else // this model has been requested
     {
+        if (imv->second->empty()) // have been freed
+        {
+            cmm.RequestModel(m); // request again here
+            if (cmm.Type() == CTradeModelManager::RT_MultiThread)
+                return false;
+        }
+
         imv->second->push_back(v); // watch it
     }
 
     return true;
 }
 
-void CTradeControl::RefreshViewsInfo(TradeModelHandle h, ViewListPtr vls)
+void CTradeControl::RefreshViewsInfo(TradeModelHandle h, ViewListPtr vls) const
 {
     for (auto & i : (*vls))
     {
@@ -315,12 +404,17 @@ void CTradeControl::RefreshViewsInfo(TradeModelHandle h, ViewListPtr vls)
     }
 }
 
-void CTradeControl::RefreshViewInfo(TradeModelHandle m, TradeViewHandle v)
+void CTradeControl::RefreshViewInfo(TradeModelHandle m, TradeViewHandle v) const
 {
     v->SetName(m->Name().c_str());
     v->SetInfo(SIF_Price, m->NumInfo(SIF_Price));
     v->SetInfo(SIF_Quant, m->NumInfo(SIF_Quant));
     v->FlushInfo();
+}
+
+void CTradeControl::RefreshViewLeft(TradeViewHandle h, CString const & left) const
+{
+    h->SetLeft(left);
 }
 
 //InfoNumArrayPtr CTradeControl::RequestInfo(TradeViewHandle h, CandidatesList * c)

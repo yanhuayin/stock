@@ -24,7 +24,7 @@ public:
 public:
     //ULONGLONG       ReqId() { return m_reqId; }
     //String const&   WindCode() { return m_windCode; }
-    String const&   Code() { return m_windCode; }
+    String const&   Code() { return m_windCodeNum; }
     String const&   Name() { return m_name; }
     InfoNumArrayPtr NumInfo(StockInfoField field);
 
@@ -34,6 +34,8 @@ private:
     String          m_code;
     String          m_name;
     String          m_windCode;
+    String          m_windCodeNum;
+    String          m_windCodeSuffix;
 
     InfoNumArrayPtr     m_price;
     InfoNumArrayPtr     m_quant;

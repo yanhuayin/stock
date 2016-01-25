@@ -185,7 +185,7 @@ bool WinApi::SelectTreeItem(HandlePtr process, HWND tree, HTREEITEM item, POINT 
 
 bool WinApi::SelectListItem(HandlePtr process, HWND list, int item, int subItem, POINT const & pos)
 {
-    ::Sleep(ST_SLEEP_T);
+    //::Sleep(ST_SLEEP_T);
 
     if (!::BlockInput(TRUE))
         return false;
@@ -197,13 +197,21 @@ bool WinApi::SelectListItem(HandlePtr process, HWND list, int item, int subItem,
     if (!::SetCursorPos(pos.x, pos.y))
         return false;
 
-    bool res = WinApi::NotifyListParent(process, list, NM_CLICK, item, subItem, pos);
+    // doesn't work
+    //bool res = WinApi::NotifyListParent(process, list, NM_CLICK, item, subItem, pos);
+    POINT client = pos;
+    if (!::ScreenToClient(list, &client))
+        return false;
+
+    ::PostMessage(list, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(client.x, client.y));
+    ::Sleep(200);
+    ::PostMessage(list, WM_LBUTTONUP, MK_LBUTTON, MAKELPARAM(client.x, client.y));
 
     ::SetCursorPos(cursor.x, cursor.y);
 
     ::BlockInput(FALSE);
 
-    return res;
+    return true;
 }
 
 bool WinApi::CacTreeItemCenter(HandlePtr process, HWND tree, HTREEITEM item, POINT & pos)

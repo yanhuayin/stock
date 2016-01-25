@@ -12,6 +12,8 @@
 
 class CTradeView : public CBCGPDockingControlBar, public std::enable_shared_from_this<CTradeView>
 {
+    DECLARE_DYNCREATE(CTradeView);
+
 public:
     CTradeView();
     virtual ~CTradeView();
@@ -29,14 +31,14 @@ public:
     void    SetInfo(StockInfoField field, InfoNumArrayPtr info);
     void    SetOrder(int order, OrderStrArray const& strs);
     void    SetQuota(CString const& quota);
+    void    SetLeft(CString const& left);
     void    FlushInfo() { m_tradeWnd._info.UpdateData(FALSE); }
     void    FlushOrder() { m_tradeWnd._order.UpdateData(FALSE); }
-    void    RedrawOrder();
     void    FlushQuota() { m_tradeWnd._quota.UpdateData(FALSE); }
     void    Flush() { m_tradeWnd.UpdateData(FALSE); }
-    void    GetCode(CString &outCode) const;
+    //void    GetCode(CString &outCode) const;
     void    GetQuant(CString &outQuant) const;
-    void    GetPrice(StockInfoType info, CString &outPrice) const;
+    //void    GetPrice(StockInfoType info, CString &outPrice) const;
 
 public:
     void    OnOK();

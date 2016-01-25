@@ -108,6 +108,10 @@ protected:
 protected:
     afx_msg void    OnQ1PlusClicked();
     afx_msg void    OnQ1MinusClicked();
+    afx_msg void    OnQ2PlusClicked();
+    afx_msg void    OnQ2MinusClicked();
+    afx_msg void    OnQDoubleClicked();
+    afx_msg void    OnQHalfClicked();
     afx_msg void    OnDeltPosSpinCtrl(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void    OnEnter();
     afx_msg void    OnCancelOrder();

@@ -112,11 +112,11 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
         LocateInfo const& del = loc.LocInfo(LT_Delegate);
         if (WinApi::SelectTreeItem(process, tree, del.hitem, del.pos))
         {
-            ::Sleep(ST_SLEEP_T * 2); // the delegate list seems will be refreshed only when it is opened
+            ::Sleep(ST_SLEEP_T * 3); // the delegate list seems will be refreshed only when it is opened
 
-            double dPrice = _tstof(price.GetString());
-            CString compPrice;
-            compPrice.Format(_T("%.3f"), dPrice); // delegate price only have 3 decimal precision
+            //double dPrice = _tstof(price.GetString());
+            //CString compPrice;
+            //compPrice.Format(_T("%.3f"), dPrice); // delegate price only have 3 decimal precision
 
             VirtualPtr pItem = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(LVITEM), MEM_COMMIT, PAGE_READWRITE));
             VirtualPtr pText = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_ORDER_COL_LEN, MEM_COMMIT, PAGE_READWRITE));
@@ -146,7 +146,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
                         WinApi::QueryListItemText(process, dlst, row, quantCol, &quantT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText) &&
                         WinApi::QueryListItemText(process, dlst, row, idCol, &idT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText))
                     {
-                        if ((code == codeT) && (compPrice == priceT) && (quant == quantT))
+                        if ((code == codeT) && (price == priceT) && (quant == quantT))
                         {
                             int id = ++m_id;
 
@@ -155,6 +155,8 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
                             order.code = code;
                             order.price = price;
                             order.quant = quant;
+
+                            m_total += (_ttoi(quant));
 
                             return id;
                         }
@@ -215,14 +217,14 @@ StockOrderResult CTradeOrderManager::CancelOrder(int order)
 
                             ::SendMessage(::GetParent(clst), (WM_USER + 20820), (WPARAM)i, 0);
 
-                            //POINT pos;
-                            //if (!WinApi::CacListItemCenter(process, clst, i, 0, LVIR_LABEL, pos))
-                            //    return SOR_Error;
+                            POINT pos;
+                            if (!WinApi::CacListItemCenter(process, clst, i, 0, LVIR_LABEL, pos))
+                                return SOR_Error;
 
-                            //if (!WinApi::SelectListItem(process, clst, i, 0, pos))
-                            //    return SOR_Error;
+                            if (!WinApi::SelectListItem(process, clst, i, 0, pos))
+                                return SOR_Error;
 
-                            //::Sleep(ST_SLEEP_T);
+                            ::Sleep(ST_SLEEP_T);
 
                             ::PostMessage(loc.LocInfo(LT_CancelBtn).hwnd, BM_CLICK, 0, 0);
 
@@ -243,6 +245,15 @@ StockOrderResult CTradeOrderManager::CancelOrder(int order)
                                 if (hhint)
                                 {
                                     ::PostMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
+                                }
+                            }
+                            else
+                            {
+                                hhint = ::FindWindow(nullptr, CString(MAKEINTRESOURCE(IDS_CANCEL_HINT)));
+                                if (hhint)
+                                {
+                                    ::PostMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
+                                    return SOR_Error;
                                 }
                             }
 

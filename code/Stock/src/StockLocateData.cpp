@@ -524,8 +524,6 @@ void CStockLocateData::SetInfo(LocateType type, LocateInfo const& i)
 void CStockLocateData::SetReady(bool ready)
 {
     m_ready = ready;
-
-    CTradeControl::Instance().RefreshViewsTrade();
 }
 
 int CStockLocateData::FindIdByName(CString const & name) const

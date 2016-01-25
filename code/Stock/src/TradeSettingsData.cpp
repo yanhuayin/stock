@@ -130,5 +130,5 @@ void CTradeSettingsData::Quota(UINT value)
 {
     m_quota = value;
 
-    CTradeControl::Instance().RefreshViewQuota(m_quota);
+    CTradeControl::Instance().RefreshViewsQuota(m_quota);
 }

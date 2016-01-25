@@ -30,7 +30,7 @@ public:
 
     bool    RequestInfo(TradeViewHandle h, CString const& code);
     
-    void    RefreshViewsInfo(TradeModelHandle h); // used by multi thread request only
+    void    RefreshViewsInfo(TradeModelHandle h) const; // used by multi thread request only
 
     void    Update(); // used by immediate request type only
 
@@ -38,9 +38,14 @@ public:
 
     UINT    Quota() const;
 
-    void    RefreshViewQuota(UINT quota) const;
+    UINT    Left() const;
 
-    void    RefreshViewsTrade();
+    void    RefreshViewsQuota(UINT quota) const;
+
+    void    RefreshViewsLeft(UINT left) const;
+
+    TradeModelHandle    IsTradeAvailable(TradeViewHandle v, CString const& quant, bool showErr = false) const;
+    //void    RefreshViewsTrade();
 
     StockOrderResult    CancelOrder(TradeViewHandle h, int order);
 
@@ -56,8 +61,9 @@ private:
 
 private:
     bool    Watch(TradeViewHandle v, TradeModelHandle m);
-    void    RefreshViewsInfo(TradeModelHandle h, ViewListPtr vls);
-    void    RefreshViewInfo(TradeModelHandle m, TradeViewHandle v);
+    void    RefreshViewsInfo(TradeModelHandle h, ViewListPtr vls) const;
+    void    RefreshViewInfo(TradeModelHandle m, TradeViewHandle v) const;
+    void    RefreshViewLeft(TradeViewHandle h, CString const& left) const;
 
     ModelViewMap        m_modelView;
     ViewModelMap        m_viewModel;

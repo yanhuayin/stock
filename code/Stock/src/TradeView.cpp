@@ -2,6 +2,8 @@
 #include "TradeView.h"
 #include "TradeControl.h"
 
+IMPLEMENT_DYNCREATE(CTradeView, CBCGPDockingControlBar)
+
 BEGIN_MESSAGE_MAP(CTradeView, CBCGPDockingControlBar)
     ON_WM_CREATE()
     ON_WM_SIZE()
@@ -40,6 +42,11 @@ int CTradeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
     CString quotaStr;
     quotaStr.Format(_T("%u"), quota);
     m_tradeWnd._quota.SetWindowText(quotaStr);
+
+    UINT left = CTradeControl::Instance().Left();
+    CString leftStr;
+    leftStr.Format(_T("%u"), left);
+    m_tradeWnd._left.SetWindowText(leftStr);
 
     m_tradeWnd.ShowWindow(SW_SHOW);
     m_tradeWnd.UpdateWindow();
@@ -130,26 +137,25 @@ void CTradeView::SetQuota(CString const & quota)
     m_tradeWnd._quota.SetWindowText(quota);
 }
 
-void CTradeView::RedrawOrder()
+void CTradeView::SetLeft(CString const & left)
 {
-    m_tradeWnd._order.Invalidate();
-    m_tradeWnd._order.UpdateWindow();
+    m_tradeWnd._left.SetWindowText(left);
 }
 
-void CTradeView::GetCode(CString & outCode) const
-{
-    m_tradeWnd._code.GetWindowText(outCode);
-}
+//void CTradeView::GetCode(CString & outCode) const
+//{
+//    m_tradeWnd._code.GetWindowText(outCode);
+//}
 
 void CTradeView::GetQuant(CString & outQuant) const
 {
     m_tradeWnd._quantity.GetWindowText(outQuant);
 }
 
-void CTradeView::GetPrice(StockInfoType info, CString & outPrice) const
-{
-    m_tradeWnd.GetPrice(info, outPrice);
-}
+//void CTradeView::GetPrice(StockInfoType info, CString & outPrice) const
+//{
+//    m_tradeWnd.GetPrice(info, outPrice);
+//}
 
 void CTradeView::OnOK()
 {
@@ -164,10 +170,9 @@ void CTradeView::OnOK()
 
 void CTradeView::OnTrade(StockInfoType info, StockTradeOp op)
 {
-    // TODO : check available before trade
     if (CTradeControl::Instance().Trade(shared_from_this(), info, op) < 0)
     {
-        AfxMessageBox(IDS_TRADE_ERROR);
+        //AfxMessageBox(IDS_TRADE_ERROR);
     }
 }
 
