@@ -25,6 +25,7 @@ BEGIN_MESSAGE_MAP(CStockMainFrame, CMDIFrameWnd)
     ON_COMMAND(ID_TRADE_SETTING, OnTradeSettings)
     ON_WM_CLOSE()
     ON_WM_TIMER()
+    ON_REGISTERED_MESSAGE(BCGM_ON_PRESS_CLOSE_BUTTON, OnViewClose)
 END_MESSAGE_MAP()
 
 CStockMainFrame::CStockMainFrame()
@@ -224,6 +225,17 @@ void CStockMainFrame::OnTimer(UINT_PTR nIDEvent)
             CTradeControl::Instance().Update();
         }
     }
+}
+
+LRESULT CStockMainFrame::OnViewClose(WPARAM wParam, LPARAM lParam)
+{
+    CWnd *pWnd = (CWnd*)lParam;
+    if (::IsWindow(pWnd->GetSafeHwnd()))
+    {
+        ::DestroyWindow(pWnd->GetSafeHwnd());
+        return TRUE;
+    }
+    return FALSE;
 }
 
 void CStockMainFrame::RemoveView(TradeViewHandle h)

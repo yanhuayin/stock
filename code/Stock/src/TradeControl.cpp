@@ -337,7 +337,7 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
             auto irm = m_modelView.find(rm);
             if (irm != m_modelView.end()) // disconnect it
             {
-                auto rvls = *(irm->second);
+                auto &rvls = *(irm->second);
                 auto irvls = std::find(rvls.begin(), rvls.end(), v);
                 if (irvls != rvls.end())
                 {
