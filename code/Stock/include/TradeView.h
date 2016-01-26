@@ -19,9 +19,6 @@ public:
     virtual ~CTradeView();
 
 public:
-    void AdjustLayout();
-
-public:
     typedef std::array<double, SIT_Num>     InfoNumArray;
     typedef std::shared_ptr<InfoNumArray>   InfoNumArrayPtr;
 
@@ -57,7 +54,17 @@ protected:
     DECLARE_MESSAGE_MAP()
 };
 
+class CStockMDIChild : public CBCGPMDIChildWnd
+{
+    DECLARE_DYNCREATE(CStockMDIChild)
 
+public:
+    CStockMDIChild() {}
+
+protected:
+    afx_msg void OnDestroy();
+    DECLARE_MESSAGE_MAP()
+};
 
 
 #endif

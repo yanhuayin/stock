@@ -53,7 +53,7 @@ int CTradeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
     m_tradeWnd.UpdateData(FALSE);
 
-    this->EnableDocking(CBRS_ALIGN_TOP);
+    //this->EnableDocking(CBRS_ALIGN_TOP);
 
     return 0;
 }
@@ -62,23 +62,12 @@ void CTradeView::OnSize(UINT nType, int cx, int cy)
 {
     CBCGPDockingControlBar::OnSize(nType, cx, cy);
 
-    this->AdjustLayout();
-}
-
-void CTradeView::AdjustLayout()
-{
-    if (GetSafeHwnd() == NULL)
+    if (m_tradeWnd.GetSafeHwnd())
     {
-        return;
+        m_tradeWnd.SetWindowPos(nullptr, -1, -1, cx, cy, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+        m_tradeWnd.Invalidate();
+        m_tradeWnd.UpdateWindow();
     }
-
-    CRect rectClient;
-    this->GetClientRect(rectClient);
-
-    m_tradeWnd.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
-
-    m_tradeWnd.Invalidate(TRUE);
-    m_tradeWnd.UpdateWindow();
 }
 
 void CTradeView::SetName(CString const & name)
@@ -207,14 +196,26 @@ void CTradeView::PostNcDestroy()
     }
 }
 
-//void CTradeView::OnQ1PlusClicked()
-//{
-//    MessageBox(_T("fuck"), MB_OK);
-//}
-//
-//void CTradeView::OnQ1MinusClicked()
-//{
-//    MessageBox(_T("shit"), MB_OK);
-//}
+IMPLEMENT_DYNCREATE(CStockMDIChild, CBCGPMDIChildWnd)
+
+BEGIN_MESSAGE_MAP(CStockMDIChild, CBCGPMDIChildWnd)
+    ON_WM_DESTROY()
+END_MESSAGE_MAP()
 
 
+void CStockMDIChild::OnDestroy()
+{
+    if (m_pTabbedControlBar != NULL && CWnd::FromHandlePermanent(m_pTabbedControlBar->GetSafeHwnd()) != NULL)
+    {
+        CWnd* pParent = m_pTabbedControlBar->GetParent();
+
+        if (pParent == this && m_pMDIFrame != NULL && !m_pMDIFrame->IsClosing())
+        {
+            // destory embedded control bar
+            ::DestroyWindow(m_pTabbedControlBar->GetSafeHwnd());
+        }
+        m_pTabbedControlBar = NULL;
+    }
+
+    CBCGPMDIChildWnd::OnDestroy();
+}

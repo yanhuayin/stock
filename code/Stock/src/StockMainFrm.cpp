@@ -32,6 +32,8 @@ CStockMainFrame::CStockMainFrame()
     : m_viewCount(0)
 {
     CBCGPPopupMenu::SetForceShadow(TRUE);
+
+    m_bCanCovertControlBarToMDIChild = TRUE;
 }
 
 CStockMainFrame::~CStockMainFrame()
@@ -54,6 +56,51 @@ BOOL CStockMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd * p
     if (!CMDIFrameWnd::LoadFrame(nIDResource, dwDefaultStyle, pParentWnd, pContext))
     {
         return FALSE;
+    }
+
+    this->EnableMDITabbedGroups();
+
+    return TRUE;
+}
+
+CBCGPMDIChildWnd * CStockMainFrame::ControlBarToTabbedDocument(CBCGPDockingControlBar * pBar)
+{
+    ASSERT_VALID(this);
+    ASSERT_VALID(pBar);
+
+    CBCGPMDIChildWnd* pFrame = new CStockMDIChild;
+    ASSERT_VALID(pFrame);
+
+    CString strName;
+    pBar->GetWindowText(strName);
+
+    if (!pFrame->Create(
+        AfxRegisterWndClass(
+            CS_DBLCLKS, 0, (HBRUSH)(COLOR_BTNFACE + 1), pBar->GetIcon(FALSE)),
+        strName, WS_CHILD | WS_VISIBLE | WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE,
+        rectDefault, this))
+    {
+        return NULL;
+    }
+
+    pFrame->SetTitle(strName);
+    pFrame->SetWindowText(strName);
+    pFrame->AddTabbedControlBar(pBar);
+
+    return pFrame;
+}
+
+BOOL CStockMainFrame::OnCloseMiniFrame(CBCGPMiniFrameWnd * pWnd)
+{
+    if (pWnd->GetSafeHwnd())
+    {
+        CWnd *pbar = pWnd->GetControlBar();
+        while (pbar)
+        {
+            pWnd->RemoveControlBar((CBCGPBaseControlBar*)pbar, TRUE);
+
+            pbar = pWnd->GetControlBar(); // for multi-mini frame still not work
+        }
     }
 
     return TRUE;
@@ -146,7 +193,7 @@ void CStockMainFrame::OnTradeNew()
 
     const CRect defRect(0, 0, ST_TRADE_VIEW_WIDTH, ST_TRADE_VIEW_HEIGHT);
     if (!pView->Create(title, this, defRect, TRUE,
-        ID_TRADE_VIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_ALIGN_TOP | CBRS_FLOAT_MULTI))
+        ID_TRADE_VIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_TOP | CBRS_FLOAT_MULTI))
     {
         TRACE0("Failed to create tade window\n");
         ASSERT(FALSE);
@@ -157,35 +204,40 @@ void CStockMainFrame::OnTradeNew()
 
     //this->DockControlBar(pView.get(), NULL, &defRect);
 
-    CRect clientRect;
-    this->GetClientRect(&clientRect);
-    CPoint center((clientRect.left + clientRect.right) / 2, (clientRect.top + clientRect.bottom) / 2);
+    //CRect clientRect;
+    //this->GetClientRect(&clientRect);
+    //CPoint center((clientRect.left + clientRect.right) / 2, (clientRect.top + clientRect.bottom) / 2);
 
-    ::ClientToScreen(m_hWnd, &center);
-    
-    CBCGPBaseControlBar *pTarget = this->ControlBarFromPoint(center, FALSE, TRUE, pView->GetRuntimeClass());
-    if (pTarget)
-    {
-        pView->AttachToTabWnd(DYNAMIC_DOWNCAST(CTradeView, pTarget), BCGP_DM_SHOW);
-    }
-    else
-    {
-        this->DockControlBar(pView.get());
+    //::ClientToScreen(m_hWnd, &center);
+    //
+    //CBCGPBaseControlBar *pTarget = this->ControlBarFromPoint(center, FALSE, TRUE, pView->GetRuntimeClass());
+    //if (pTarget)
+    //{
+    //    pView->AttachToTabWnd(DYNAMIC_DOWNCAST(CTradeView, pTarget), BCGP_DM_SHOW);
+    //}
+    //else
+    //{
+    //    this->DockControlBar(pView.get());
 
-        if (m_menu.IsDocked())
-        {
-            clientRect.top += m_menu.CalcFixedLayout(FALSE, TRUE).cy;
-        }
+    //    if (m_menu.IsDocked())
+    //    {
+    //        clientRect.top += m_menu.CalcFixedLayout(FALSE, TRUE).cy;
+    //    }
 
-        if (m_toolbar.IsDocked())
-        {
-            clientRect.top += m_menu.CalcFixedLayout(FALSE, TRUE).cy;
-        }
+    //    if (m_toolbar.IsDocked())
+    //    {
+    //        clientRect.top += m_menu.CalcFixedLayout(FALSE, TRUE).cy;
+    //    }
 
-        pView->SetWindowPos(NULL, clientRect.left, clientRect.top, clientRect.Width(), clientRect.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
-    }
+    //    pView->SetWindowPos(NULL, clientRect.left, clientRect.top, clientRect.Width(), clientRect.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
+    //}
 
-    pView->AdjustLayout();
+    //pView->AdjustLayout();
+    pView->EnableDocking(CBRS_ALIGN_ANY);
+
+    this->DockControlBar(pView.get());
+
+    this->ControlBarToTabbedDocument(pView.get());
 
     // TODO : dock bar icon
 }

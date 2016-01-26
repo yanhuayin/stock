@@ -22,6 +22,8 @@ public:
 public:
     virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
     virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
+    virtual CBCGPMDIChildWnd* ControlBarToTabbedDocument(CBCGPDockingControlBar *pBar);
+    virtual BOOL OnCloseMiniFrame(CBCGPMiniFrameWnd *pWnd);
 #ifdef _DEBUG
     virtual void AssertValid() const;
     virtual void Dump(CDumpContext& dc) const;
