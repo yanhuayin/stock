@@ -18,10 +18,6 @@ public:
    ~CTradeModel() {}
 
 public:
-    typedef std::array<double, SIT_Num>     InfoNumArray;
-    typedef std::shared_ptr<InfoNumArray>   InfoNumArrayPtr;
-
-public:
     //ULONGLONG       ReqId() { return m_reqId; }
     //String const&   WindCode() { return m_windCode; }
     String const&   Code() { return m_windCodeNum; }

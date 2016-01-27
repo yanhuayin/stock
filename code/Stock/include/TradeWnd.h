@@ -46,8 +46,6 @@ public:
         SIC_Name,
         SIC_Price,
         SIC_Quant,
-        //SIC_BuyQuant,
-        //SIC_SellQuant,
         SIC_OpSell,
 
         SIC_Num
@@ -56,11 +54,15 @@ public:
     enum TradeOrderCol
     {
         TOC_Cancel = 0,
+        TOC_Local,
+        TOC_Time,
         TOC_Code,
         TOC_Name,
+        TOC_Flag,
         TOC_Price,
         TOC_Quant,
         TOC_Id,
+        TOC_Turnover,
 
         TOC_Num
     };

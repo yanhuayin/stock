@@ -282,13 +282,16 @@ BOOL CTradeWnd::OnInitDialog()
     _order.EnableRowHeader(TRUE);
     _order.SetSingleSel(TRUE);
 
-    _order.InsertColumn(TOC_Cancel, _T(""), 20);
-    _order.InsertColumn(TOC_Code, CString(MAKEINTRESOURCE(IDS_ORDER_CODE_COL)), 30);
-    _order.InsertColumn(TOC_Name, CString(MAKEINTRESOURCE(IDS_ORDER_NAME_COL)), 30);
-    _order.InsertColumn(TOC_Price, CString(MAKEINTRESOURCE(IDS_ORDER_PRICE_COL)), 40);
-    _order.InsertColumn(TOC_Quant, CString(MAKEINTRESOURCE(IDS_ORDER_QUANT_COL)), 40);
-    _order.InsertColumn(TOC_Id, CString(MAKEINTRESOURCE(IDS_ORDER_ID_COL)), 40);
-
+    _order.InsertColumn(TOC_Cancel, _T(""), 10);
+    _order.InsertColumn(TOC_Local, CString(MAKEINTRESOURCE(IDS_ORDER_LOCAL_TIME_COL)), 20);
+    _order.InsertColumn(TOC_Time, CString(MAKEINTRESOURCE(IDS_ORDER_TIME_COL)), 20);
+    _order.InsertColumn(TOC_Code, CString(MAKEINTRESOURCE(IDS_ORDER_CODE_COL)), 20);
+    _order.InsertColumn(TOC_Name, CString(MAKEINTRESOURCE(IDS_ORDER_NAME_COL)), 20);
+    _order.InsertColumn(TOC_Flag, CString(MAKEINTRESOURCE(IDS_ORDER_FLAG_COL)), 20);
+    _order.InsertColumn(TOC_Price, CString(MAKEINTRESOURCE(IDS_ORDER_PRICE_COL)), 20);
+    _order.InsertColumn(TOC_Quant, CString(MAKEINTRESOURCE(IDS_ORDER_QUANT_COL)), 20);
+    _order.InsertColumn(TOC_Id, CString(MAKEINTRESOURCE(IDS_ORDER_ID_COL)), 20);
+    _order.InsertColumn(TOC_Turnover, CString(MAKEINTRESOURCE(IDS_ORDER_TURNOVER_COL)), 20);
 
     return TRUE;
 }

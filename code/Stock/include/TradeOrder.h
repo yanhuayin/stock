@@ -9,14 +9,19 @@
 #include "StockConfig.h"
 #include "ApiHelper.h"
 #include "Utils.h"
+#include "TradeTime.h"
 
 struct TradeOrder
 {
-    CString     code;
-    CString     price;
-    CString     quant;
-    CString     date;
-    CString     id; // reserve if we can get the delegate info
+    TradeTimePoint  local;
+    TradeTimePoint  time;
+    CString         code;
+    CString         flag;
+    CString         price;
+    CString         quant;
+    CString         id;
+    CString         turnover;
+    bool            deal;
 };
 
 
