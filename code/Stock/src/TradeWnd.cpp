@@ -718,7 +718,7 @@ void CTradeWnd::OnBuySell3()
     this->UpdateData();
     if (_tradeEvent)
     {
-        _tradeEvent(SIT_Sell10, STO_Buy);
+        _tradeEvent(SIT_Sell3, STO_Buy);
     }
 }
 
