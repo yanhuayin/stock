@@ -546,15 +546,12 @@ HTREEITEM CStockLocateData::SearchTreeItem(HandlePtr process, HWND tree, LocateT
     {
     case LT_Buy:
         target.LoadString(IDS_BUY);
-        target.Append(_T("[F1]")); // TODO 
         break;
     case LT_Sell:
         target.LoadString(IDS_SELL);
-        target.Append(_T("[F2]"));
         break;
     case LT_Cancel:
         target.LoadString(IDS_CANCLE);
-        target.Append(_T("[F3]"));
         break;
     case LT_Query:
         target.LoadString(IDS_QUERY);

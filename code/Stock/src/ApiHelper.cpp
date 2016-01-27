@@ -133,7 +133,8 @@ HTREEITEM WinApi::SearchTreeItem(HandlePtr process, HWND tree, CString const & t
             break;
         }
 
-        if (target == txtBuf) // find target
+        CString text(txtBuf);
+        if (text.Find(target, 0) == 0) // find target
         {
             break;
         }
