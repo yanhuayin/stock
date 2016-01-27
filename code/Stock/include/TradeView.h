@@ -10,6 +10,18 @@
 #include "StockConfig.h"
 #include "TradeWnd.h"
 
+struct ViewOrderData
+{
+    CString     local;
+    CString     time;
+    CString     code;
+    CString     flag;
+    CString     price;
+    CString     quant;
+    CString     id;
+    CString     turnover;
+};
+
 class CTradeView : public CBCGPDockingControlBar, public std::enable_shared_from_this<CTradeView>
 {
     DECLARE_DYNCREATE(CTradeView);
@@ -19,16 +31,13 @@ public:
     virtual ~CTradeView();
 
 public:
-    typedef std::array<CString const*, SOF_Num>   OrderStrArray;
-
     void    SetName(CString const& name);
     void    SetInfo(StockInfoField field, InfoNumArrayPtr info);
-    void    SetOrder(int order, OrderStrArray const& strs);
     void    SetQuota(CString const& quota);
     void    SetLeft(CString const& left);
+    void    ViewOrder(int order, ViewOrderData const& data);
     void    FlushInfo() { m_tradeWnd._info.UpdateData(FALSE); }
     void    FlushOrder() { m_tradeWnd._order.UpdateData(FALSE); }
-    void    FlushQuota() { m_tradeWnd._quota.UpdateData(FALSE); }
     void    Flush() { m_tradeWnd.UpdateData(FALSE); }
     //void    GetCode(CString &outCode) const;
     void    GetQuant(CString &outQuant) const;

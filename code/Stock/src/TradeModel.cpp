@@ -348,17 +348,17 @@ void CTradeModelManager::UpdateModel(TradeModelHandle h, WindData const & wd)
     {
         if (!h->m_price)
         {
-            h->m_price = CTradeModel::InfoNumArrayPtr(new CTradeModel::InfoNumArray());
+            h->m_price = InfoNumArrayPtr(new InfoNumArray());
         }
 
-        CTradeModel::InfoNumArray &pa = *(h->m_price);
+        InfoNumArray &pa = *(h->m_price);
 
         if (!h->m_quant)
         {
-            h->m_quant = CTradeModel::InfoNumArrayPtr(new CTradeModel::InfoNumArray());
+            h->m_quant = InfoNumArrayPtr(new InfoNumArray());
         }
 
-        CTradeModel::InfoNumArray &qa = *(h->m_quant);
+        InfoNumArray &qa = *(h->m_quant);
 
         for (int i = 0; i < SIF_Num; ++i)
         {
@@ -393,7 +393,7 @@ void CTradeModelManager::UpdateModel(TradeModelHandle h, WindData const & wd)
     }
 }
 
-CTradeModel::InfoNumArrayPtr CTradeModel::NumInfo(StockInfoField field)
+InfoNumArrayPtr CTradeModel::NumInfo(StockInfoField field)
 {
     switch (field)
     {

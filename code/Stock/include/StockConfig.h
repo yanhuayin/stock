@@ -125,6 +125,7 @@ enum StockTradeOp
 enum StockOrderResult
 {
     SOR_OK = 0,
+    SOR_LeftOK,
     SOR_Dealed,
     SOR_Error
 };

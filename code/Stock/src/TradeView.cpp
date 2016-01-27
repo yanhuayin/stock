@@ -104,23 +104,6 @@ void CTradeView::SetInfo(StockInfoField field, InfoNumArrayPtr info)
     }
 }
 
-void CTradeView::SetOrder(int order, OrderStrArray const & strs)
-{
-    CBCGPGridRow *pRow = m_tradeWnd.AddOrderRow();
-
-    for (size_t i = 0; i < strs.size(); ++i)
-    {
-        if (strs[i])
-        {
-            pRow->GetItem(i + 1)->SetValue(strs[i]->GetString());
-        }
-    }
-
-    pRow->SetData(order);
-
-    m_tradeWnd._order.UpdateData(FALSE);
-}
-
 void CTradeView::SetQuota(CString const & quota)
 {
     m_tradeWnd._quota.SetWindowText(quota);
@@ -129,6 +112,22 @@ void CTradeView::SetQuota(CString const & quota)
 void CTradeView::SetLeft(CString const & left)
 {
     m_tradeWnd._left.SetWindowText(left);
+}
+
+void CTradeView::ViewOrder(int order, ViewOrderData const & data)
+{
+    CBCGPGridRow *pRow = m_tradeWnd.AddOrderRow();
+
+    pRow->GetItem(CTradeWnd::TOC_Local)->SetValue(data.local.GetString());
+    pRow->GetItem(CTradeWnd::TOC_Time)->SetValue(data.time.GetString());
+    pRow->GetItem(CTradeWnd::TOC_Code)->SetValue(data.code.GetString());
+    pRow->GetItem(CTradeWnd::TOC_Flag)->SetValue(data.flag.GetString());
+    pRow->GetItem(CTradeWnd::TOC_Price)->SetValue(data.price.GetString());
+    pRow->GetItem(CTradeWnd::TOC_Quant)->SetValue(data.quant.GetString());
+    pRow->GetItem(CTradeWnd::TOC_Id)->SetValue(data.id.GetString());
+    pRow->GetItem(CTradeWnd::TOC_Turnover)->SetValue(data.turnover.GetString());
+
+    pRow->SetData(order);
 }
 
 //void CTradeView::GetCode(CString & outCode) const
@@ -169,15 +168,15 @@ void CTradeView::OnCancelOrder(CBCGPGridRow *pRow)
 {
     StockOrderResult res = CTradeControl::Instance().CancelOrder(shared_from_this(), pRow->GetData());
 
-    if (res == SOR_OK || res == SOR_Dealed)
+    if (res == SOR_OK || res == SOR_Dealed || res == SOR_LeftOK)
     {
         m_tradeWnd._order.RemoveRow(pRow->GetRowId());
 
         if (res == SOR_Dealed)
         {
             AfxMessageBox(IDS_ORDER_DEALED);
-            return;
         }
+
         return;
     }
 

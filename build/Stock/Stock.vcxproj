@@ -233,6 +233,7 @@
     <ClInclude Include="..\..\code\Stock\include\TradeOrder.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeSettings.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeSettingsData.h" />
+    <ClInclude Include="..\..\code\Stock\include\TradeTime.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeView.h" />
     <ClInclude Include="..\..\code\Stock\include\TradeWnd.h" />
     <ClInclude Include="..\..\code\Stock\include\Utils.h" />

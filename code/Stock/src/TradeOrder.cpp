@@ -109,11 +109,14 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
         int id = ++m_id;
 
         TradeOrder &order = m_orders[id];
+
+        order.local = TradeClock::now();
+        order.time = order.local;
         order.code = code;
         order.price = price;
         order.quant = quant;
-        order.local = TradeClock::now();
         order.flag.LoadString(flag);
+        order.turnover = quant;
         order.deal = true;
 
         m_total += (_ttoi(quant));
@@ -190,6 +193,19 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
 
 StockOrderResult CTradeOrderManager::CancelOrder(int order)
 {
+    auto it = m_orders.find(order);
+
+    if (it == m_orders.end())
+        return SOR_Error;
+
+    TradeOrder &to = it->second;
+
+    if (to.deal)
+        return SOR_OK;
+
+    if (to.id.IsEmpty())
+        return SOR_Error;
+
     CStockLocateData &loc = theApp.AppData().LocateData();
 
     HandlePtr process = loc.TargetProcess();
@@ -202,86 +218,85 @@ StockOrderResult CTradeOrderManager::CancelOrder(int order)
 
     if (WinApi::SelectTreeItem(process, tree, item, loc.LocInfo(LT_Cancel).pos))
     {
-        auto it = m_orders.find(order);
+        ::Sleep(ST_SLEEP_T * 2);
 
-        if (it != m_orders.end())
+        HWND clst = loc.LocInfo(LT_CancelList).hwnd;
+        int row = ::SendMessage(clst, LVM_GETITEMCOUNT, 0, 0);
+        if (row > 0)
         {
-            ::Sleep(ST_SLEEP_T * 2);
+            VirtualPtr pRowItem = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(LVITEM), MEM_COMMIT, PAGE_READWRITE));
+            VirtualPtr pRowText = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_ORDER_COL_LEN, MEM_COMMIT, PAGE_READWRITE));
 
-            TradeOrder const& to = it->second;
-
-            HWND clst = loc.LocInfo(LT_CancelList).hwnd;
-            int row = ::SendMessage(clst, LVM_GETITEMCOUNT, 0, 0);
-            if (row > 0)
+            int col = loc.ListCol(LT_CancelList, SOF_Id).col;
+            for (int i = 0; i < row; ++i)
             {
-                VirtualPtr pRowItem = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(LVITEM), MEM_COMMIT, PAGE_READWRITE));
-                VirtualPtr pRowText = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, MEM_COMMIT, PAGE_READWRITE));
+                TCHAR rtext[ST_ORDER_COL_LEN] = { 0 };
 
-                int col = loc.ListCol(LT_CancelList, SOF_Id).col;
-                for (int i = 0; i < row; ++i)
+                if (WinApi::QueryListItemText(process, clst, i, col, &rtext[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pRowItem, pRowText))
                 {
-                    TCHAR rtext[ST_MAX_VIRTUAL_BUF] = { 0 };
-
-                    if (WinApi::QueryListItemText(process, clst, i, col, &rtext[0], sizeof(TCHAR) * ST_MAX_VIRTUAL_BUF, pRowItem, pRowText))
+                    if (to.id == rtext)
                     {
-                        if (to.id == rtext)
+                        col = loc.ListCol(LT_CancelList, SOF_Turnover).col;
+                        TCHAR ttext[ST_ORDER_COL_LEN] = { 0 };
+
+                        if (WinApi::QueryListItemText(process, clst, i, col, &ttext[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pRowItem, pRowText))
                         {
-                            ListView_SetItemState(clst, i, LVIS_FOCUSED | LVIS_SELECTED, 0x000F);
+                            to.turnover = ttext;
+                        }
 
-                            ::SendMessage(::GetParent(clst), (WM_USER + 20820), (WPARAM)i, 0);
+                        ListView_SetItemState(clst, i, LVIS_FOCUSED | LVIS_SELECTED, 0x000F);
 
-                            POINT pos;
-                            if (!WinApi::CacListItemCenter(process, clst, i, 0, LVIR_LABEL, pos))
-                                return SOR_Error;
+                        POINT pos;
+                        if (!WinApi::CacListItemCenter(process, clst, i, 0, LVIR_LABEL, pos))
+                            return SOR_Error;
 
-                            if (!WinApi::SelectListItem(process, clst, i, 0, pos))
-                                return SOR_Error;
+                        if (!WinApi::SelectListItem(process, clst, i, 0, pos))
+                            return SOR_Error;
+
+                        ::Sleep(ST_SLEEP_T);
+
+                        ::PostMessage(loc.LocInfo(LT_CancelBtn).hwnd, BM_CLICK, 0, 0);
+
+                        ::Sleep(ST_SLEEP_T);
+
+                        CString cap(MAKEINTRESOURCE(IDS_HINT));
+
+                        HWND hhint = ::FindWindow(nullptr, cap);
+
+                        if (hhint)
+                        {
+                            ::PostMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
 
                             ::Sleep(ST_SLEEP_T);
 
-                            ::PostMessage(loc.LocInfo(LT_CancelBtn).hwnd, BM_CLICK, 0, 0);
-
-                            ::Sleep(ST_SLEEP_T);
-
-                            CString cap(MAKEINTRESOURCE(IDS_HINT));
-
-                            HWND hhint = ::FindWindow(nullptr, cap);
+                            hhint = ::FindWindow(nullptr, cap);
 
                             if (hhint)
                             {
                                 ::PostMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
-
-                                ::Sleep(ST_SLEEP_T);
-
-                                hhint = ::FindWindow(nullptr, cap);
-
-                                if (hhint)
-                                {
-                                    ::PostMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
-                                }
                             }
-                            else
-                            {
-                                hhint = ::FindWindow(nullptr, CString(MAKEINTRESOURCE(IDS_CANCEL_HINT)));
-                                if (hhint)
-                                {
-                                    ::PostMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
-                                    return SOR_Error;
-                                }
-                            }
-
-                            return SOR_OK;
                         }
+                        else
+                        {
+                            hhint = ::FindWindow(nullptr, CString(MAKEINTRESOURCE(IDS_CANCEL_HINT)));
+                            if (hhint)
+                            {
+                                ::PostMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
+                                return SOR_Error;
+                            }
+                        }
+
+                        return SOR_LeftOK;
                     }
                 }
-
             }
-
-            return SOR_Dealed;
         }
+
+        to.turnover = to.quant;
+        to.deal = true;
+
+        return SOR_Dealed;
     }
-
-
 
     return SOR_Error;
 }

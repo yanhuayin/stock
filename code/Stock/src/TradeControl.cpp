@@ -7,6 +7,7 @@
 #include "StockMainFrm.h"
 #include "Stock.h"
 #include "TradeOrder.h"
+#include "TradeTime.h"
 
 bool CTradeControl::Init(CStockMainFrame * pMainWnd)
 {
@@ -176,7 +177,6 @@ void CTradeControl::RefreshViewsQuota(UINT quota) const
     for (auto & i : m_viewModel)
     {
         i.first->SetQuota(quotaStr);
-        i.first->FlushQuota();
     }
 }
 
@@ -227,7 +227,7 @@ TradeModelHandle CTradeControl::IsTradeAvailable(TradeViewHandle v, CString cons
         return nullptr;
     }
 
-    int q = _ttoi(quant);
+    UINT q = (UINT)_ttoi(quant);
 
     if (q > left)
     {
@@ -240,18 +240,13 @@ TradeModelHandle CTradeControl::IsTradeAvailable(TradeViewHandle v, CString cons
     return it->second;
 }
 
-//void CTradeControl::RefreshViewsTrade()
-//{
-//    // TODO :
-//}
-
 StockOrderResult CTradeControl::CancelOrder(TradeViewHandle h, int order)
 {
     ASSERT(order > 0);
 
     StockOrderResult res = CTradeOrderManager::Instance().CancelOrder(order);
 
-    if (res == SOR_OK || res == SOR_Dealed)
+    if (res == SOR_OK || res == SOR_Dealed || res == SOR_LeftOK)
     {
         auto it = m_viewOrder.find(h);
         if (it != m_viewOrder.end())
@@ -261,6 +256,17 @@ StockOrderResult CTradeControl::CancelOrder(TradeViewHandle h, int order)
         }
 
         m_orderView.erase(order);
+
+        if (res == SOR_LeftOK)
+        {
+            TradeOrder const& o = CTradeOrderManager::Instance().Order(order);
+
+            CString msg;
+            msg.Format(IDS_ORDER_CANCEL_LEFT, o.turnover);
+
+            AfxMessageBox(msg);
+        }
+
     }
 
     return res;
@@ -302,14 +308,25 @@ int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
 
         TradeOrder const& order = tom.Order(res);
 
-        CTradeView::OrderStrArray o;
-        o[SOF_Code] = &(order.code);
-        o[SOF_Name] = nullptr;
-        o[SOF_Price] = &(order.price);
-        o[SOF_Quant] = &(order.quant);
-        o[SOF_Id] = &(order.id);
+        ViewOrderData vod;
+        TimeToStr(order.local, vod.local);
+        vod.code = order.code;
+        vod.flag = order.flag;
+        vod.price = order.price;
+        vod.quant = order.quant;
+        vod.turnover = order.turnover;
+        
+        if (order.deal)
+        {
+            TimeToStr(order.time, vod.time);
+            vod.id = order.id;
+        }
+        else
+        {
+            vod.time = vod.local;
+        }
 
-        h->SetOrder(res, o);
+        h->ViewOrder(res, vod);
         h->FlushOrder();
 
         this->RefreshViewsLeft(this->Left());
@@ -328,14 +345,14 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
 
     auto ivm = m_viewModel.find(v);
 
-    if (ivm != m_viewModel.end()) // it has watched a model
+    if (ivm != m_viewModel.end())
     {
-        if (ivm->second != m) // check if the same model
+        if (ivm->second != m)
         {
             TradeModelHandle rm = ivm->second;
 
             auto irm = m_modelView.find(rm);
-            if (irm != m_modelView.end()) // disconnect it
+            if (irm != m_modelView.end())
             {
                 auto &rvls = *(irm->second);
                 auto irvls = std::find(rvls.begin(), rvls.end(), v);
@@ -353,17 +370,16 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
                 }
             }
         }
-        else // has watched this model
+        else
         {
-            return false; // return false then no need to refresh the view
+            return false;
         }
     }
 
-    // if v has watched a model, now it is disconected or no watch at all
     m_viewModel[v] = m;
 
     auto imv = m_modelView.find(m);
-    if (imv == m_modelView.end()) // first watch
+    if (imv == m_modelView.end())
     {
         ViewListPtr vls(new ViewList);
         vls->push_back(v);
@@ -373,21 +389,21 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
         if (cmm.RequestModel(m))
         {
             if (cmm.Type() == CTradeModelManager::RT_Immediate)
-                return true; // if request successfully, then refresh the view
+                return true;
         }
 
-        return false; // for multi thread request, do not refresh at the first request
+        return false;
     }
-    else // this model has been requested
+    else
     {
-        if (imv->second->empty()) // have been freed
+        if (imv->second->empty())
         {
-            cmm.RequestModel(m); // request again here
+            cmm.RequestModel(m);
             if (cmm.Type() == CTradeModelManager::RT_MultiThread)
                 return false;
         }
 
-        imv->second->push_back(v); // watch it
+        imv->second->push_back(v);
     }
 
     return true;

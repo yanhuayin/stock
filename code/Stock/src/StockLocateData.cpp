@@ -614,7 +614,7 @@ int CStockLocateData::GetListCol(HandlePtr process, HWND list, ListViewColumn *i
         if (!pColItem || !pColText)
             return 0;
 
-        for (int i = 0; i < cnt; ++i)
+        for (size_t i = 0; i < cnt; ++i)
         {
             for (int c = 0; c < col; ++c)
             {
@@ -648,7 +648,7 @@ int CStockLocateData::GetListCol(HandlePtr process, HWND list, ListViewColumn *i
 
     if (count != cnt)
     {
-        for (int i = 0; i < cnt; ++i)
+        for (size_t i = 0; i < cnt; ++i)
         {
             info[i].col = -1;
         }
