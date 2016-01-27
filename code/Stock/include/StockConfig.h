@@ -102,11 +102,14 @@ enum StockInfoField
 
 enum StockOrderField
 {
-    SOF_Code = 0,
+    SOF_Time = 0,
+    SOF_Code,
     SOF_Name,
+    SOF_Flag,
     SOF_Price,
     SOF_Quant,
     SOF_Id,
+    SOF_Turnover,
 
     SOF_Num
 };
@@ -125,6 +128,9 @@ enum StockOrderResult
     SOR_Dealed,
     SOR_Error
 };
+
+typedef std::array<double, SIT_Num>     InfoNumArray;
+typedef std::shared_ptr<InfoNumArray>   InfoNumArrayPtr;
 
 //namespace std
 //{

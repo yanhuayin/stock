@@ -13,6 +13,11 @@
 
 #define ST_ORDER_DEL_NUM            3
 
+namespace
+{
+    TradeDuration sTimeDelt(5); // TODO : move this to trade settings?
+}
+
 int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString const & price, CString const & quant)
 {
     // we should make sure code/price/quant have valid value and loc data is ready
@@ -27,6 +32,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
     HWND hq = nullptr;
     HWND ho = nullptr;
     UINT capId;
+    UINT flag;
 
     switch (op)
     {
@@ -39,6 +45,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
         hq = loc.LocInfo(LT_BuyQuant).hwnd;
         ho = loc.LocInfo(LT_BuyOrder).hwnd;
         capId = IDS_BUY_CONFIRM;
+        flag = IDS_TRADE_BUY_FLAG;
         break;
     case STO_Sell:
         tree = loc.LocInfo(LT_Sell).hwnd;
@@ -49,6 +56,7 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
         hq = loc.LocInfo(LT_SellQuant).hwnd;
         ho = loc.LocInfo(LT_SellOrder).hwnd;
         capId = IDS_SELL_CONFIRM;
+        flag = IDS_TRADE_SELL_FLAG;
         break;
     default:
         return ST_TO_F;
@@ -98,78 +106,83 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
             ::SendMessage(hhint, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
         }
 
-        // find the delegate id
-        ::Sleep(ST_SLEEP_T);
+        int id = ++m_id;
 
-        LocateInfo const& query = loc.LocInfo(LT_Query);
+        TradeOrder &order = m_orders[id];
+        order.code = code;
+        order.price = price;
+        order.quant = quant;
+        order.local = TradeClock::now();
+        order.flag.LoadString(flag);
+        order.deal = true;
 
-        if (!WinApi::IsTreeItemExpanded(tree, query.hitem))
+        m_total += (_ttoi(quant));
+
+        LocateInfo const& cancel = loc.LocInfo(LT_Cancel);
+        if (WinApi::SelectTreeItem(process, tree, cancel.hitem, cancel.pos))
         {
-            if (!WinApi::SelectTreeItem(process, tree, query.hitem, query.pos))
-                return ST_TO_F;
-        }
+            ::Sleep(ST_SLEEP_T);
 
-        LocateInfo const& del = loc.LocInfo(LT_Delegate);
-        if (WinApi::SelectTreeItem(process, tree, del.hitem, del.pos))
-        {
-            ::Sleep(ST_SLEEP_T * 3); // the delegate list seems will be refreshed only when it is opened
-
-            //double dPrice = _tstof(price.GetString());
-            //CString compPrice;
-            //compPrice.Format(_T("%.3f"), dPrice); // delegate price only have 3 decimal precision
+            HWND clst = loc.LocInfo(LT_CancelList).hwnd;
 
             VirtualPtr pItem = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(LVITEM), MEM_COMMIT, PAGE_READWRITE));
             VirtualPtr pText = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, sizeof(TCHAR) * ST_ORDER_COL_LEN, MEM_COMMIT, PAGE_READWRITE));
 
-            int idCol = loc.ListCol(LT_DelegateList, SOF_Id).col;
-            int codeCol = loc.ListCol(LT_DelegateList, SOF_Code).col;
-            int priceCol = loc.ListCol(LT_DelegateList, SOF_Price).col;
-            int quantCol = loc.ListCol(LT_DelegateList, SOF_Quant).col;
-
-            HWND dlst = loc.LocInfo(LT_DelegateList).hwnd;
-
-            int count = 0;
-            do
+            int row = ::SendMessage(clst, LVM_GETITEMCOUNT, 0, 0);
+            if (row > 0)
             {
-                int row = ::SendMessage(dlst, LVM_GETITEMCOUNT, 0, 0);
-                if (row > 0)
+                int tcol = loc.ListCol(LT_CancelList, SOF_Time).col;
+                for (int i = 0; i < row; ++i)
                 {
-                    row -= 1;
+                    TCHAR timeT[ST_ORDER_COL_LEN] = { 0 };
 
-                    TCHAR idT[ST_ORDER_COL_LEN] = { 0 };
-                    TCHAR codeT[ST_ORDER_COL_LEN] = { 0 };
-                    TCHAR priceT[ST_ORDER_COL_LEN] = { 0 };
-                    TCHAR quantT[ST_ORDER_COL_LEN] = { 0 };
-
-                    if (WinApi::QueryListItemText(process, dlst, row, codeCol, &codeT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText) &&
-                        WinApi::QueryListItemText(process, dlst, row, priceCol, &priceT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText) &&
-                        WinApi::QueryListItemText(process, dlst, row, quantCol, &quantT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText) &&
-                        WinApi::QueryListItemText(process, dlst, row, idCol, &idT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText))
+                    if (WinApi::QueryListItemText(process, clst, i, tcol, &timeT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText))
                     {
-                        if ((code == codeT) && (price == priceT) && (quant == quantT))
+                        TradeTimePoint time = StrToTime(timeT);
+
+                        if ((CalcTimeDiff(time, order.local)) <= sTimeDelt)
                         {
-                            int id = ++m_id;
+                            int codeCol = loc.ListCol(LT_CancelList, SOF_Code).col;
+                            int priceCol = loc.ListCol(LT_CancelList, SOF_Price).col;
+                            int quantCol = loc.ListCol(LT_CancelList, SOF_Quant).col;
 
-                            TradeOrder &order = m_orders[id];
-                            order.id = idT;
-                            order.code = code;
-                            order.price = price;
-                            order.quant = quant;
+                            TCHAR codeT[ST_ORDER_COL_LEN] = { 0 };
+                            TCHAR priceT[ST_ORDER_COL_LEN] = { 0 };
+                            TCHAR quantT[ST_ORDER_COL_LEN] = { 0 };
 
-                            m_total += (_ttoi(quant));
+                            if (WinApi::QueryListItemText(process, clst, i, codeCol, &codeT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText) &&
+                                WinApi::QueryListItemText(process, clst, i, priceCol, &priceT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText) &&
+                                WinApi::QueryListItemText(process, clst, i, quantCol, &quantT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText))
+                            {
+                                if ((code == codeT) && (price == priceT) && (quant == quantT))
+                                {
+                                    order.deal = false;
 
-                            return id;
+                                    order.time = time;
+
+                                    int idCol = loc.ListCol(LT_CancelList, SOF_Id).col;
+                                    int turnoverCol = loc.ListCol(LT_CancelList, SOF_Turnover).col;
+
+                                    TCHAR idT[ST_ORDER_COL_LEN] = { 0 };
+                                    TCHAR turnoverT[ST_ORDER_COL_LEN] = { 0 };
+
+                                    if (WinApi::QueryListItemText(process, clst, i, idCol, &idT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText) &&
+                                        WinApi::QueryListItemText(process, clst, i, turnoverCol, &turnoverT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText))
+                                    {
+                                        order.id = idT;
+                                        order.turnover = turnoverT;
+                                    }
+
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
-
-                ::Sleep(ST_SLEEP_T);
-
-                ++count;
-
-            } while (count < ST_ORDER_DEL_NUM);
-
+            }
         }
+
+        return id;
     }
 
     return ST_TO_F;
@@ -279,7 +292,18 @@ TradeOrder const & CTradeOrderManager::Order(int order) const
 
     if (it == m_orders.end())
     {
-        static TradeOrder errOrder = { _T("Error"), _T("Error"), _T("Error"), _T("Error"), _T("Error") };
+        static TradeOrder errOrder = 
+        {
+            TradeClock::now(), 
+            TradeClock::now(), 
+            _T("Error"), 
+            _T("Error"),
+            _T("Error"), 
+            _T("Error"), 
+            _T("Error"),
+            _T("Error"),
+            false
+        };
         return errOrder;
     }
 
