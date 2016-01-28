@@ -142,8 +142,10 @@ int CTradeOrderManager::Trade(StockTradeOp op, CString const & code, CString con
                     if (WinApi::QueryListItemText(process, clst, i, tcol, &timeT[0], sizeof(TCHAR) * ST_ORDER_COL_LEN, pItem, pText))
                     {
                         TradeTimePoint time = StrToTime(timeT);
+                        TradeDuration dura;
+                        CalcAbsDuration(dura, time, order.local)
 
-                        if ((CalcTimeDiff(time, order.local)) <= sTimeDelt)
+                        if (dura <= sTimeDelt)
                         {
                             int codeCol = loc.ListCol(LT_CancelList, SOF_Code).col;
                             int priceCol = loc.ListCol(LT_CancelList, SOF_Price).col;

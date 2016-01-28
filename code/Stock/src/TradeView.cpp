@@ -158,10 +158,7 @@ void CTradeView::OnOK()
 
 void CTradeView::OnTrade(StockInfoType info, StockTradeOp op)
 {
-    if (CTradeControl::Instance().Trade(shared_from_this(), info, op) < 0)
-    {
-        //AfxMessageBox(IDS_TRADE_ERROR);
-    }
+    CTradeControl::Instance().Trade(shared_from_this(), info, op);
 }
 
 void CTradeView::OnCancelOrder(CBCGPGridRow *pRow)

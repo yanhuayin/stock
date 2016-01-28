@@ -238,21 +238,21 @@ bool CTradeModelManager::RequestModel(TradeModelHandle h, bool force)
                 // =================== TEST ===============================
                 //if (!h->m_price)
                 //{
-                //    h->m_price = CTradeModel::InfoNumArrayPtr(new CTradeModel::InfoNumArray());
+                //    h->m_price = InfoNumArrayPtr(new InfoNumArray());
                 //}
 
-                //CTradeModel::InfoNumArray &pa = *(h->m_price);
+                //InfoNumArray &pa = *(h->m_price);
 
                 //if (!h->m_quant)
                 //{
-                //    h->m_quant = CTradeModel::InfoNumArrayPtr(new CTradeModel::InfoNumArray());
+                //    h->m_quant = InfoNumArrayPtr(new InfoNumArray());
                 //}
 
-                //CTradeModel::InfoNumArray &qa = *(h->m_quant);
+                //InfoNumArray &qa = *(h->m_quant);
 
                 //for (int i = 0; i < SIT_Num; ++i)
                 //{
-                //    pa[i] = 10.9 + i * 0.001;
+                //    pa[i] = 11.9 + i * 0.001;
                 //    qa[i] = 100.0;
                 //}
                 // =================== TEST ===============================

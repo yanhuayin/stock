@@ -12,6 +12,7 @@
 #define ST_TIME_STR_FORMAT          _T("%H:%M:%S")
 #define ST_TIME_STR_DELIMITER       _T(":")
 #define CalcTimeDiff(t1, t2)        std::chrono::duration_cast<TradeDuration>((t1) - (t2))
+#define CalcAbsDuration(dura, t1, t2)   if ((t1) > (t2)) dura = CalcTimeDiff((t1), (t2)); else dura = CalcTimeDiff((t2), (t1));
 
 typedef std::chrono::system_clock               TradeClock;
 typedef TradeClock::time_point                  TradeTimePoint;

@@ -244,6 +244,8 @@ StockOrderResult CTradeControl::CancelOrder(TradeViewHandle h, int order)
 {
     ASSERT(order > 0);
 
+    CWaitCursor waiting;
+
     StockOrderResult res = CTradeOrderManager::Instance().CancelOrder(order);
 
     if (res == SOR_OK || res == SOR_Dealed || res == SOR_LeftOK)
@@ -281,6 +283,8 @@ int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
     if (!m)
         return -1;
 
+    CWaitCursor waiting;
+
     CString code(m->Code().c_str());
     
     auto pInfo = m->NumInfo(SIF_Price);
@@ -316,7 +320,7 @@ int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
         vod.quant = order.quant;
         vod.turnover = order.turnover;
         
-        if (order.deal)
+        if (!order.deal)
         {
             TimeToStr(order.time, vod.time);
             vod.id = order.id;
