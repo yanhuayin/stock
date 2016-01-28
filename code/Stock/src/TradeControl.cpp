@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include <algorithm>
+#include <atomic>
 #include "resource.h"
+#include "StockGlobal.h"
 #include "TradeControl.h"
 #include "TradeModel.h"
 #include "TradeView.h"
@@ -9,15 +11,80 @@
 #include "TradeOrder.h"
 #include "TradeTime.h"
 
+#define ST_MODEL_UPDATE_ELAPSE      3000
+
+namespace
+{
+    std::atomic_bool        sQuit(false);
+}
+
+class CStockUpdateThread : public CWinThread
+{
+    DECLARE_DYNCREATE(CStockUpdateThread)
+
+public:
+    CStockUpdateThread() {}
+
+public:
+    virtual BOOL    InitInstance() { m_bAutoDelete = FALSE; return TRUE; }
+
+protected:
+    afx_msg void    OnUpdate(WPARAM wParam, LPARAM lParam);
+    DECLARE_MESSAGE_MAP();
+};
+
+IMPLEMENT_DYNCREATE(CStockUpdateThread, CWinThread)
+
+BEGIN_MESSAGE_MAP(CStockUpdateThread, CWinThread)
+    ON_THREAD_MESSAGE(ST_MODEL_UPDATE_MSG, OnUpdate)
+END_MESSAGE_MAP()
+
+void CStockUpdateThread::OnUpdate(WPARAM wParam, LPARAM lParam)
+{
+    do
+    {
+        CTradeControl::Instance().Update();
+
+        ::Sleep(ST_MODEL_UPDATE_ELAPSE);
+
+    } while (!sQuit);
+
+    ::AfxEndThread(0, FALSE);
+}
+
 bool CTradeControl::Init(CStockMainFrame * pMainWnd)
 {
     m_mainWnd = pMainWnd;
+
+    if (CTradeModelManager::Instance().Type() == CTradeModelManager::RT_Poll)
+    {
+        m_worker = (CStockUpdateThread*)AfxBeginThread(RUNTIME_CLASS(CStockUpdateThread), 0, 0);
+        m_worker->PostThreadMessage(ST_MODEL_UPDATE_MSG, 0, 0);
+    }
+
     m_init = true;
     return m_init;
 }
 
 bool CTradeControl::Close()
 {
+    if (CTradeModelManager::Instance().Type() == CTradeModelManager::RT_Poll)
+    {
+        sQuit = true;
+
+        if (::WaitForSingleObject(m_worker->m_hThread, ST_MODEL_UPDATE_ELAPSE * 3) == WAIT_OBJECT_0)
+        {
+            DWORD err = 0;
+            ::GetExitCodeThread(m_worker->m_hThread, &err);
+        }
+        else
+        {
+            // TODO:
+        }
+
+        ST_SAFE_DELETE(m_worker);
+    }
+
     m_init = false;
 
     m_modelView.clear();
@@ -32,14 +99,6 @@ bool CTradeControl::Close()
     return CTradeModelManager::Instance().Shutdown();
 }
 
-bool CTradeControl::NeedTimer() const
-{
-    // =================== TEST ===============================
-    return CTradeModelManager::Instance().Type() == CTradeModelManager::RT_Immediate;
-    //return false;
-    // =================== TEST ===============================
-}
-
 void CTradeControl::ViewClosed(TradeViewHandle h)
 {
     if (m_init)
@@ -48,7 +107,7 @@ void CTradeControl::ViewClosed(TradeViewHandle h)
             auto it = m_viewModel.find(h);
             if (it != m_viewModel.end())
             {
-                TradeModelHandle hM = it->second;
+                UINT hM = it->second;
 
                 auto itM = m_modelView.find(hM);
                 if (itM != m_modelView.end())
@@ -56,10 +115,10 @@ void CTradeControl::ViewClosed(TradeViewHandle h)
                     itM->second->remove(h);
                     if (itM->second->empty())
                     {
-                        //itM->second = nullptr;
-                        CTradeModelManager::Instance().FreeModel(itM->first);
+                        CTradeModelManager::Instance().FreeModel(hM);
 
-                        //m_modelView.erase(itM);
+                        CLock locker(m_mvMutex); // U ----> Update
+                        m_modelView.erase(itM);
                     }
                 }
 
@@ -94,9 +153,9 @@ bool CTradeControl::RequestInfo(TradeViewHandle h, CString const& code)
         CTradeModelManager::CandidatesList cands;
 
         String tmpCode(code.GetString());
-        TradeModelHandle hm = cmm.FindModel(tmpCode, &cands);
+        UINT hm = cmm.FindModel(tmpCode, &cands);
 
-        if (hm)
+        if (hm != ST_MODEL_INVALID_ID)
         {
             if (this->Watch(h, hm)) // if refresh view
             {
@@ -113,8 +172,7 @@ bool CTradeControl::RequestInfo(TradeViewHandle h, CString const& code)
             return false;
         }
 
-        CString err(MAKEINTRESOURCE(IDS_STOCK_NOT_FOUND));
-        AfxMessageBox(err);
+        AfxMessageBox(IDS_STOCK_NOT_FOUND);
         return false;
     }
 
@@ -125,12 +183,12 @@ void CTradeControl::RefreshViewsInfo(TradeModelHandle h) const
 {
 #ifdef DEBUG
     CTradeModelManager &cmm = CTradeModelManager::Instance();
-    ASSERT(cmm.Type() == CTradeModelManager::RT_MultiThread);
+    ASSERT(cmm.Type() == CTradeModelManager::RT_Subscribe);
 #endif
 
     if (m_init && h)
     {
-        auto it = m_modelView.find(h);
+        auto it = m_modelView.find(h->Id());
 
         if (it != m_modelView.end())
         {
@@ -141,17 +199,18 @@ void CTradeControl::RefreshViewsInfo(TradeModelHandle h) const
 
 void CTradeControl::Update()
 {
-#ifdef DEBUG
     CTradeModelManager &cmm = CTradeModelManager::Instance();
-    ASSERT(cmm.Type() == CTradeModelManager::RT_Immediate);
-#endif
 
     if (m_init)
     {
+        CLock locker(m_mvMutex); // P ---> Watch/ViewClose
+
         for (auto & i : m_modelView)
         {
-            cmm.RequestModel(i.first, true);
-            this->RefreshViewsInfo(i.first, i.second);
+            if (cmm.RequestModel(i.first, true))
+            {
+                // TODO : sendmessage to each view
+            }
         }
     }
 }
@@ -191,14 +250,14 @@ void CTradeControl::RefreshViewsLeft(UINT left) const
     }
 }
 
-TradeModelHandle CTradeControl::IsTradeAvailable(TradeViewHandle v, CString const& quant, bool showErr) const
+UINT CTradeControl::IsTradeAvailable(TradeViewHandle v, CString const& quant, bool showErr) const
 {
     if (!theApp.AppData().LocateData().IsReady())
     {
         if (showErr)
             AfxMessageBox(IDS_TRADE_NO_LOC_ERR);
 
-        return nullptr;
+        return ST_MODEL_INVALID_ID;
     }
 
     auto it = m_viewModel.find(v);
@@ -207,7 +266,7 @@ TradeModelHandle CTradeControl::IsTradeAvailable(TradeViewHandle v, CString cons
         if (showErr)
             AfxMessageBox(IDS_TRADE_NO_WATCH_ERR);
 
-        return nullptr;
+        return ST_MODEL_INVALID_ID;
     }
 
     if (quant.IsEmpty())
@@ -215,7 +274,7 @@ TradeModelHandle CTradeControl::IsTradeAvailable(TradeViewHandle v, CString cons
         if (showErr)
             AfxMessageBox(IDS_TRADE_NO_QUANT_ERR);
 
-        return nullptr;
+        return ST_MODEL_INVALID_ID;
     }
 
     UINT left = this->Left();
@@ -224,7 +283,7 @@ TradeModelHandle CTradeControl::IsTradeAvailable(TradeViewHandle v, CString cons
         if (showErr)
             AfxMessageBox(IDS_TRADE_OVER_QUOTA_ERR);
 
-        return nullptr;
+        return ST_MODEL_INVALID_ID;
     }
 
     UINT q = (UINT)_ttoi(quant);
@@ -234,7 +293,7 @@ TradeModelHandle CTradeControl::IsTradeAvailable(TradeViewHandle v, CString cons
         if (showErr)
             AfxMessageBox(IDS_TRADE_OVER_QUOTA_ERR);
 
-        return nullptr;
+        return ST_MODEL_INVALID_ID;
     }
 
     return it->second;
@@ -279,17 +338,18 @@ int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
     CString quant;
     h->GetQuant(quant);
 
-    TradeModelHandle m = this->IsTradeAvailable(h, quant, true);
-    if (!m)
+    UINT m = this->IsTradeAvailable(h, quant, true);
+    if (m == ST_MODEL_INVALID_ID)
         return -1;
 
     CWaitCursor waiting;
 
-    CString code(m->Code().c_str());
+    TradeModelHandle hM = CTradeModelManager::Instance().ModelHandle(m);
+
+    CString code(hM->Code().c_str());
     
-    auto pInfo = m->NumInfo(SIF_Price);
     CString price;
-    price.Format(_T("%.3f"), (*pInfo)[info]);
+    h->GetPrice(info, price);
 
     CTradeOrderManager &tom = CTradeOrderManager::Instance();
     int res = tom.Trade(op, code, price, quant);
@@ -343,7 +403,7 @@ int CTradeControl::Trade(TradeViewHandle h, StockInfoType info, StockTradeOp op)
     return res;
 }
 
-bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
+bool CTradeControl::Watch(TradeViewHandle v, UINT m)
 {
     CTradeModelManager &cmm = CTradeModelManager::Instance();
 
@@ -353,7 +413,7 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
     {
         if (ivm->second != m)
         {
-            TradeModelHandle rm = ivm->second;
+            UINT rm = ivm->second;
 
             auto irm = m_modelView.find(rm);
             if (irm != m_modelView.end())
@@ -366,10 +426,10 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
 
                     if (rvls.empty())
                     {
-                        //irm->second = nullptr;
                         cmm.FreeModel(rm);
 
-                        //m_modelView.erase(irm);
+                        CLock locker(m_mvMutex);
+                        m_modelView.erase(irm);
                     }
                 }
             }
@@ -385,28 +445,22 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
     auto imv = m_modelView.find(m);
     if (imv == m_modelView.end())
     {
+        CLock locker(m_mvMutex); // U ---> Update
+
         ViewListPtr vls(new ViewList);
         vls->push_back(v);
 
         m_modelView[m] = vls;
 
-        if (cmm.RequestModel(m))
-        {
-            if (cmm.Type() == CTradeModelManager::RT_Immediate)
-                return true;
-        }
+        cmm.RequestModel(m);
+
+        if (cmm.Type() == CTradeModelManager::RT_Poll)
+            return true;
 
         return false;
     }
     else
     {
-        if (imv->second->empty())
-        {
-            cmm.RequestModel(m);
-            if (cmm.Type() == CTradeModelManager::RT_MultiThread)
-                return false;
-        }
-
         imv->second->push_back(v);
     }
 
@@ -415,20 +469,32 @@ bool CTradeControl::Watch(TradeViewHandle v, TradeModelHandle m)
 
 void CTradeControl::RefreshViewsInfo(TradeModelHandle h, ViewListPtr vls) const
 {
+    InfoNumArray price, quant;
+
+    ModelInfoData info = { &price, &quant };
+
     for (auto & i : (*vls))
     {
         i->SetName(h->Name().c_str());
-        i->SetInfo(SIF_Price, h->NumInfo(SIF_Price));
-        i->SetInfo(SIF_Quant, h->NumInfo(SIF_Quant));
+        h->NumInfo(info);
+        i->SetInfo(SIF_Price, price);
+        i->SetInfo(SIF_Quant, quant);
         i->FlushInfo();
     }
 }
 
-void CTradeControl::RefreshViewInfo(TradeModelHandle m, TradeViewHandle v) const
+void CTradeControl::RefreshViewInfo(UINT m, TradeViewHandle v) const
 {
-    v->SetName(m->Name().c_str());
-    v->SetInfo(SIF_Price, m->NumInfo(SIF_Price));
-    v->SetInfo(SIF_Quant, m->NumInfo(SIF_Quant));
+    TradeModelHandle h = CTradeModelManager::Instance().ModelHandle(m);
+
+    v->SetName(h->Name().c_str());
+
+    InfoNumArray price, quant;
+    ModelInfoData info = { &price, &quant };
+    h->NumInfo(info);
+    v->SetInfo(SIF_Price, price);
+    v->SetInfo(SIF_Quant, quant);
+
     v->FlushInfo();
 }
 
@@ -436,8 +502,3 @@ void CTradeControl::RefreshViewLeft(TradeViewHandle h, CString const & left) con
 {
     h->SetLeft(left);
 }
-
-//InfoNumArrayPtr CTradeControl::RequestInfo(TradeViewHandle h, CandidatesList * c)
-//{
-//    return InfoNumArrayPtr();
-//}

@@ -5,9 +5,9 @@
 #pragma once
 #endif
 
-#define ST_SAFE_DELETE(p)           if(p) { delete (p); (p) = NULL;}
-#define ST_SAFE_DELETE_ARRAY(p)     if(p) { delete [] (p); (p) = NULL; }
-#define ST_SAFE_RELEASE(p)          if(p) {  (p)->release(); (p) = NULL;}
+#define ST_SAFE_DELETE(p)           if(p) { delete (p); (p) = nullptr;}
+#define ST_SAFE_DELETE_ARRAY(p)     if(p) { delete [] (p); (p) = nullptr; }
+#define ST_SAFE_RELEASE(p)          if(p) {  (p)->release(); (p) = nullptr;}
 
 #define ST_ARRAY_SIZE(x)            (sizeof((x)) / sizeof((x)[0]))
 

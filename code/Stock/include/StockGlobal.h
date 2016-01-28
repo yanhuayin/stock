@@ -17,6 +17,7 @@
 
 #define ST_LOCATE_WND_MSG       (WM_APP + 1)
 #define ST_LOAD_MSG             (WM_APP + 2)
+#define ST_MODEL_UPDATE_MSG     (WM_APP + 3)
 
 #define ST_LOAD_ST_CONFIG       1
 #define ST_INIT_DATABASE        2

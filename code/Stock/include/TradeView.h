@@ -32,7 +32,7 @@ public:
 
 public:
     void    SetName(CString const& name);
-    void    SetInfo(StockInfoField field, InfoNumArrayPtr info);
+    void    SetInfo(StockInfoField field, InfoNumArray const& info);
     void    SetQuota(CString const& quota);
     void    SetLeft(CString const& left);
     void    ViewOrder(int order, ViewOrderData const& data);
@@ -41,7 +41,7 @@ public:
     void    Flush() { m_tradeWnd.UpdateData(FALSE); }
     //void    GetCode(CString &outCode) const;
     void    GetQuant(CString &outQuant) const;
-    //void    GetPrice(StockInfoType info, CString &outPrice) const;
+    void    GetPrice(StockInfoType info, CString &outPrice) const;
 
 public:
     void    OnOK();

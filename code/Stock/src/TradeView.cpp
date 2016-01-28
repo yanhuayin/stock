@@ -75,7 +75,7 @@ void CTradeView::SetName(CString const & name)
     m_tradeWnd._name.SetWindowText(name);
 }
 
-void CTradeView::SetInfo(StockInfoField field, InfoNumArrayPtr info)
+void CTradeView::SetInfo(StockInfoField field, InfoNumArray const& info)
 {
     CTradeWnd::StockInfoCol col;
     switch (field)
@@ -90,15 +90,13 @@ void CTradeView::SetInfo(StockInfoField field, InfoNumArrayPtr info)
         return;
     }
 
-    InfoNumArray &arr = *info;
-
     for (std::size_t i = 0; i < SIT_Num; ++i)
     {
         CBCGPGridRow *pRow = m_tradeWnd._info.GetRow(i);
         if (pRow)
         {
             CString val;
-            val.Format(_T("%f"), arr[i]);
+            val.Format(_T("%f"), info[i]);
             pRow->GetItem(col)->SetValue(val.GetString());
         }
     }
@@ -140,10 +138,10 @@ void CTradeView::GetQuant(CString & outQuant) const
     m_tradeWnd._quantity.GetWindowText(outQuant);
 }
 
-//void CTradeView::GetPrice(StockInfoType info, CString & outPrice) const
-//{
-//    m_tradeWnd.GetPrice(info, outPrice);
-//}
+void CTradeView::GetPrice(StockInfoType info, CString & outPrice) const
+{
+    m_tradeWnd.GetPrice(info, outPrice);
+}
 
 void CTradeView::OnOK()
 {

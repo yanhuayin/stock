@@ -137,6 +137,8 @@ bool CTradeModelManager::Init(RequestType type)
         this->Shutdown();
     }
 
+    m_list.reserve(codesLen);
+
     for (INT i = 0; i < codesLen; ++i)
     {
         TradeModelHandle h(new CTradeModel());
@@ -156,6 +158,9 @@ bool CTradeModelManager::Init(RequestType type)
         h->m_windCodeSuffix = str.Tokenize(ST_WIND_CODE_DELIMITER, pos);
 
         m_models[h->m_windCodeNum] = h;
+
+        h->m_id = i + 1;
+        m_list.push_back(h);
     }
 
     m_type = type;
@@ -177,12 +182,13 @@ bool CTradeModelManager::Shutdown()
 {
     if (m_init)
     {
-        if (m_type == RT_MultiThread)
+        if (m_type == RT_Subscribe)
             CWAPIWrapperCpp::cancelAllRequest();
 
         m_init = false;
     }
 
+    // TODO : this will cause crash
     //LONG errCode = CWAPIWrapperCpp::stop();
     //if (errCode != 0)
     //{
@@ -193,35 +199,38 @@ bool CTradeModelManager::Shutdown()
     return true;
 }
 
-void CTradeModelManager::FreeModel(TradeModelHandle h)
+void CTradeModelManager::FreeModel(UINT id)
 {
+    TradeModelHandle h = this->ModelHandle(id);
+
     if (m_init && h)
     {
-        if (m_type == RT_MultiThread && h->m_reqId)
+        if (m_type == RT_Poll)
         {
-            // TODO : multi thread safety
+            ULONGLONG req = ST_REQ_ID_IMM;
+            h->m_reqId.compare_exchange_weak(req, 0);
+        }
+        else if (m_type == RT_Subscribe && h->m_reqId)
+        {
             CWAPIWrapperCpp::cancelRequest(h->m_reqId);
 
             m_reqs.erase(h->m_reqId);
             h->m_reqId = 0;
         }
-        else if (m_type == RT_Immediate && h->m_reqId == ST_REQ_ID_IMM)
-        {
-            h->m_reqId = 0;
-        }
 
-        //h->m_price = nullptr;
-        //h->m_quant = nullptr;
     }
 }
 
-bool CTradeModelManager::RequestModel(TradeModelHandle h, bool force)
+bool CTradeModelManager::RequestModel(UINT id, bool update)
 {
+    TradeModelHandle h = this->ModelHandle(id);
+
     if (m_init && h)
     {
-        if (m_type == RT_Immediate)
+        if (m_type == RT_Poll)
         {
-            if (force || h->m_reqId != ST_REQ_ID_IMM)
+            ULONGLONG req = ST_REQ_ID_IMM;
+            if ((update && h->m_reqId.compare_exchange_weak(req, req)) || !h->m_reqId.compare_exchange_weak(req, req))
             {
                 WindData wd;
                 LONG errCode = CWAPIWrapperCpp::wsq(wd, h->m_windCode.c_str(), ST_REQ_FIELD, nullptr);
@@ -232,8 +241,7 @@ bool CTradeModelManager::RequestModel(TradeModelHandle h, bool force)
                     return false;
                 }
 
-                h->m_reqId = ST_REQ_ID_IMM;
-                this->UpdateModel(h, wd); // immediate request will update model at once
+                return this->UpdateModel(h, wd);
 
                 // =================== TEST ===============================
                 //if (!h->m_price)
@@ -256,17 +264,16 @@ bool CTradeModelManager::RequestModel(TradeModelHandle h, bool force)
                 //    qa[i] = 100.0;
                 //}
                 // =================== TEST ===============================
-
-                return true;
             }
 
-            return true; // requested already
+            return false;
         }
         else
         {
             if (h->m_reqId == 0)
             {
-                LONG errCode = CWAPIWrapperCpp::wsq(h->m_reqId, h->m_windCode.c_str(), ST_REQ_FIELD, s_req_callback, nullptr, TRUE);
+                ULONGLONG id;
+                LONG errCode = CWAPIWrapperCpp::wsq(id, h->m_windCode.c_str(), ST_REQ_FIELD, s_req_callback, nullptr, TRUE);
 
                 if (errCode != 0)
                 {
@@ -275,12 +282,9 @@ bool CTradeModelManager::RequestModel(TradeModelHandle h, bool force)
                     return false;
                 }
 
-                m_reqs[h->m_reqId] = h;
-
-                return true;
+                h->m_reqId = id;
+                m_reqs[id] = h;
             }
-
-            return true; // requested already
         }
     }
 
@@ -289,7 +293,7 @@ bool CTradeModelManager::RequestModel(TradeModelHandle h, bool force)
 
 void CTradeModelManager::UpdateModel(ULONGLONG reqId, WindData const & wd)
 {
-    ASSERT(m_type == RT_MultiThread);
+    ASSERT(m_type == RT_Subscribe);
     // TODO : multi thread safty
     if (m_init)
     {
@@ -310,55 +314,39 @@ void CTradeModelManager::UpdateModel(ULONGLONG reqId, WindData const & wd)
     }
 }
 
-TradeModelHandle CTradeModelManager::FindModel(String const & code, CandidatesList * c)
+UINT CTradeModelManager::FindModel(String const & code, CandidatesList * c)
 {
     if (m_init)
     {
         size_t len = code.length();
         if (len == ST_CODE_NUM_LEN)
         {
-            //CString fullCode;
-            //fullCode.Format(_T("%s.%s"), code.c_str(), s_code_suffix(code));
-
-            //String _tmpCode = fullCode.GetString();
-
             auto it = m_models.find(code);
             if (it != m_models.end())
             {
-                return it->second;
+                return it->second->m_id;
             }
 
-            return nullptr;
+            return ST_MODEL_INVALID_ID;
         }
         else if (len < ST_CODE_NUM_LEN)
         {
             // TODO :
-            return nullptr;
+            return ST_MODEL_INVALID_ID;
         }
     }
 
-    return nullptr;
+    return ST_MODEL_INVALID_ID;
 }
 
-void CTradeModelManager::UpdateModel(TradeModelHandle h, WindData const & wd)
+bool CTradeModelManager::UpdateModel(TradeModelHandle h, WindData const & wd)
 {
-    // TODO : multithread should support not update all
+    bool dirty = false;
+
     INT fields = wd.GetFieldsLength();
-    if (fields == SIF_Num * SIT_Num) // 40 fields now
+    if (fields == SIF_Num * SIT_Num)
     {
-        if (!h->m_price)
-        {
-            h->m_price = InfoNumArrayPtr(new InfoNumArray());
-        }
-
-        InfoNumArray &pa = *(h->m_price);
-
-        if (!h->m_quant)
-        {
-            h->m_quant = InfoNumArrayPtr(new InfoNumArray());
-        }
-
-        InfoNumArray &qa = *(h->m_quant);
+        CLock locker(h->m_m);
 
         for (int i = 0; i < SIF_Num; ++i)
         {
@@ -382,28 +370,53 @@ void CTradeModelManager::UpdateModel(TradeModelHandle h, WindData const & wd)
 
                 if (i == SIF_Price)
                 {
-                    pa[j] = val;
+                    if (h->m_price[j] != val)
+                    {
+                        h->m_price[j] = val;
+                        dirty = true;
+                    }
                 }
                 else
                 {
-                    qa[j] = val;
+                    if (h->m_quant[j] != val)
+                    {
+                        h->m_quant[j] = val;
+                        dirty = true;
+                    }
                 }
             }
         }
     }
+
+    return dirty;
 }
 
-InfoNumArrayPtr CTradeModel::NumInfo(StockInfoField field)
+void CTradeModel::NumInfo(StockInfoField field, InfoNumArray & info)
 {
-    switch (field)
+    CLock locker(m_m);
+
+    if (field == SIF_Price)
     {
-    case SIF_Price:
-        return m_price;
-    case SIF_Quant:
-        return m_quant;
-    default:
-        break;
+        info = m_price;
+    }
+    else
+    {
+        info = m_quant;
+    }
+}
+
+void CTradeModel::NumInfo(ModelInfoData & d)
+{
+    CLock locker(m_m);
+
+    if (d.price)
+    {
+        *(d.price) = m_price;
     }
 
-    return nullptr;
+    if (d.quant)
+    {
+        *(d.quant) = m_quant;
+    }
+
 }

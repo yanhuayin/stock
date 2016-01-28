@@ -131,7 +131,7 @@ enum StockOrderResult
 };
 
 typedef std::array<double, SIT_Num>     InfoNumArray;
-typedef std::shared_ptr<InfoNumArray>   InfoNumArrayPtr;
+//typedef std::shared_ptr<InfoNumArray>   InfoNumArrayPtr;
 
 //namespace std
 //{
