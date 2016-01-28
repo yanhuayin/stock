@@ -117,7 +117,7 @@ void CTradeControl::ViewClosed(TradeViewHandle h)
                     {
                         CTradeModelManager::Instance().FreeModel(hM);
 
-                        CLock locker(m_mvMutex); // U ----> Update
+                        Lock locker(m_mvMutex); // U ----> Update
                         m_modelView.erase(itM);
                     }
                 }
@@ -197,19 +197,33 @@ void CTradeControl::RefreshViewsInfo(TradeModelHandle h) const
     }
 }
 
+void CTradeControl::RefreshViewsInfo(UINT m)
+{
+    auto it = m_modelView.find(m);
+    if (it != m_modelView.end())
+    {
+        TradeModelHandle h = CTradeModelManager::Instance().ModelHandle(m);
+
+        if (h)
+        {
+            this->RefreshViewsInfo(h, it->second);
+        }
+    }
+}
+
 void CTradeControl::Update()
 {
     CTradeModelManager &cmm = CTradeModelManager::Instance();
 
     if (m_init)
     {
-        CLock locker(m_mvMutex); // P ---> Watch/ViewClose
+        Lock locker(m_mvMutex); // P ---> Watch/ViewClose
 
         for (auto & i : m_modelView)
         {
             if (cmm.RequestModel(i.first, true))
             {
-                // TODO : sendmessage to each view
+                m_mainWnd->PostMessage(ST_MODEL_UPDATE_MSG, (WPARAM)(i.first), 0);
             }
         }
     }
@@ -428,7 +442,7 @@ bool CTradeControl::Watch(TradeViewHandle v, UINT m)
                     {
                         cmm.FreeModel(rm);
 
-                        CLock locker(m_mvMutex);
+                        Lock locker(m_mvMutex);
                         m_modelView.erase(irm);
                     }
                 }
@@ -445,7 +459,7 @@ bool CTradeControl::Watch(TradeViewHandle v, UINT m)
     auto imv = m_modelView.find(m);
     if (imv == m_modelView.end())
     {
-        CLock locker(m_mvMutex); // U ---> Update
+        Lock locker(m_mvMutex); // U ---> Update
 
         ViewListPtr vls(new ViewList);
         vls->push_back(v);
@@ -487,15 +501,19 @@ void CTradeControl::RefreshViewInfo(UINT m, TradeViewHandle v) const
 {
     TradeModelHandle h = CTradeModelManager::Instance().ModelHandle(m);
 
-    v->SetName(h->Name().c_str());
+    if (h)
+    {
+        v->SetName(h->Name().c_str());
 
-    InfoNumArray price, quant;
-    ModelInfoData info = { &price, &quant };
-    h->NumInfo(info);
-    v->SetInfo(SIF_Price, price);
-    v->SetInfo(SIF_Quant, quant);
+        InfoNumArray price, quant;
+        ModelInfoData info = { &price, &quant };
+        h->NumInfo(info);
+        v->SetInfo(SIF_Price, price);
+        v->SetInfo(SIF_Quant, quant);
 
-    v->FlushInfo();
+        v->FlushInfo();
+    }
+
 }
 
 void CTradeControl::RefreshViewLeft(TradeViewHandle h, CString const & left) const

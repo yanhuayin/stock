@@ -346,7 +346,7 @@ bool CTradeModelManager::UpdateModel(TradeModelHandle h, WindData const & wd)
     INT fields = wd.GetFieldsLength();
     if (fields == SIF_Num * SIT_Num)
     {
-        CLock locker(h->m_m);
+        Lock locker(h->m_m);
 
         for (int i = 0; i < SIF_Num; ++i)
         {
@@ -393,7 +393,7 @@ bool CTradeModelManager::UpdateModel(TradeModelHandle h, WindData const & wd)
 
 void CTradeModel::NumInfo(StockInfoField field, InfoNumArray & info)
 {
-    CLock locker(m_m);
+    Lock locker(m_m);
 
     if (field == SIF_Price)
     {
@@ -407,7 +407,7 @@ void CTradeModel::NumInfo(StockInfoField field, InfoNumArray & info)
 
 void CTradeModel::NumInfo(ModelInfoData & d)
 {
-    CLock locker(m_m);
+    Lock locker(m_m);
 
     if (d.price)
     {

@@ -7,18 +7,11 @@
 
 #include <array>
 #include <unordered_map>
-#include <mutex>
-#include <atomic>
 #include "wind\WAPIWrapperCpp.h"
 #include "StockConfig.h"
 #include "Utils.h"
 
 #define ST_MODEL_INVALID_ID         0
-
-typedef std::mutex                  CMutex;
-typedef std::unique_lock<CMutex>    CLock;
-
-typedef std::atomic_ullong          IdType;
 
 struct ModelInfoData
 {
@@ -55,7 +48,7 @@ private:
 
     UINT            m_id;
 
-    CMutex          m_m;
+    Mutex           m_m;
 };
 
 

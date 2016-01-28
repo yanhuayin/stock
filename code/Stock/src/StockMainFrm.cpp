@@ -272,7 +272,9 @@ LRESULT CStockMainFrame::OnViewClose(WPARAM wParam, LPARAM lParam)
 
 LRESULT CStockMainFrame::OnModelUpdated(WPARAM wParam, LPARAM lParam)
 {
-    
+    CTradeControl::Instance().RefreshViewsInfo((UINT)wParam);
+
+    return 0;
 }
 
 void CStockMainFrame::RemoveView(TradeViewHandle h)

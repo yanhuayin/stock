@@ -7,6 +7,8 @@
 
 #include <memory>
 #include <string>
+#include <mutex>
+#include <atomic>
 
 #include "rapidjson\document.h"
 #include "rapidjson\stringbuffer.h"
@@ -37,6 +39,11 @@ typedef rapidjson::StringStream                     RapidStringStream; // for in
 typedef rapidjson::EncodedInputStream<RapidUTF8, RapidStringStream>         RapidEncodeInputStream;
 typedef rapidjson::EncodedOutputStream<RapidUTF8, RapidStringBuffer>        RapidEncodeOutputStream;
 typedef rapidjson::Writer<RapidEncodeOutputStream, RapidUTF16, RapidUTF8>   RapidWriter;
+
+typedef std::mutex                  Mutex;
+typedef std::unique_lock<Mutex>     Lock;
+
+typedef std::atomic_ullong          IdType;
 
 enum LocateType
 {

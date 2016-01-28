@@ -66,7 +66,7 @@ private:
     void    RefreshViewInfo(UINT m, TradeViewHandle v) const;
     void    RefreshViewLeft(TradeViewHandle h, CString const& left) const;
 
-    CMutex              m_mvMutex;
+    Mutex               m_mvMutex;
 
     ModelViewMap        m_modelView;
     ViewModelMap        m_viewModel;
