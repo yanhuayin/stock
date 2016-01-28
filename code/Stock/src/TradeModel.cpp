@@ -230,7 +230,9 @@ bool CTradeModelManager::RequestModel(UINT id, bool update)
         if (m_type == RT_Poll)
         {
             ULONGLONG req = ST_REQ_ID_IMM;
-            if ((update && h->m_reqId.compare_exchange_weak(req, req)) || !h->m_reqId.compare_exchange_weak(req, req))
+            if (!update)
+                req = 0;
+            if ((update && h->m_reqId.compare_exchange_weak(req, req)) || h->m_reqId.compare_exchange_weak(req, ST_REQ_ID_IMM))
             {
                 WindData wd;
                 LONG errCode = CWAPIWrapperCpp::wsq(wd, h->m_windCode.c_str(), ST_REQ_FIELD, nullptr);
@@ -339,8 +341,18 @@ UINT CTradeModelManager::FindModel(String const & code, CandidatesList * c)
     return ST_MODEL_INVALID_ID;
 }
 
+// =================== TEST ===============================
+//#include <random>
+//#include <ctime>
+// =================== TEST ===============================
+
 bool CTradeModelManager::UpdateModel(TradeModelHandle h, WindData const & wd)
 {
+    // =================== TEST ===============================
+    //std::default_random_engine gen(std::time(nullptr));
+    //std::uniform_int_distribution<int> dis(0, 100);
+    //auto dice = std::bind(dis, gen);
+    // =================== TEST ===============================
     bool dirty = false;
 
     INT fields = wd.GetFieldsLength();
@@ -370,6 +382,16 @@ bool CTradeModelManager::UpdateModel(TradeModelHandle h, WindData const & wd)
 
                 if (i == SIF_Price)
                 {
+                    // =================== TEST ===============================
+                    //int r = dice();
+                    //if (r % 2 == 0)
+                    //{
+                    //    double old = val;
+                    //    val += ((double)r / 100);
+                    //    TRACE3("Update %s value from %f to %f\n", h->Name().c_str(), old, val);
+                    //}
+                    // =================== TEST ===============================
+
                     if (h->m_price[j] != val)
                     {
                         h->m_price[j] = val;
