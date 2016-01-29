@@ -360,8 +360,12 @@ bool WinApi::NotifyTreeParent(HandlePtr process, HWND tree, UINT message)
     if (!::WriteProcessMemory(process.get(), pRemote.get(), &remote, sizeof(TreeRemoteData), nullptr))
         return false;
 
+#ifdef DEBUG
     const SIZE_T codeSize = ((LPBYTE)s_after_thread_fuc - (LPBYTE)s_thread_fuc);
     ASSERT(codeSize == 48);
+#else
+    const SIZE_T codeSize = 34;
+#endif // DEBUG
 
     VirtualPtr pThread = MakeVirtualPtr(::VirtualAllocEx(process.get(), nullptr, codeSize, MEM_COMMIT, PAGE_READWRITE));
     if (!pThread)
