@@ -170,7 +170,9 @@ bool CTradeModelManager::Init(RequestType type)
     //h->m_windCode = _T("000628.SZ");
     //h->m_windCodeNum = _T("000628");
     //h->m_windCodeSuffix = _T("SZ");
+    //h->m_id = 1;
     //m_models[h->m_windCodeNum] = h;
+    //m_list.push_back(h);
     // =================== TEST ===============================
 
     m_init = true;
@@ -246,20 +248,6 @@ bool CTradeModelManager::RequestModel(UINT id, bool update)
                 return this->UpdateModel(h, wd);
 
                 // =================== TEST ===============================
-                //if (!h->m_price)
-                //{
-                //    h->m_price = InfoNumArrayPtr(new InfoNumArray());
-                //}
-
-                //InfoNumArray &pa = *(h->m_price);
-
-                //if (!h->m_quant)
-                //{
-                //    h->m_quant = InfoNumArrayPtr(new InfoNumArray());
-                //}
-
-                //InfoNumArray &qa = *(h->m_quant);
-
                 //for (int i = 0; i < SIT_Num; ++i)
                 //{
                 //    pa[i] = 11.9 + i * 0.001;
